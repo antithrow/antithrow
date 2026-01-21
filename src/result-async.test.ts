@@ -30,9 +30,7 @@ describe("ResultAsync", () => {
 
 		test("throws for Err", async () => {
 			const result = errAsync("error");
-			expect(result.unwrap()).rejects.toThrow(
-				"Called unwrap on an Err value: error",
-			);
+			expect(result.unwrap()).rejects.toThrow("Called unwrap on an Err value: error");
 		});
 	});
 
@@ -44,9 +42,7 @@ describe("ResultAsync", () => {
 
 		test("throws for Ok", async () => {
 			const result = okAsync(42);
-			expect(result.unwrapErr()).rejects.toThrow(
-				"Called unwrapErr on an Ok value: 42",
-			);
+			expect(result.unwrapErr()).rejects.toThrow("Called unwrapErr on an Ok value: 42");
 		});
 	});
 
@@ -95,9 +91,7 @@ describe("ResultAsync", () => {
 		});
 
 		test("transforms Err value", async () => {
-			const result = errAsync<number, string>("error").mapErr((e) =>
-				e.toUpperCase(),
-			);
+			const result = errAsync<number, string>("error").mapErr((e) => e.toUpperCase());
 			expect(await result.unwrapErr()).toBe("ERROR");
 		});
 	});
@@ -115,16 +109,12 @@ describe("ResultAsync", () => {
 
 		test("can transform to different type", async () => {
 			const result = okAsync(42);
-			expect(await result.mapOr("default", (x) => `value: ${x}`)).toBe(
-				"value: 42",
-			);
+			expect(await result.mapOr("default", (x) => `value: ${x}`)).toBe("value: 42");
 		});
 
 		test("returns default of different type for Err", async () => {
 			const result = errAsync<number, string>("error");
-			expect(await result.mapOr("default", (x) => `value: ${x}`)).toBe(
-				"default",
-			);
+			expect(await result.mapOr("default", (x) => `value: ${x}`)).toBe("default");
 		});
 	});
 
@@ -182,9 +172,7 @@ describe("ResultAsync", () => {
 		});
 
 		test("short-circuits on Err", async () => {
-			const result = errAsync<number, string>("error").andThen((x) =>
-				ok(x * 2),
-			);
+			const result = errAsync<number, string>("error").andThen((x) => ok(x * 2));
 			expect(await result.isErr()).toBe(true);
 			expect(await result.unwrapErr()).toBe("error");
 		});
@@ -213,9 +201,7 @@ describe("ResultAsync", () => {
 		});
 
 		test("can return new Err from recovery", async () => {
-			const result = errAsync<number, string>("error").orElse((e) =>
-				err(e.length),
-			);
+			const result = errAsync<number, string>("error").orElse((e) => err(e.length));
 			expect(await result.unwrapErr()).toBe(5);
 		});
 	});
@@ -360,9 +346,7 @@ describe("ResultAsync", () => {
 		});
 
 		test("can be chained with andThen", async () => {
-			const result = ResultAsync.try(async () => 21).andThen((x) =>
-				okAsync(x * 2),
-			);
+			const result = ResultAsync.try(async () => 21).andThen((x) => okAsync(x * 2));
 			expect(await result.unwrap()).toBe(42);
 		});
 
@@ -429,9 +413,7 @@ describe("ResultAsync", () => {
 
 		test("unwrapOrElse returns Promise<T>", () => {
 			const result = okAsync<number, string>(42);
-			expectTypeOf(result.unwrapOrElse(() => 0)).toEqualTypeOf<
-				Promise<number>
-			>();
+			expectTypeOf(result.unwrapOrElse(() => 0)).toEqualTypeOf<Promise<number>>();
 		});
 
 		test("map transforms value type", () => {
@@ -481,18 +463,14 @@ describe("ResultAsync", () => {
 
 		test("andThen with ResultAsync transforms types", () => {
 			const result = okAsync<number, "e1">(42);
-			const chained = result.andThen((x) =>
-				okAsync<string, "e2">(x.toString()),
-			);
+			const chained = result.andThen((x) => okAsync<string, "e2">(x.toString()));
 			expectTypeOf(chained).toEqualTypeOf<ResultAsync<string, "e1" | "e2">>();
 		});
 
 		test("andThen can return Err", () => {
 			const result = okAsync(42);
 			const chained = result.andThen(() => err<string, "newErr">("newErr"));
-			expectTypeOf(chained).toEqualTypeOf<
-				ResultAsync<string, never | "newErr">
-			>();
+			expectTypeOf(chained).toEqualTypeOf<ResultAsync<string, never | "newErr">>();
 		});
 
 		test("orElse with Result transforms error type", () => {
@@ -503,9 +481,7 @@ describe("ResultAsync", () => {
 
 		test("orElse with ResultAsync transforms error type", () => {
 			const result = errAsync<number, string>("error");
-			const recovered = result.orElse((e) =>
-				errAsync<number, number>(e.length),
-			);
+			const recovered = result.orElse((e) => errAsync<number, number>(e.length));
 			expectTypeOf(recovered).toEqualTypeOf<ResultAsync<number, number>>();
 		});
 
@@ -551,9 +527,7 @@ describe("ResultAsync", () => {
 				.map((x) => x.toString())
 				.mapErr((e) => `wrapped: ${e}` as const)
 				.andThen((s) => okAsync<number, "parse">(s.length));
-			expectTypeOf(result).toEqualTypeOf<
-				ResultAsync<number, "wrapped: initial" | "parse">
-			>();
+			expectTypeOf(result).toEqualTypeOf<ResultAsync<number, "wrapped: initial" | "parse">>();
 		});
 
 		test("ResultAsync is PromiseLike<Result<T, E>>", () => {
@@ -562,13 +536,8 @@ describe("ResultAsync", () => {
 		});
 
 		test("can use with Promise.all and get Result array", async () => {
-			const results = await Promise.all([
-				okAsync<number, string>(1),
-				okAsync<number, string>(2),
-			]);
-			expectTypeOf(results).toEqualTypeOf<
-				[Result<number, string>, Result<number, string>]
-			>();
+			const results = await Promise.all([okAsync<number, string>(1), okAsync<number, string>(2)]);
+			expectTypeOf(results).toEqualTypeOf<[Result<number, string>, Result<number, string>]>();
 		});
 	});
 });

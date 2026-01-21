@@ -29,9 +29,7 @@ describe("Result", () => {
 
 		test("throws for Err", () => {
 			const result = err("error");
-			expect(() => result.unwrap()).toThrow(
-				"Called unwrap on an Err value: error",
-			);
+			expect(() => result.unwrap()).toThrow("Called unwrap on an Err value: error");
 		});
 	});
 
@@ -43,9 +41,7 @@ describe("Result", () => {
 
 		test("throws for Ok", () => {
 			const result = ok(42);
-			expect(() => result.unwrapErr()).toThrow(
-				"Called unwrapErr on an Ok value: 42",
-			);
+			expect(() => result.unwrapErr()).toThrow("Called unwrapErr on an Ok value: 42");
 		});
 	});
 
@@ -517,9 +513,7 @@ describe("Result", () => {
 				.map((x) => x.toString())
 				.mapErr((e) => `wrapped: ${e}` as const)
 				.andThen((s) => ok<number, "parse">(s.length));
-			expectTypeOf(result).toEqualTypeOf<
-				Result<number, "wrapped: initial" | "parse">
-			>();
+			expectTypeOf(result).toEqualTypeOf<Result<number, "wrapped: initial" | "parse">>();
 		});
 
 		test("Ok.value is T", () => {

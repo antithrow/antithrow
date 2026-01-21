@@ -155,9 +155,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The result of the function call, or the original `Err`.
 	 */
-	andThen<U, F>(
-		fn: (value: T) => Result<U, F> | ResultAsync<U, F>,
-	): ResultAsync<U, E | F>;
+	andThen<U, F>(fn: (value: T) => Result<U, F> | ResultAsync<U, F>): ResultAsync<U, E | F>;
 	/**
 	 * Calls the provided function with the `Err` value and returns its result, or propagates the `Ok`.
 	 *
@@ -172,9 +170,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The result of the function call, or the original `Ok`.
 	 */
-	orElse<F>(
-		fn: (error: E) => Result<T, F> | ResultAsync<T, F>,
-	): ResultAsync<T, F>;
+	orElse<F>(fn: (error: E) => Result<T, F> | ResultAsync<T, F>): ResultAsync<T, F>;
 
 	/**
 	 * Pattern matches on the result, calling the appropriate handler and returning its value.
@@ -223,9 +219,7 @@ interface ResultAsyncMethods<T, E> {
 	inspectErr(fn: (error: E) => void): ResultAsync<T, E>;
 }
 
-export class ResultAsync<T, E>
-	implements PromiseLike<Result<T, E>>, ResultAsyncMethods<T, E>
-{
+export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsyncMethods<T, E> {
 	private readonly promise: Promise<Result<T, E>>;
 
 	constructor(promise: Promise<Result<T, E>>) {
@@ -259,9 +253,7 @@ export class ResultAsync<T, E>
 
 	// biome-ignore lint/suspicious/noThenProperty: We are implementing `PromiseLike`.
 	then<TResult1 = Result<T, E>, TResult2 = never>(
-		onfulfilled?:
-			| ((value: Result<T, E>) => TResult1 | PromiseLike<TResult1>)
-			| null,
+		onfulfilled?: ((value: Result<T, E>) => TResult1 | PromiseLike<TResult1>) | null,
 		onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
 	): Promise<TResult1 | TResult2> {
 		return this.promise.then(onfulfilled, onrejected);
@@ -303,16 +295,11 @@ export class ResultAsync<T, E>
 		return (await this.promise).mapOr(defaultValue, fn);
 	}
 
-	async mapOrElse<U>(
-		defaultFn: (error: E) => U,
-		fn: (value: T) => U,
-	): Promise<U> {
+	async mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => U): Promise<U> {
 		return (await this.promise).mapOrElse(defaultFn, fn);
 	}
 
-	andThen<U, F>(
-		fn: (value: T) => Result<U, F> | ResultAsync<U, F>,
-	): ResultAsync<U, E | F> {
+	andThen<U, F>(fn: (value: T) => Result<U, F> | ResultAsync<U, F>): ResultAsync<U, E | F> {
 		return new ResultAsync(
 			this.promise.then(async (result) => {
 				if (result.isErr()) {
@@ -324,9 +311,7 @@ export class ResultAsync<T, E>
 		);
 	}
 
-	orElse<F>(
-		fn: (error: E) => Result<T, F> | ResultAsync<T, F>,
-	): ResultAsync<T, F> {
+	orElse<F>(fn: (error: E) => Result<T, F> | ResultAsync<T, F>): ResultAsync<T, F> {
 		return new ResultAsync(
 			this.promise.then(async (result) => {
 				if (result.isOk()) {
@@ -338,10 +323,7 @@ export class ResultAsync<T, E>
 		);
 	}
 
-	async match<U>(handlers: {
-		ok: (value: T) => U;
-		err: (error: E) => U;
-	}): Promise<U> {
+	async match<U>(handlers: { ok: (value: T) => U; err: (error: E) => U }): Promise<U> {
 		return (await this.promise).match(handlers);
 	}
 
@@ -350,9 +332,7 @@ export class ResultAsync<T, E>
 	}
 
 	inspectErr(fn: (error: E) => void): ResultAsync<T, E> {
-		return new ResultAsync(
-			this.promise.then((result) => result.inspectErr(fn)),
-		);
+		return new ResultAsync(this.promise.then((result) => result.inspectErr(fn)));
 	}
 
 	async *[Symbol.asyncIterator](): AsyncGenerator<Err<never, E>, T> {
