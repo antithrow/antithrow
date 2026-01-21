@@ -1,0 +1,17 @@
+pre-push:
+  parallel: true
+  jobs:
+    - name: packages audit
+      run: bun audit --audit-level high
+      
+    - name: lint
+      run: bun lint
+
+pre-commit:
+  parallel: true
+  jobs:
+    - run: bunx biome check {staged_files}
+      glob: "*.{js,ts,json,md}"
+    
+    - run: bun test
+      glob: "*.{js,ts,json}"
