@@ -107,6 +107,36 @@ interface ResultMethods<T, E> {
 	 * @returns The result of the transformation.
 	 */
 	mapErr<F>(fn: (error: E) => F): Result<T, F>;
+	/**
+	 * Transforms the `Ok` value using the provided function, or returns the default value if `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(2).mapOr(0, (x) => x * 2); // 4
+	 * err("oops").mapOr(0, (x) => x * 2); // 0
+	 * ```
+	 *
+	 * @param defaultValue - The value to return if the result is `Err`.
+	 * @param fn - The function to transform the `Ok` value.
+	 *
+	 * @returns The transformed value, or the default if `Err`.
+	 */
+	mapOr<U>(defaultValue: U, fn: (value: T) => U): U;
+	/**
+	 * Transforms the `Ok` value using the provided function, or computes a default from the error.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(2).mapOrElse((e) => e.length, (x) => x * 2); // 4
+	 * err("oops").mapOrElse((e) => e.length, (x) => x * 2); // 4
+	 * ```
+	 *
+	 * @param defaultFn - The function to compute the default value from the error.
+	 * @param fn - The function to transform the `Ok` value.
+	 *
+	 * @returns The transformed value, or the computed default if `Err`.
+	 */
+	mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => U): U;
 
 	/**
 	 * Calls the provided function with the `Ok` value and returns its result, or propagates the `Err`.
@@ -248,6 +278,14 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 		return new Ok(this.value);
 	}
 
+	mapOr<U>(_defaultValue: U, fn: (value: T) => U): U {
+		return fn(this.value);
+	}
+
+	mapOrElse<U>(_defaultFn: (error: E) => U, fn: (value: T) => U): U {
+		return fn(this.value);
+	}
+
 	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, E | F> {
 		return fn(this.value);
 	}
@@ -330,6 +368,14 @@ export class Err<T, E> implements ResultMethods<T, E> {
 
 	mapErr<F>(fn: (error: E) => F): Result<T, F> {
 		return new Err(fn(this.error));
+	}
+
+	mapOr<U>(defaultValue: U, _fn: (value: T) => U): U {
+		return defaultValue;
+	}
+
+	mapOrElse<U>(defaultFn: (error: E) => U, _fn: (value: T) => U): U {
+		return defaultFn(this.error);
 	}
 
 	andThen<U, F>(_fn: (value: T) => Result<U, F>): Result<U, E | F> {

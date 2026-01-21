@@ -101,6 +101,74 @@ describe("ResultAsync", () => {
 		});
 	});
 
+	describe("mapOr", () => {
+		test("transforms Ok value", async () => {
+			const result = okAsync(2);
+			expect(await result.mapOr(0, (x) => x * 2)).toBe(4);
+		});
+
+		test("returns default for Err", async () => {
+			const result = errAsync<number, string>("error");
+			expect(await result.mapOr(0, (x) => x * 2)).toBe(0);
+		});
+
+		test("can transform to different type", async () => {
+			const result = okAsync(42);
+			expect(await result.mapOr("default", (x) => `value: ${x}`)).toBe(
+				"value: 42",
+			);
+		});
+
+		test("returns default of different type for Err", async () => {
+			const result = errAsync<number, string>("error");
+			expect(await result.mapOr("default", (x) => `value: ${x}`)).toBe(
+				"default",
+			);
+		});
+	});
+
+	describe("mapOrElse", () => {
+		test("transforms Ok value", async () => {
+			const result = okAsync<number, string>(2);
+			expect(
+				await result.mapOrElse(
+					(e) => e.length,
+					(x) => x * 2,
+				),
+			).toBe(4);
+		});
+
+		test("computes default from error for Err", async () => {
+			const result = errAsync<number, string>("error");
+			expect(
+				await result.mapOrElse(
+					(e) => e.length,
+					(x) => x * 2,
+				),
+			).toBe(5);
+		});
+
+		test("can transform to different type", async () => {
+			const result = okAsync<number, string>(42);
+			expect(
+				await result.mapOrElse(
+					(e) => `error: ${e}`,
+					(x) => `value: ${x}`,
+				),
+			).toBe("value: 42");
+		});
+
+		test("computes default of different type for Err", async () => {
+			const result = errAsync<number, string>("oops");
+			expect(
+				await result.mapOrElse(
+					(e) => `error: ${e}`,
+					(x) => `value: ${x}`,
+				),
+			).toBe("error: oops");
+		});
+	});
+
 	describe("andThen", () => {
 		test("chains Ok values with sync Result", async () => {
 			const result = okAsync(42).andThen((x) => ok(x * 2));

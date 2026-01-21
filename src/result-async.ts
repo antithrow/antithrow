@@ -110,6 +110,36 @@ interface ResultAsyncMethods<T, E> {
 	 * @returns The result of the transformation.
 	 */
 	mapErr<F>(fn: (error: E) => F): ResultAsync<T, F>;
+	/**
+	 * Transforms the `Ok` value using the provided function, or returns the default value if `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * await okAsync(2).mapOr(0, (x) => x * 2); // 4
+	 * await errAsync("oops").mapOr(0, (x) => x * 2); // 0
+	 * ```
+	 *
+	 * @param defaultValue - The value to return if the result is `Err`.
+	 * @param fn - The function to transform the `Ok` value.
+	 *
+	 * @returns A promise that resolves to the transformed value, or the default if `Err`.
+	 */
+	mapOr<U>(defaultValue: U, fn: (value: T) => U): Promise<U>;
+	/**
+	 * Transforms the `Ok` value using the provided function, or computes a default from the error.
+	 *
+	 * @example
+	 * ```ts
+	 * await okAsync(2).mapOrElse((e) => e.length, (x) => x * 2); // 4
+	 * await errAsync("oops").mapOrElse((e) => e.length, (x) => x * 2); // 4
+	 * ```
+	 *
+	 * @param defaultFn - The function to compute the default value from the error.
+	 * @param fn - The function to transform the `Ok` value.
+	 *
+	 * @returns A promise that resolves to the transformed value, or the computed default if `Err`.
+	 */
+	mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => U): Promise<U>;
 
 	/**
 	 * Calls the provided function with the `Ok` value and returns its result, or propagates the `Err`.
@@ -267,6 +297,17 @@ export class ResultAsync<T, E>
 
 	mapErr<F>(fn: (error: E) => F): ResultAsync<T, F> {
 		return new ResultAsync(this.promise.then((result) => result.mapErr(fn)));
+	}
+
+	async mapOr<U>(defaultValue: U, fn: (value: T) => U): Promise<U> {
+		return (await this.promise).mapOr(defaultValue, fn);
+	}
+
+	async mapOrElse<U>(
+		defaultFn: (error: E) => U,
+		fn: (value: T) => U,
+	): Promise<U> {
+		return (await this.promise).mapOrElse(defaultFn, fn);
 	}
 
 	andThen<U, F>(

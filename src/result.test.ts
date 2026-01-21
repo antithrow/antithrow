@@ -101,6 +101,70 @@ describe("Result", () => {
 		});
 	});
 
+	describe("mapOr", () => {
+		test("transforms Ok value", () => {
+			const result = ok(2);
+			expect(result.mapOr(0, (x) => x * 2)).toBe(4);
+		});
+
+		test("returns default for Err", () => {
+			const result: Result<number, string> = err("error");
+			expect(result.mapOr(0, (x) => x * 2)).toBe(0);
+		});
+
+		test("can transform to different type", () => {
+			const result = ok(42);
+			expect(result.mapOr("default", (x) => `value: ${x}`)).toBe("value: 42");
+		});
+
+		test("returns default of different type for Err", () => {
+			const result: Result<number, string> = err("error");
+			expect(result.mapOr("default", (x) => `value: ${x}`)).toBe("default");
+		});
+	});
+
+	describe("mapOrElse", () => {
+		test("transforms Ok value", () => {
+			const result = ok<number, string>(2);
+			expect(
+				result.mapOrElse(
+					(e) => e.length,
+					(x) => x * 2,
+				),
+			).toBe(4);
+		});
+
+		test("computes default from error for Err", () => {
+			const result: Result<number, string> = err("error");
+			expect(
+				result.mapOrElse(
+					(e) => e.length,
+					(x) => x * 2,
+				),
+			).toBe(5);
+		});
+
+		test("can transform to different type", () => {
+			const result = ok(42);
+			expect(
+				result.mapOrElse(
+					(e) => `error: ${e}`,
+					(x) => `value: ${x}`,
+				),
+			).toBe("value: 42");
+		});
+
+		test("computes default of different type for Err", () => {
+			const result: Result<number, string> = err("oops");
+			expect(
+				result.mapOrElse(
+					(e) => `error: ${e}`,
+					(x) => `value: ${x}`,
+				),
+			).toBe("error: oops");
+		});
+	});
+
 	describe("andThen", () => {
 		test("chains Ok values", () => {
 			const result = ok(42).andThen((x) => ok(x * 2));
