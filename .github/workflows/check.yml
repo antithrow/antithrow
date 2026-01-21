@@ -38,6 +38,9 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+        
+      - name: Build the library
+        run: bun run build
 
       - name: Run linter
         run: bun lint
