@@ -275,7 +275,8 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 	}
 
 	mapErr<F>(_fn: (error: E) => F): Result<T, F> {
-		return new Ok(this.value);
+		// Cast avoids allocating a new Ok; the error type F is phantom here.
+		return this as unknown as Ok<T, F>;
 	}
 
 	mapOr<U>(_defaultValue: U, fn: (value: T) => U): U {
@@ -291,7 +292,8 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 	}
 
 	orElse<F>(_fn: (error: E) => Result<T, F>): Result<T, F> {
-		return new Ok(this.value);
+		// Cast avoids allocating a new Ok; the error type F is phantom here.
+		return this as unknown as Ok<T, F>;
 	}
 
 	match<U>(handlers: { ok: (value: T) => U; err: (error: E) => U }): U {
@@ -363,7 +365,8 @@ export class Err<T, E> implements ResultMethods<T, E> {
 	}
 
 	map<U>(_fn: (value: T) => U): Result<U, E> {
-		return new Err(this.error);
+		// Cast avoids allocating a new Err; the value type U is phantom here.
+		return this as unknown as Err<U, E>;
 	}
 
 	mapErr<F>(fn: (error: E) => F): Result<T, F> {
@@ -379,7 +382,8 @@ export class Err<T, E> implements ResultMethods<T, E> {
 	}
 
 	andThen<U, F>(_fn: (value: T) => Result<U, F>): Result<U, E | F> {
-		return new Err(this.error);
+		// Cast avoids allocating a new Err; the value type U is phantom here.
+		return this as unknown as Err<U, E>;
 	}
 
 	orElse<F>(fn: (error: E) => Result<T, F>): Result<T, F> {
