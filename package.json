@@ -1,6 +1,6 @@
 {
 	"name": "antithrow",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "Rust-style Result types for type-safe error handling without exceptions",
 	"license": "MIT",
 	"author": "Jack Weilage",
