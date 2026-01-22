@@ -30,6 +30,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
+      - name: Upgrade npm
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: bun install
