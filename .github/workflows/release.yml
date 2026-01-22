@@ -27,7 +27,7 @@ jobs:
         
         # Trusted publishing requires npm@11.5.1, but Github Actions uses npm@10.8.2
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
           node-version: 24
 
