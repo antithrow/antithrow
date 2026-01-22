@@ -1,36 +1,54 @@
 /**
  * Example 07: Async Basics
  *
- * Demonstrates ResultAsync for handling asynchronous operations.
+ * ResultAsync wraps a Promise<Result> and provides the same chainable API.
  */
 import { errAsync, okAsync, ResultAsync } from "antithrow";
 
+interface User {
+	id: number;
+	name: string;
+}
+
+// Simulate an async operation that might fail
+function fetchUser(id: number): ResultAsync<User, string> {
+	if (id === 1) {
+		return okAsync({ id: 1, name: "Alice" });
+	}
+	return errAsync(`User ${id} not found`);
+}
+
 async function main() {
-	const success = okAsync(42);
-	const failure = errAsync<number, string>("async error");
+	// Chain operations on ResultAsync just like Result.
+	// Each method returns a new ResultAsync, keeping everything async
+	const userGreeting = fetchUser(1)
+		.map((user) => user.name)
+		.map((name) => `Hello, ${name}!`);
 
-	console.log(await success.isOk()); // true
-	console.log(await failure.isErr()); // true
-	console.log(await success.unwrap()); // 42
-	console.log(await failure.unwrapOr(0)); // 0
+	// Awaiting a ResultAsync gives you a plain Result
+	const result = await userGreeting;
 
-	const doubled = success.map((x) => x * 2);
-	console.log(await doubled.unwrap()); // 84
+	// Now TypeScript can narrow the type after isOk()/isErr() checks
+	if (result.isOk()) {
+		console.log(result.value); // "Hello, Alice!" — TypeScript knows this is Ok
+	} else {
+		console.log(result.error); // TypeScript knows this is Err
+	}
 
-	const result = await okAsync(10)
-		.map((x) => x + 5)
-		.andThen((x) => okAsync(x * 2))
-		.match({
-			ok: (v) => `Result: ${v}`,
-			err: (e) => `Error: ${e}`,
-		});
-	console.log(result); // "Result: 30"
+	// For quick extraction, you can await methods directly
+	console.log(await fetchUser(1).unwrap()); // { id: 1, name: "Alice" }
+	console.log(await fetchUser(999).unwrapOr({ id: 0, name: "Guest" })); // { id: 0, name: "Guest" }
 
-	const fetched = ResultAsync.try(async () => {
+	// ResultAsync.try() wraps async functions that might throw, and awaiting it
+	// returns a `Result`.
+	const fetched = await ResultAsync.try(async () => {
 		const response = await fetch("https://api.example.com/data");
 		return response.json();
 	});
-	console.log(await fetched.isErr()); // true (fetch will fail in this example)
+
+	if (fetched.isErr()) {
+		console.log("Fetch failed:", fetched.error);
+	}
 }
 
 main();

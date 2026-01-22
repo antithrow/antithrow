@@ -1,70 +1,64 @@
 /**
  * Example 09: Chain (Asynchronous)
  *
- * Demonstrates async chain for composing multiple async Result operations
- * with early-return on errors.
+ * chain() also works with async generators for composing async operations.
+ * yield* on a ResultAsync automatically awaits it and unwraps the value,
+ * or exits early on error—no separate await needed.
  */
 import type { ResultAsync } from "antithrow";
 import { chain, errAsync, okAsync } from "antithrow";
 
-async function fetchUser(id: number): Promise<ResultAsync<{ id: number; name: string }, string>> {
-	await new Promise((resolve) => setTimeout(resolve, 10));
+// Simulate async operations that return ResultAsync
+function fetchUser(id: number): ResultAsync<{ id: number; name: string }, string> {
 	if (id === 1) {
 		return okAsync({ id: 1, name: "Alice" });
 	}
-
 	return errAsync(`User ${id} not found`);
 }
 
-async function fetchOrders(userId: number): Promise<ResultAsync<string[], string>> {
-	await new Promise((resolve) => setTimeout(resolve, 10));
+function fetchOrders(userId: number): ResultAsync<string[], string> {
 	if (userId === 1) {
 		return okAsync(["order-1", "order-2"]);
 	}
-
 	return errAsync(`No orders for user ${userId}`);
 }
 
 async function main() {
+	// yield* handles both awaiting and unwrapping in one step.
+	// If Ok, you get the value. If Err, the generator exits immediately
 	const result1 = await chain(async function* () {
-		const userResult = await fetchUser(1);
-		const user = yield* userResult;
-
-		const ordersResult = await fetchOrders(user.id);
-		const orders = yield* ordersResult;
-
+		const user = yield* fetchUser(1);
+		const orders = yield* fetchOrders(user.id);
 		return { user, orders };
 	});
 	console.log(result1.unwrap());
 	// { user: { id: 1, name: "Alice" }, orders: ["order-1", "order-2"] }
 
+	// Early exit works the same as sync chain—fetchOrders is never called
 	const result2 = await chain(async function* () {
-		const userResult = await fetchUser(999);
-		const user = yield* userResult;
-
-		const ordersResult = await fetchOrders(user.id);
-		const orders = yield* ordersResult;
-
+		const user = yield* fetchUser(999); // Fails here
+		const orders = yield* fetchOrders(user.id);
 		return { user, orders };
 	});
 	console.log(result2.unwrapErr()); // "User 999 not found"
 
-	const dataResult = chain(async function* () {
-		const user = yield* await fetchUser(1);
-		const orders = yield* await fetchOrders(user.id);
+	// You can mix Result operations with regular async code.
+	// Use yield* for Results, regular await for Promises
+	const result3 = await chain(async function* () {
+		const user = yield* fetchUser(1);
+		const orders = yield* fetchOrders(user.id);
 
+		// Regular async operations still use await
 		const processedOrders = await Promise.all(
 			orders.map(async (orderId) => {
-				await new Promise((resolve) => setTimeout(resolve, 5));
 				return { orderId, status: "processed" };
 			}),
 		);
 
 		return { userName: user.name, processedOrders };
 	});
-
-	const data = await dataResult;
-	console.log(data.unwrap());
+	console.log(result3.unwrap());
+	// { userName: "Alice", processedOrders: [{ orderId: "order-1", status: "processed" }, ...] }
 }
 
 main();

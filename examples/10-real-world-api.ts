@@ -1,12 +1,15 @@
 /**
  * Example 10: Real-World API Example
  *
- * A comprehensive example showing how to use Result types
- * in a realistic API scenario.
+ * This example ties together everything from the previous examples:
+ * typed errors, validation chains, async operations, and pattern matching.
+ * It shows how Result types create a clean, type-safe API layer.
  */
 import type { Result } from "antithrow";
-import { chain, err, ok } from "antithrow";
+import { chain, err, errAsync, ok, okAsync, type ResultAsync } from "antithrow";
 
+// Define a discriminated union for all possible API errors.
+// This gives exhaustive checking when handling errors
 type ApiError =
 	| { type: "validation"; message: string }
 	| { type: "not_found"; resource: string }
@@ -25,12 +28,14 @@ interface CreateUserInput {
 	password: string;
 }
 
+// --- Validation functions ---
+// Each returns Result<ValidatedValue, ApiError>, making errors explicit
+
 function validateEmail(email: string): Result<string, ApiError> {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	if (!emailRegex.test(email)) {
 		return err({ type: "validation", message: "Invalid email format" });
 	}
-
 	return ok(email);
 }
 
@@ -38,7 +43,6 @@ function validatePassword(password: string): Result<string, ApiError> {
 	if (password.length < 8) {
 		return err({ type: "validation", message: "Password must be at least 8 characters" });
 	}
-
 	return ok(password);
 }
 
@@ -47,10 +51,10 @@ function validateName(name: string): Result<string, ApiError> {
 	if (trimmed.length === 0) {
 		return err({ type: "validation", message: "Name cannot be empty" });
 	}
-
 	return ok(trimmed);
 }
 
+// Compose validators with chain()—first validation error stops the chain
 function validateInput(input: CreateUserInput): Result<CreateUserInput, ApiError> {
 	return chain(function* () {
 		const email = yield* validateEmail(input.email);
@@ -61,40 +65,46 @@ function validateInput(input: CreateUserInput): Result<CreateUserInput, ApiError
 	});
 }
 
-async function checkEmailExists(email: string): Promise<Result<boolean, ApiError>> {
-	await new Promise((resolve) => setTimeout(resolve, 10));
+// --- Async data layer ---
+// Simulated database operations returning ResultAsync
 
+function checkEmailExists(email: string): ResultAsync<boolean, ApiError> {
 	const existingEmails = ["alice@example.com", "bob@example.com"];
-
-	return ok(existingEmails.includes(email));
+	return okAsync(existingEmails.includes(email));
 }
 
-async function saveUser(input: CreateUserInput): Promise<Result<User, ApiError>> {
-	await new Promise((resolve) => setTimeout(resolve, 10));
-
-	return ok({
+function saveUser(input: CreateUserInput): ResultAsync<User, ApiError> {
+	return okAsync({
 		id: crypto.randomUUID(),
 		email: input.email,
 		name: input.name,
 	});
 }
 
-async function createUser(input: CreateUserInput): Promise<Result<User, ApiError>> {
+// --- Main API handler ---
+// Combines sync validation with async operations in one chain
+
+function createUser(input: CreateUserInput): ResultAsync<User, ApiError> {
 	return chain(async function* () {
+		// Sync validation first
 		const validatedInput = yield* validateInput(input);
 
-		const emailExists = yield* await checkEmailExists(validatedInput.email);
+		// Then async checks
+		const emailExists = yield* checkEmailExists(validatedInput.email);
 		if (emailExists) {
-			return yield* err<User, ApiError>({
+			return yield* errAsync<User, ApiError>({
 				type: "validation",
 				message: "Email already exists",
 			});
 		}
 
-		const user = yield* await saveUser(validatedInput);
-		return user;
+		// Finally, persist
+		return yield* saveUser(validatedInput);
 	});
 }
+
+// --- Response formatting ---
+// Convert typed errors to HTTP responses with exhaustive matching
 
 function formatApiError(error: ApiError): { status: number; body: object } {
 	switch (error.type) {
@@ -109,7 +119,10 @@ function formatApiError(error: ApiError): { status: number; body: object } {
 	}
 }
 
+// --- Demo ---
+
 async function main() {
+	// Success case: valid input, new email
 	const result1 = await createUser({
 		email: "newuser@example.com",
 		name: "New User",
@@ -120,6 +133,7 @@ async function main() {
 		err: (error) => console.log("Failed:", formatApiError(error)),
 	});
 
+	// Validation failure: invalid email format
 	const result2 = await createUser({
 		email: "invalid-email",
 		name: "Test",
@@ -129,7 +143,9 @@ async function main() {
 		ok: (user) => console.log("Created user:", user),
 		err: (error) => console.log("Failed:", formatApiError(error)),
 	});
+	// Failed: { status: 400, body: { error: "Invalid email format" } }
 
+	// Business logic failure: email already exists
 	const result3 = await createUser({
 		email: "alice@example.com",
 		name: "Alice Clone",
@@ -139,6 +155,7 @@ async function main() {
 		ok: (user) => console.log("Created user:", user),
 		err: (error) => console.log("Failed:", formatApiError(error)),
 	});
+	// Failed: { status: 400, body: { error: "Email already exists" } }
 }
 
 main();

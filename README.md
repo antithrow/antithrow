@@ -8,93 +8,149 @@ A TypeScript library implementing Rust-style `Result<T, E>` types for type-safe 
 bun add antithrow
 ```
 
-## Usage
+## The Problem
 
-### Basic Results
+Consider a typical user registration flow with exceptions:
 
 ```ts
-import { ok, err, Result } from "antithrow";
-
-function divide(a: number, b: number): Result<number, string> {
-  if (b === 0) return err("division by zero");
-  return ok(a / b);
+interface User {
+  id: string;
+  email: string;
+  name: string;
 }
 
-const result = divide(10, 2);
+function validateEmail(email: string): string {
+  if (!email.includes("@")) throw new Error("Invalid email");
+  return email;
+}
+
+function checkEmailAvailable(email: string): void {
+  const taken = ["alice@example.com", "bob@example.com"];
+  if (taken.includes(email)) throw new Error("Email taken");
+}
+
+function saveUser(email: string, name: string): User {
+  return { id: crypto.randomUUID(), email, name };
+}
+
+// The caller has no idea which exceptions might be thrown
+function createUser(email: string, name: string): User {
+  const validEmail = validateEmail(email);
+  checkEmailAvailable(validEmail);
+  return saveUser(validEmail, name);
+}
+
+// Error handling is optional and easy to forget
+try {
+  const user = createUser("invalid", "Test");
+  console.log("Created:", user);
+} catch (e) {
+  // What errors can we get here? The types don't tell us
+  console.error("Failed:", e);
+}
+```
+
+Problems with this approach:
+- **Hidden failures**: Nothing in the type signature indicates `createUser` can fail
+- **Unclear errors**: Callers don't know what exceptions to catch
+- **Easy to forget**: The compiler won't remind you to handle errors
+
+## The Solution
+
+The same code rewritten with antithrow:
+
+```ts
+import { chain, err, ok, type Result } from "antithrow";
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
+// Return types now explicitly show these can fail
+function validateEmail(email: string): Result<string, string> {
+  if (!email.includes("@")) return err("Invalid email");
+  return ok(email);
+}
+
+function checkEmailAvailable(email: string): Result<void, string> {
+  const taken = ["alice@example.com", "bob@example.com"];
+  if (taken.includes(email)) return err("Email taken");
+  return ok(undefined);
+}
+
+function saveUser(email: string, name: string): Result<User, string> {
+  return ok({ id: crypto.randomUUID(), email, name });
+}
+
+// The return type makes failure explicit—callers must handle it
+function createUser(email: string, name: string): Result<User, string> {
+  return chain(function* () {
+    const validEmail = yield* validateEmail(email);
+    yield* checkEmailAvailable(validEmail);
+    return yield* saveUser(validEmail, name);
+  });
+}
+
+// TypeScript ensures you handle both cases
+const result = createUser("alice@example.com", "Test");
 
 if (result.isOk()) {
-  console.log(result.value); // 5
+  console.log("Created:", result.value);
+} else {
+  console.error("Failed:", result.error);
 }
 
 // Or use pattern matching
 result.match({
-  ok: (value) => console.log(`Result: ${value}`),
-  err: (error) => console.error(`Error: ${error}`),
+  ok: (user) => console.log("Created:", user),
+  err: (error) => console.error("Failed:", error),
 });
 ```
 
+Benefits:
+- **Explicit failures**: The `Result<User, string>` return type shows this can fail
+- **Type-safe errors**: You know exactly what error type to expect
+- **Compiler-enforced**: You can't access `.value` without checking `.isOk()` first
+- **Early returns**: `yield*` exits on error, like Rust's `?` operator
+
+## More Features
+
 ### Wrapping Throwing Functions
+
+Bridge existing exception-based APIs:
 
 ```ts
 import { Result } from "antithrow";
 
-const parsed = Result.try(() => JSON.parse('{"a": 1}'));
-// ok({ a: 1 })
-
-const failed = Result.try(() => JSON.parse("invalid"));
-// err(SyntaxError)
+const parsed = Result.try(() => JSON.parse('{"a": 1}')); // ok({ a: 1 })
+const failed = Result.try(() => JSON.parse("invalid"));  // err(SyntaxError)
 ```
 
-### Chaining Operations
+### Transformations
 
 ```ts
-import { ok, err } from "antithrow";
+import { ok } from "antithrow";
 
 const result = ok(2)
-  .map((x) => x * 2)           // ok(4)
-  .andThen((x) => ok(x + 1))   // ok(5)
-  .mapErr((e) => e.toUpperCase());
-```
-
-### Generator-Based Chaining
-
-Use generators for early-return semantics similar to Rust's `?` operator:
-
-```ts
-import { chain, ok, err } from "antithrow";
-
-const result = chain(function* () {
-  const a = yield* ok(1);
-  const b = yield* ok(2);
-  const c = yield* err("oops"); // Short-circuits here
-  return a + b + c; // Never reached
-});
-// err("oops")
+  .map((x) => x * 2)         // ok(4)
+  .andThen((x) => ok(x + 1)) // ok(5)
+  .unwrapOr(0);              // 5
 ```
 
 ### Async Results
 
 ```ts
-import { okAsync, errAsync, ResultAsync } from "antithrow";
+import { chain, okAsync, ResultAsync } from "antithrow";
 
-const result = await okAsync(42)
-  .map((x) => x * 2)
-  .andThen((x) => okAsync(x + 1))
-  .unwrap();
-// 85
-
-// Wrap async functions that might throw
+// Wrap async throwing functions
 const fetched = ResultAsync.try(async () => {
   const response = await fetch("/api/data");
   return response.json();
 });
-```
 
-### Async Generator Chaining
-
-```ts
-import { chain, okAsync, errAsync } from "antithrow";
-
+// Chain async operations
 const result = await chain(async function* () {
   const a = yield* okAsync(1);
   const b = yield* okAsync(2);
