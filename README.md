@@ -77,7 +77,7 @@ function validateEmail(email: string): Result<string, string> {
 function checkEmailAvailable(email: string): Result<void, string> {
   const taken = ["alice@example.com", "bob@example.com"];
   if (taken.includes(email)) return err("Email taken");
-  return ok(undefined);
+  return ok();
 }
 
 function saveUser(email: string, name: string): Result<User, string> {
@@ -189,9 +189,9 @@ const result = await chain(async function* () {
 
 | Function | Description |
 |----------|-------------|
-| `ok(value)` | Creates a successful result |
+| `ok(value?)` | Creates a successful result |
 | `err(error)` | Creates a failed result |
-| `okAsync(value)` | Creates an async successful result |
+| `okAsync(value?)` | Creates an async successful result |
 | `errAsync(error)` | Creates an async failed result |
 | `Result.try(fn)` | Wraps a throwing function in a Result |
 | `ResultAsync.try(fn)` | Wraps an async throwing function in a ResultAsync |

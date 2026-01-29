@@ -10,6 +10,13 @@ describe("Result", () => {
 			expect(result.isErr()).toBe(false);
 			expect(result.value).toBe(42);
 		});
+
+		test("creates an Ok value with no arguments", () => {
+			const result = ok();
+			expect(result.isOk()).toBe(true);
+			expect(result.isErr()).toBe(false);
+			expect(result.value).toBeUndefined();
+		});
 	});
 
 	describe("err", () => {
@@ -407,6 +414,11 @@ describe("Result", () => {
 		test("ok returns Ok<T, E>", () => {
 			const result = ok(42);
 			expectTypeOf(result).toEqualTypeOf<Ok<number, never>>();
+		});
+
+		test("ok with no arguments returns Ok<void, E>", () => {
+			const result = ok();
+			expectTypeOf(result).toEqualTypeOf<Ok<void, never>>();
 		});
 
 		test("ok with explicit error type", () => {

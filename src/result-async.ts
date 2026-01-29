@@ -487,6 +487,9 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
  * ```ts
  * const result = okAsync(42);
  * await result.unwrap(); // 42
+ *
+ * const empty = okAsync();
+ * await empty.unwrap(); // undefined
  * ```
  *
  * @template T - The type of the success value.
@@ -496,8 +499,10 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
  *
  * @returns A `ResultAsync` containing an `Ok` with the value.
  */
-export function okAsync<T, E = never>(value: T): ResultAsync<T, E> {
-	return ResultAsync.fromResult(ok(value));
+export function okAsync<E = never>(): ResultAsync<void, E>;
+export function okAsync<T, E = never>(value: T): ResultAsync<T, E>;
+export function okAsync<T, E = never>(value?: T): ResultAsync<T, E> {
+	return ResultAsync.fromResult(ok(value as T));
 }
 
 /**
