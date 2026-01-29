@@ -154,6 +154,34 @@ interface ResultMethods<T, E> {
 	 */
 	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, E | F>;
 	/**
+	 * Returns the provided `Result` if this is `Ok`, otherwise propagates the `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(2).and(ok("next")); // ok("next")
+	 * err("oops").and(ok("next")); // err("oops")
+	 * ```
+	 *
+	 * @param result - The result to return if this is `Ok`.
+	 *
+	 * @returns The provided result if `Ok`, otherwise the original `Err`.
+	 */
+	and<U, F>(result: Result<U, F>): Result<U, E | F>;
+	/**
+	 * Returns this `Ok` result, or the provided `Result` if this is `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(2).or(ok(1)); // ok(2)
+	 * err("oops").or(ok(1)); // ok(1)
+	 * ```
+	 *
+	 * @param result - The result to return if this is `Err`.
+	 *
+	 * @returns This result if `Ok`, otherwise the provided result.
+	 */
+	or<F>(result: Result<T, F>): Result<T, F>;
+	/**
 	 * Calls the provided function with the `Err` value and returns its result, or propagates the `Ok`.
 	 *
 	 * @example
@@ -291,6 +319,15 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 		return fn(this.value);
 	}
 
+	and<U, F>(result: Result<U, F>): Result<U, E | F> {
+		return result;
+	}
+
+	or<F>(_result: Result<T, F>): Result<T, F> {
+		// Cast avoids allocating a new Ok; the error type F is phantom here.
+		return this as unknown as Ok<T, F>;
+	}
+
 	orElse<F>(_fn: (error: E) => Result<T, F>): Result<T, F> {
 		// Cast avoids allocating a new Ok; the error type F is phantom here.
 		return this as unknown as Ok<T, F>;
@@ -385,6 +422,15 @@ export class Err<T, E> implements ResultMethods<T, E> {
 	andThen<U, F>(_fn: (value: T) => Result<U, F>): Result<U, E | F> {
 		// Cast avoids allocating a new Err; the value type U is phantom here.
 		return this as unknown as Err<U, E>;
+	}
+
+	and<U, F>(_result: Result<U, F>): Result<U, E | F> {
+		// Cast avoids allocating a new Err; the value type U is phantom here.
+		return this as unknown as Err<U, E>;
+	}
+
+	or<F>(result: Result<T, F>): Result<T, F> {
+		return result;
 	}
 
 	orElse<F>(fn: (error: E) => Result<T, F>): Result<T, F> {

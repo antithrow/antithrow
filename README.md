@@ -139,6 +139,30 @@ const result = ok(2)
   .unwrapOr(0);              // 5
 ```
 
+### Boolean Operators
+
+```ts
+import { err, ok } from "antithrow";
+
+const next = ok(1).and(ok("next"));
+console.log(next.unwrap()); // "next"
+
+const fallback = err<number, string>("missing").or(ok(0));
+console.log(fallback.unwrap()); // 0
+```
+
+Async works the same way:
+
+```ts
+import { errAsync, ok, okAsync } from "antithrow";
+
+const nextAsync = okAsync(1).and(ok("next"));
+console.log(await nextAsync.unwrap()); // "next"
+
+const fallbackAsync = errAsync<number, string>("missing").or(okAsync(0));
+console.log(await fallbackAsync.unwrap()); // 0
+```
+
 ### Async Results
 
 ```ts
@@ -192,6 +216,8 @@ Both `Result` and `ResultAsync` support:
 | `mapOr(default, fn)` | Transforms or returns default |
 | `mapOrElse(defaultFn, fn)` | Transforms or computes default |
 | `andThen(fn)` | Chains with another Result-returning function |
+| `and(result)` | Returns the provided result if `Ok` |
+| `or(result)` | Returns this result if `Ok`, otherwise the provided result |
 | `orElse(fn)` | Recovers from error with another Result |
 | `match({ ok, err })` | Pattern matches on the result |
 | `inspect(fn)` | Side effects on success value |

@@ -184,6 +184,44 @@ describe("ResultAsync", () => {
 		});
 	});
 
+	describe("and", () => {
+		test("returns next result for Ok", async () => {
+			const result = okAsync(42).and(ok("next"));
+			expect(await result.unwrap()).toBe("next");
+		});
+
+		test("returns next async result for Ok", async () => {
+			const result = okAsync(42).and(okAsync("next"));
+			expect(await result.unwrap()).toBe("next");
+		});
+
+		test("short-circuits on Err", async () => {
+			const result = errAsync<number, string>("error");
+			const chained = result.and(ok("next"));
+			expect(await chained.isErr()).toBe(true);
+			expect(await chained.unwrapErr()).toBe("error");
+		});
+	});
+
+	describe("or", () => {
+		test("keeps Ok result", async () => {
+			const result = okAsync<number, string>(42).or(ok(0));
+			expect(await result.unwrap()).toBe(42);
+		});
+
+		test("returns fallback for Err", async () => {
+			const result = errAsync<number, string>("error");
+			const recovered = result.or(ok(0));
+			expect(await recovered.unwrap()).toBe(0);
+		});
+
+		test("returns async fallback for Err", async () => {
+			const result = errAsync<number, string>("error");
+			const recovered = result.or(okAsync(0));
+			expect(await recovered.unwrap()).toBe(0);
+		});
+	});
+
 	describe("orElse", () => {
 		test("does not call fn for Ok", async () => {
 			const result = okAsync<number, string>(42).orElse(() => ok(0));
@@ -527,6 +565,18 @@ describe("ResultAsync", () => {
 			const result = okAsync(42);
 			const chained = result.andThen(() => err<string, "newErr">("newErr"));
 			expectTypeOf(chained).toEqualTypeOf<ResultAsync<string, never | "newErr">>();
+		});
+
+		test("and transforms value type and unions error types", () => {
+			const result = okAsync<number, "e1">(42);
+			const chained = result.and(ok<string, "e2">("next"));
+			expectTypeOf(chained).toEqualTypeOf<ResultAsync<string, "e1" | "e2">>();
+		});
+
+		test("or can return Ok", () => {
+			const result = errAsync<number, string>("error");
+			const recovered = result.or(ok<number, never>(0));
+			expectTypeOf(recovered).toEqualTypeOf<ResultAsync<number, never>>();
 		});
 
 		test("orElse with Result transforms error type", () => {

@@ -48,6 +48,10 @@ console.log(result2.unwrapErr()); // "-5 is not positive"
 const result3 = parseNumber("abc").andThen(validatePositive).andThen(sqrt);
 console.log(result3.unwrapErr()); // "\"abc\" is not a valid number"
 
+// and() returns the provided Result when the current value is Ok
+const next = ok(2).and(ok("next"));
+console.log(next.unwrap()); // "next"
+
 // orElse() is the opposite: it runs only on Err, allowing recovery.
 // If recovery succeeds, you get an Ok
 const recovered = err<number, string>("failed")
@@ -60,3 +64,7 @@ const stillFailed = err<number, string>("first error")
 	.orElse(() => err("second error"))
 	.unwrapErr();
 console.log(stillFailed); // "second error"
+
+// or() returns the fallback Result only when this is Err
+const fallback = err<number, string>("missing").or(ok(0));
+console.log(fallback.unwrap()); // 0

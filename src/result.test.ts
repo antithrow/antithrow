@@ -182,6 +182,33 @@ describe("Result", () => {
 		});
 	});
 
+	describe("and", () => {
+		test("returns next result for Ok", () => {
+			const result = ok(42).and(ok("next"));
+			expect(result.unwrap()).toBe("next");
+		});
+
+		test("short-circuits on Err", () => {
+			const result: Result<number, string> = err("error");
+			const chained = result.and(ok("next"));
+			expect(chained.isErr()).toBe(true);
+			expect(chained.unwrapErr()).toBe("error");
+		});
+	});
+
+	describe("or", () => {
+		test("keeps Ok result", () => {
+			const result = ok<number, string>(42).or(ok(0));
+			expect(result.unwrap()).toBe(42);
+		});
+
+		test("returns fallback for Err", () => {
+			const result: Result<number, string> = err("error");
+			const recovered = result.or(ok(0));
+			expect(recovered.unwrap()).toBe(0);
+		});
+	});
+
 	describe("orElse", () => {
 		test("does not call fn for Ok", () => {
 			const result = ok<number, string>(42);
@@ -463,6 +490,18 @@ describe("Result", () => {
 			const result = ok(42);
 			const chained = result.andThen(() => err<string, "newErr">("newErr"));
 			expectTypeOf(chained).toEqualTypeOf<Result<string, never | "newErr">>();
+		});
+
+		test("and transforms value type and unions error types", () => {
+			const result = ok<number, "e1">(42);
+			const chained = result.and(ok<string, "e2">("next"));
+			expectTypeOf(chained).toEqualTypeOf<Result<string, "e1" | "e2">>();
+		});
+
+		test("or can return Ok", () => {
+			const result: Result<number, string> = err("error");
+			const recovered = result.or(ok<number, never>(0));
+			expectTypeOf(recovered).toEqualTypeOf<Result<number, never>>();
 		});
 
 		test("orElse transforms error type", () => {

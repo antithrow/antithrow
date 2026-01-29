@@ -157,6 +157,34 @@ interface ResultAsyncMethods<T, E> {
 	 */
 	andThen<U, F>(fn: (value: T) => Result<U, F> | ResultAsync<U, F>): ResultAsync<U, E | F>;
 	/**
+	 * Returns the provided `Result` if this is `Ok`, otherwise propagates the `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * okAsync(2).and(ok("next")); // okAsync("next")
+	 * errAsync("oops").and(ok("next")); // errAsync("oops")
+	 * ```
+	 *
+	 * @param result - The result to return if this is `Ok`.
+	 *
+	 * @returns The provided result if `Ok`, otherwise the original `Err`.
+	 */
+	and<U, F>(result: Result<U, F> | ResultAsync<U, F>): ResultAsync<U, E | F>;
+	/**
+	 * Returns this `Ok` result, or the provided `Result` if this is `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * okAsync(2).or(ok(1)); // okAsync(2)
+	 * errAsync("oops").or(ok(1)); // okAsync(1)
+	 * ```
+	 *
+	 * @param result - The result to return if this is `Err`.
+	 *
+	 * @returns This result if `Ok`, otherwise the provided result.
+	 */
+	or<F>(result: Result<T, F> | ResultAsync<T, F>): ResultAsync<T, F>;
+	/**
 	 * Calls the provided function with the `Err` value and returns its result, or propagates the `Ok`.
 	 *
 	 * @example
@@ -349,6 +377,32 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 				}
 
 				return fn(result.value);
+			}),
+		);
+	}
+
+	and<U, F>(result: Result<U, F> | ResultAsync<U, F>): ResultAsync<U, E | F> {
+		return new ResultAsync(
+			this.promise.then((value) => {
+				if (value.isErr()) {
+					// Cast avoids allocating a new Err; the value type U is phantom here.
+					return value as unknown as Err<U, E | F>;
+				}
+
+				return result;
+			}),
+		);
+	}
+
+	or<F>(result: Result<T, F> | ResultAsync<T, F>): ResultAsync<T, F> {
+		return new ResultAsync(
+			this.promise.then((value) => {
+				if (value.isOk()) {
+					// Cast avoids allocating a new Ok; the error type F is phantom here.
+					return value as unknown as Ok<T, F>;
+				}
+
+				return result;
 			}),
 		);
 	}
