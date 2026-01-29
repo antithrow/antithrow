@@ -51,6 +51,34 @@ interface ResultMethods<T, E> {
 	 */
 	unwrapErr(): E;
 	/**
+	 * Returns the contained `Ok` value. Throws with the provided message if the result is `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * const value = ok(42).expect("value should exist"); // 42
+	 * const error = err("oops").expect("value should exist"); // throws
+	 * ```
+	 *
+	 * @param message - The message to include in the thrown error if the result is `Err`.
+	 *
+	 * @returns The contained `Ok` value.
+	 */
+	expect(message: string): T;
+	/**
+	 * Returns the contained `Err` value. Throws with the provided message if the result is `Ok`.
+	 *
+	 * @example
+	 * ```ts
+	 * const error = err("oops").expectErr("should be error"); // "oops"
+	 * const value = ok(42).expectErr("should be error"); // throws
+	 * ```
+	 *
+	 * @param message - The message to include in the thrown error if the result is `Ok`.
+	 *
+	 * @returns The contained `Err` value.
+	 */
+	expectErr(message: string): E;
+	/**
 	 * Returns the contained `Ok` value, or the provided default if `Err`.
 	 *
 	 * @example
@@ -290,6 +318,14 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 		throw new Error(`Called unwrapErr on an Ok value: ${String(this.value)}`);
 	}
 
+	expect(_message: string): T {
+		return this.value;
+	}
+
+	expectErr(message: string): E {
+		throw new Error(message);
+	}
+
 	unwrapOr(_defaultValue: T): T {
 		return this.value;
 	}
@@ -391,6 +427,14 @@ export class Err<T, E> implements ResultMethods<T, E> {
 	}
 
 	unwrapErr(): E {
+		return this.error;
+	}
+
+	expect(message: string): T {
+		throw new Error(message);
+	}
+
+	expectErr(_message: string): E {
 		return this.error;
 	}
 

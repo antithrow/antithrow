@@ -54,6 +54,34 @@ interface ResultAsyncMethods<T, E> {
 	 */
 	unwrapErr(): Promise<E>;
 	/**
+	 * Returns the contained `Ok` value. Throws with the provided message if the result is `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * const value = await okAsync(42).expect("value should exist"); // 42
+	 * const error = await errAsync("oops").expect("value should exist"); // throws
+	 * ```
+	 *
+	 * @param message - The message to include in the thrown error if the result is `Err`.
+	 *
+	 * @returns A promise that resolves to the contained `Ok` value.
+	 */
+	expect(message: string): Promise<T>;
+	/**
+	 * Returns the contained `Err` value. Throws with the provided message if the result is `Ok`.
+	 *
+	 * @example
+	 * ```ts
+	 * const error = await errAsync("oops").expectErr("should be error"); // "oops"
+	 * const value = await okAsync(42).expectErr("should be error"); // throws
+	 * ```
+	 *
+	 * @param message - The message to include in the thrown error if the result is `Ok`.
+	 *
+	 * @returns A promise that resolves to the contained `Err` value.
+	 */
+	expectErr(message: string): Promise<E>;
+	/**
 	 * Returns the contained `Ok` value, or the provided default if `Err`.
 	 *
 	 * @example
@@ -342,6 +370,14 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 
 	async unwrapErr(): Promise<E> {
 		return (await this.promise).unwrapErr();
+	}
+
+	async expect(message: string): Promise<T> {
+		return (await this.promise).expect(message);
+	}
+
+	async expectErr(message: string): Promise<E> {
+		return (await this.promise).expectErr(message);
 	}
 
 	async unwrapOr(defaultValue: T): Promise<T> {
