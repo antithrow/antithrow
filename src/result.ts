@@ -336,7 +336,8 @@ export class Err<T, E> implements ResultMethods<T, E> {
 	}
 
 	*[Symbol.iterator](): Generator<Err<never, E>, T> {
-		yield new Err(this.error);
+		// `this` is always an Err, so we can cast it to Err<never, E>
+		yield this as unknown as Err<never, E>;
 		throw new Error("Unreachable: generator should have been halted");
 	}
 

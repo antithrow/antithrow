@@ -1,5 +1,5 @@
-import type { Result } from "./result.js";
-import { Err, err, ok } from "./result.js";
+import type { Err, Ok, Result } from "./result.js";
+import { err, ok } from "./result.js";
 
 interface ResultAsyncMethods<T, E> {
 	/**
@@ -344,7 +344,8 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		return new ResultAsync(
 			this.promise.then((result) => {
 				if (result.isErr()) {
-					return err(result.error);
+					// Cast avoids allocating a new Err; the value type U is phantom here.
+					return result as unknown as Err<U, E | F>;
 				}
 
 				return fn(result.value);
@@ -356,7 +357,8 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		return new ResultAsync(
 			this.promise.then((result) => {
 				if (result.isOk()) {
-					return ok(result.value);
+					// Cast avoids allocating a new Ok; the error type F is phantom here.
+					return result as unknown as Ok<T, F>;
 				}
 
 				return fn(result.error);
@@ -382,7 +384,8 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 			return result.value;
 		}
 
-		yield new Err(result.error);
+		// `result` is always an Err, so we can cast it to Err<never, E>
+		yield result as unknown as Err<never, E>;
 		throw new Error("Unreachable: generator should have been halted");
 	}
 }
