@@ -32,11 +32,17 @@ console.log(failure.isErr()); // true
 // Extract the success value with unwrap() (throws if Err!)
 console.log(success.unwrap()); // 5
 
+// If you want a custom panic message, use expect()
+console.log(success.expect("expected a value")); // 5
+
 // Safely extract with a fallback using unwrapOr()
 console.log(failure.unwrapOr(0)); // 0
 
 // Or compute a fallback from the error using unwrapOrElse()
 console.log(failure.unwrapOrElse((e) => e.length)); // 16
+
+// You can assert an Err using expectErr()
+console.log(failure.expectErr("expected an error")); // "Division by zero"
 
 // After isOk()/isErr() checks, TypeScript narrows the type,
 // giving you direct access to .value or .error

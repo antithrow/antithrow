@@ -209,6 +209,8 @@ Both `Result` and `ResultAsync` support:
 | `isErr()` | Type predicate for failure |
 | `unwrap()` | Returns value or throws |
 | `unwrapErr()` | Returns error or throws |
+| `expect(message)` | Returns value or throws with message |
+| `expectErr(message)` | Returns error or throws with message |
 | `unwrapOr(default)` | Returns value or default |
 | `unwrapOrElse(fn)` | Returns value or computes from error |
 | `map(fn)` | Transforms the success value |

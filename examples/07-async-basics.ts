@@ -37,7 +37,9 @@ async function main() {
 
 	// For quick extraction, you can await methods directly
 	console.log(await fetchUser(1).unwrap()); // { id: 1, name: "Alice" }
+	console.log(await fetchUser(1).expect("expected user")); // { id: 1, name: "Alice" }
 	console.log(await fetchUser(999).unwrapOr({ id: 0, name: "Guest" })); // { id: 0, name: "Guest" }
+	console.log(await fetchUser(999).expectErr("expected error")); // "User 999 not found"
 
 	// ResultAsync.try() wraps async functions that might throw, and awaiting it
 	// returns a `Result`.

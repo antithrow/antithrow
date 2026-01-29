@@ -45,6 +45,30 @@ describe("Result", () => {
 		});
 	});
 
+	describe("expect", () => {
+		test("returns value for Ok", () => {
+			const result = ok(42);
+			expect(result.expect("should be ok")).toBe(42);
+		});
+
+		test("throws for Err with message", () => {
+			const result = err("error");
+			expect(() => result.expect("missing value")).toThrow("missing value");
+		});
+	});
+
+	describe("expectErr", () => {
+		test("returns error for Err", () => {
+			const result = err("error");
+			expect(result.expectErr("should be error")).toBe("error");
+		});
+
+		test("throws for Ok with message", () => {
+			const result = ok(42);
+			expect(() => result.expectErr("expected error")).toThrow("expected error");
+		});
+	});
+
 	describe("unwrapOr", () => {
 		test("returns value for Ok", () => {
 			const result = ok(42);
@@ -429,6 +453,16 @@ describe("Result", () => {
 		test("unwrapErr returns E", () => {
 			const result = err("error");
 			expectTypeOf(result.unwrapErr()).toEqualTypeOf<string>();
+		});
+
+		test("expect returns T", () => {
+			const result = ok(42);
+			expectTypeOf(result.expect("expected")).toEqualTypeOf<number>();
+		});
+
+		test("expectErr returns E", () => {
+			const result = err("error");
+			expectTypeOf(result.expectErr("expected")).toEqualTypeOf<string>();
 		});
 
 		test("unwrapOr returns T", () => {

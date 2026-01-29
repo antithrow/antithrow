@@ -46,6 +46,30 @@ describe("ResultAsync", () => {
 		});
 	});
 
+	describe("expect", () => {
+		test("returns value for Ok", async () => {
+			const result = okAsync(42);
+			expect(await result.expect("should be ok")).toBe(42);
+		});
+
+		test("throws for Err with message", async () => {
+			const result = errAsync("error");
+			expect(result.expect("missing value")).rejects.toThrow("missing value");
+		});
+	});
+
+	describe("expectErr", () => {
+		test("returns error for Err", async () => {
+			const result = errAsync("error");
+			expect(await result.expectErr("should be error")).toBe("error");
+		});
+
+		test("throws for Ok with message", async () => {
+			const result = okAsync(42);
+			expect(result.expectErr("expected error")).rejects.toThrow("expected error");
+		});
+	});
+
 	describe("unwrapOr", () => {
 		test("returns value for Ok", async () => {
 			const result = okAsync(42);
@@ -498,6 +522,16 @@ describe("ResultAsync", () => {
 		test("unwrapErr returns Promise<E>", () => {
 			const result = errAsync("error");
 			expectTypeOf(result.unwrapErr()).toEqualTypeOf<Promise<string>>();
+		});
+
+		test("expect returns Promise<T>", () => {
+			const result = okAsync(42);
+			expectTypeOf(result.expect("expected")).toEqualTypeOf<Promise<number>>();
+		});
+
+		test("expectErr returns Promise<E>", () => {
+			const result = errAsync("error");
+			expectTypeOf(result.expectErr("expected")).toEqualTypeOf<Promise<string>>();
 		});
 
 		test("unwrapOr returns Promise<T>", () => {
