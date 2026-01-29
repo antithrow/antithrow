@@ -41,6 +41,10 @@ async function main() {
 	console.log(await fetchUser(999).unwrapOr({ id: 0, name: "Guest" })); // { id: 0, name: "Guest" }
 	console.log(await fetchUser(999).expectErr("expected error")); // "User 999 not found"
 
+	// okAsync() also supports a void/empty success value
+	const empty = okAsync();
+	console.log(await empty.unwrap()); // undefined
+
 	// ResultAsync.try() wraps async functions that might throw, and awaiting it
 	// returns a `Result`.
 	const fetched = await ResultAsync.try(async () => {

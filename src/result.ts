@@ -518,6 +518,9 @@ export type Result<T, E> = Ok<T, E> | Err<T, E>;
  * ```ts
  * const result = ok(42);
  * result.unwrap(); // 42
+ *
+ * const empty = ok();
+ * empty.unwrap(); // undefined
  * ```
  *
  * @template T - The type of the success value.
@@ -527,8 +530,10 @@ export type Result<T, E> = Ok<T, E> | Err<T, E>;
  *
  * @returns An `Ok` result containing the value.
  */
-export function ok<T, E = never>(value: T): Ok<T, E> {
-	return new Ok(value);
+export function ok<E = never>(): Ok<void, E>;
+export function ok<T, E = never>(value: T): Ok<T, E>;
+export function ok<T, E = never>(value?: T): Ok<T, E> {
+	return new Ok(value as T);
 }
 
 /**

@@ -32,6 +32,10 @@ console.log(failure.isErr()); // true
 // Extract the success value with unwrap() (throws if Err!)
 console.log(success.unwrap()); // 5
 
+// Ok with no arguments represents a void/empty success
+const empty = ok();
+console.log(empty.unwrap()); // undefined
+
 // If you want a custom panic message, use expect()
 console.log(success.expect("expected a value")); // 5
 

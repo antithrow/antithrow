@@ -11,6 +11,13 @@ describe("ResultAsync", () => {
 			expect(await result.isErr()).toBe(false);
 			expect(await result.unwrap()).toBe(42);
 		});
+
+		test("creates an Ok value with no arguments", async () => {
+			const result = okAsync();
+			expect(await result.isOk()).toBe(true);
+			expect(await result.isErr()).toBe(false);
+			expect(await result.unwrap()).toBeUndefined();
+		});
 	});
 
 	describe("errAsync", () => {
@@ -481,6 +488,11 @@ describe("ResultAsync", () => {
 		test("okAsync returns ResultAsync<T, E>", () => {
 			const result = okAsync(42);
 			expectTypeOf(result).toEqualTypeOf<ResultAsync<number, never>>();
+		});
+
+		test("okAsync with no arguments returns ResultAsync<void, E>", () => {
+			const result = okAsync();
+			expectTypeOf(result).toEqualTypeOf<ResultAsync<void, never>>();
 		});
 
 		test("okAsync with explicit error type", () => {
