@@ -1,3 +1,4 @@
+import type { AsyncChainGenerator } from "./chain.js";
 import type { Err, Ok, Result } from "./result.js";
 import { err, ok } from "./result.js";
 
@@ -524,7 +525,7 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		return this.andThen((result) => result);
 	}
 
-	async *[Symbol.asyncIterator](): AsyncGenerator<Err<never, E>, T> {
+	async *[Symbol.asyncIterator](): AsyncChainGenerator<T, E> {
 		const result = await this.promise;
 		if (result.isOk()) {
 			return result.value;

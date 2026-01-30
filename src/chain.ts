@@ -2,8 +2,8 @@ import type { Err, Result } from "./result.js";
 import { ok } from "./result.js";
 import { ResultAsync } from "./result-async.js";
 
-type SyncChainGenerator<T, E> = Generator<Err<never, E>, T, void>;
-type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
+export type SyncChainGenerator<T, E> = Generator<Err<never, E>, T, void>;
+export type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
 
 /**
  * Chains multiple Result operations using generator syntax for early return on errors.

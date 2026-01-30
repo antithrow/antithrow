@@ -1,3 +1,5 @@
+import type { SyncChainGenerator } from "./chain.js";
+
 interface ResultMethods<T, E> {
 	/**
 	 * Type predicate for `Ok`.
@@ -358,7 +360,7 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 	}
 
 	// biome-ignore lint/correctness/useYield: Generator returns immediately for Ok values
-	*[Symbol.iterator](): Generator<Err<never, E>, T> {
+	*[Symbol.iterator](): SyncChainGenerator<T, E> {
 		return this.value;
 	}
 
@@ -484,7 +486,7 @@ export class Err<T, E> implements ResultMethods<T, E> {
 		this.error = error;
 	}
 
-	*[Symbol.iterator](): Generator<Err<never, E>, T> {
+	*[Symbol.iterator](): SyncChainGenerator<T, E> {
 		// `this` is always an Err, so we can cast it to Err<never, E>
 		yield this as unknown as Err<never, E>;
 		throw new Error("Unreachable: generator should have been halted");
