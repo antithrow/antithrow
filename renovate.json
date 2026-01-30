@@ -6,5 +6,11 @@
 		"customManagers:biomeVersions"
 	],
 	"minimumReleaseAge": "3 days",
-	"prCreation": "not-pending"
+	"prCreation": "not-pending",
+	"packageRules": [
+		{
+			"groupName": "bun",
+			"matchDepNames": ["bun", "@types/bun"]
+		}
+	]
 }
