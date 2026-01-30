@@ -29,6 +29,15 @@ console.log(success.isErr()); // false
 console.log(failure.isOk()); // false
 console.log(failure.isErr()); // true
 
+// Use isOkAnd() and isErrAnd() to check the variant AND apply a predicate
+console.log(success.isOkAnd((x) => x > 3)); // true (is Ok AND value > 3)
+console.log(success.isOkAnd((x) => x > 10)); // false (is Ok but value <= 10)
+console.log(failure.isOkAnd((x) => x > 0)); // false (is Err, predicate not checked)
+
+console.log(failure.isErrAnd((e) => e.includes("zero"))); // true (is Err AND message contains "zero")
+console.log(failure.isErrAnd((e) => e.includes("overflow"))); // false (is Err but message doesn't match)
+console.log(success.isErrAnd((e) => e.length > 0)); // false (is Ok, predicate not checked)
+
 // Extract the success value with unwrap() (throws if Err!)
 console.log(success.unwrap()); // 5
 

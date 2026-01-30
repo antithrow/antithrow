@@ -29,6 +29,40 @@ describe("ResultAsync", () => {
 		});
 	});
 
+	describe("isOkAnd", () => {
+		test("returns true for Ok when predicate passes", async () => {
+			const result = okAsync(42);
+			expect(await result.isOkAnd((x) => x > 10)).toBe(true);
+		});
+
+		test("returns false for Ok when predicate fails", async () => {
+			const result = okAsync(5);
+			expect(await result.isOkAnd((x) => x > 10)).toBe(false);
+		});
+
+		test("returns false for Err", async () => {
+			const result = errAsync<number, string>("error");
+			expect(await result.isOkAnd((x) => x > 10)).toBe(false);
+		});
+	});
+
+	describe("isErrAnd", () => {
+		test("returns true for Err when predicate passes", async () => {
+			const result = errAsync("error");
+			expect(await result.isErrAnd((e) => e.length > 3)).toBe(true);
+		});
+
+		test("returns false for Err when predicate fails", async () => {
+			const result = errAsync("e");
+			expect(await result.isErrAnd((e) => e.length > 3)).toBe(false);
+		});
+
+		test("returns false for Ok", async () => {
+			const result = okAsync<number, string>(42);
+			expect(await result.isErrAnd((e) => e.length > 3)).toBe(false);
+		});
+	});
+
 	describe("unwrap", () => {
 		test("returns value for Ok", async () => {
 			const result = okAsync(42);
@@ -524,6 +558,16 @@ describe("ResultAsync", () => {
 		test("isErr returns Promise<boolean>", () => {
 			const result = errAsync("error");
 			expectTypeOf(result.isErr()).toEqualTypeOf<Promise<boolean>>();
+		});
+
+		test("isOkAnd returns Promise<boolean>", () => {
+			const result = okAsync<number, string>(42);
+			expectTypeOf(result.isOkAnd((x) => x > 0)).toEqualTypeOf<Promise<boolean>>();
+		});
+
+		test("isErrAnd returns Promise<boolean>", () => {
+			const result = errAsync<number, string>("error");
+			expectTypeOf(result.isErrAnd((e) => e.length > 0)).toEqualTypeOf<Promise<boolean>>();
 		});
 
 		test("unwrap returns Promise<T>", () => {

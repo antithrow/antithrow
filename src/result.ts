@@ -25,6 +25,36 @@ interface ResultMethods<T, E> {
 	 * @returns `true` if the result is `Err`.
 	 */
 	isErr(): this is Err<T, E>;
+	/**
+	 * Returns `true` if the result is `Ok` and the contained value satisfies the predicate.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(42).isOkAnd((x) => x > 10); // true
+	 * ok(5).isOkAnd((x) => x > 10); // false
+	 * err("error").isOkAnd((x) => x > 10); // false
+	 * ```
+	 *
+	 * @param fn - The predicate to apply to the `Ok` value.
+	 *
+	 * @returns `true` if `Ok` and the predicate returns `true`.
+	 */
+	isOkAnd(fn: (value: T) => boolean): boolean;
+	/**
+	 * Returns `true` if the result is `Err` and the contained error satisfies the predicate.
+	 *
+	 * @example
+	 * ```ts
+	 * err("error").isErrAnd((e) => e.length > 3); // true
+	 * err("e").isErrAnd((e) => e.length > 3); // false
+	 * ok(42).isErrAnd((e) => e.length > 3); // false
+	 * ```
+	 *
+	 * @param fn - The predicate to apply to the `Err` value.
+	 *
+	 * @returns `true` if `Err` and the predicate returns `true`.
+	 */
+	isErrAnd(fn: (error: E) => boolean): boolean;
 
 	/**
 	 * Returns the contained `Ok` value. Throws if the result is `Err`.
@@ -310,6 +340,14 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 		return false;
 	}
 
+	isOkAnd(fn: (value: T) => boolean): boolean {
+		return fn(this.value);
+	}
+
+	isErrAnd(_fn: (error: E) => boolean): boolean {
+		return false;
+	}
+
 	unwrap(): T {
 		return this.value;
 	}
@@ -420,6 +458,14 @@ export class Err<T, E> implements ResultMethods<T, E> {
 
 	isErr(): this is Err<T, E> {
 		return true;
+	}
+
+	isOkAnd(_fn: (value: T) => boolean): boolean {
+		return false;
+	}
+
+	isErrAnd(fn: (error: E) => boolean): boolean {
+		return fn(this.error);
 	}
 
 	unwrap(): T {

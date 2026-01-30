@@ -28,6 +28,36 @@ interface ResultAsyncMethods<T, E> {
 	 * @returns A promise that resolves to `true` if the result is `Err`.
 	 */
 	isErr(): Promise<boolean>;
+	/**
+	 * Returns `true` if the result is `Ok` and the contained value satisfies the predicate.
+	 *
+	 * @example
+	 * ```ts
+	 * await okAsync(42).isOkAnd((x) => x > 10); // true
+	 * await okAsync(5).isOkAnd((x) => x > 10); // false
+	 * await errAsync("error").isOkAnd((x) => x > 10); // false
+	 * ```
+	 *
+	 * @param fn - The predicate to apply to the `Ok` value.
+	 *
+	 * @returns A promise that resolves to `true` if `Ok` and the predicate returns `true`.
+	 */
+	isOkAnd(fn: (value: T) => boolean): Promise<boolean>;
+	/**
+	 * Returns `true` if the result is `Err` and the contained error satisfies the predicate.
+	 *
+	 * @example
+	 * ```ts
+	 * await errAsync("error").isErrAnd((e) => e.length > 3); // true
+	 * await errAsync("e").isErrAnd((e) => e.length > 3); // false
+	 * await okAsync(42).isErrAnd((e) => e.length > 3); // false
+	 * ```
+	 *
+	 * @param fn - The predicate to apply to the `Err` value.
+	 *
+	 * @returns A promise that resolves to `true` if `Err` and the predicate returns `true`.
+	 */
+	isErrAnd(fn: (error: E) => boolean): Promise<boolean>;
 
 	/**
 	 * Returns the contained `Ok` value. Throws if the result is `Err`.
@@ -362,6 +392,14 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 
 	async isErr(): Promise<boolean> {
 		return (await this.promise).isErr();
+	}
+
+	async isOkAnd(fn: (value: T) => boolean): Promise<boolean> {
+		return (await this.promise).isOkAnd(fn);
+	}
+
+	async isErrAnd(fn: (error: E) => boolean): Promise<boolean> {
+		return (await this.promise).isErrAnd(fn);
 	}
 
 	async unwrap(): Promise<T> {
