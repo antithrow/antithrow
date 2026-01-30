@@ -4,6 +4,6 @@
 		"config:recommended",
 		"helpers:pinGitHubActionDigests",
 		"customManagers:biomeVersions",
-		"security:minimumReleaseAgeNpm¶"
+		"security:minimumReleaseAgeNpm"
 	]
 }
