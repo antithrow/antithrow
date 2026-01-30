@@ -391,6 +391,39 @@ describe("ResultAsync", () => {
 		});
 	});
 
+	describe("flatten", () => {
+		test("flattens okAsync(ok(value)) to ok(value)", async () => {
+			const result = okAsync(ok(42)).flatten();
+			expect(await result.isOk()).toBe(true);
+			expect(await result.unwrap()).toBe(42);
+		});
+
+		test("flattens okAsync(err(error)) to err(error)", async () => {
+			const result = okAsync(err("inner")).flatten();
+			expect(await result.isErr()).toBe(true);
+			expect(await result.unwrapErr()).toBe("inner");
+		});
+
+		test("flattens errAsync to err", async () => {
+			const result = errAsync<Result<number, string>, string>("outer").flatten();
+			expect(await result.isErr()).toBe(true);
+			expect(await result.unwrapErr()).toBe("outer");
+		});
+
+		test("preserves inner value types", async () => {
+			const inner = ok({ a: 1, b: "hello" });
+			const result = okAsync(inner).flatten();
+			expect(await result.unwrap()).toEqual({ a: 1, b: "hello" });
+		});
+
+		test("can be chained with other methods", async () => {
+			const result = okAsync(ok(21))
+				.flatten()
+				.map((x) => x * 2);
+			expect(await result.unwrap()).toBe(42);
+		});
+	});
+
 	describe("PromiseLike", () => {
 		test("can be awaited directly", async () => {
 			const result = await okAsync(42);
@@ -746,6 +779,18 @@ describe("ResultAsync", () => {
 		test("can use with Promise.all and get Result array", async () => {
 			const results = await Promise.all([okAsync<number, string>(1), okAsync<number, string>(2)]);
 			expectTypeOf(results).toEqualTypeOf<[Result<number, string>, Result<number, string>]>();
+		});
+
+		test("flatten returns ResultAsync<U, E | F>", () => {
+			const result = okAsync<Result<number, "inner">, "outer">(ok(42));
+			const flattened = result.flatten();
+			expectTypeOf(flattened).toEqualTypeOf<ResultAsync<number, "outer" | "inner">>();
+		});
+
+		test("flatten on errAsync preserves outer error type", () => {
+			const result = errAsync<Result<number, "inner">, "outer">("outer");
+			const flattened = result.flatten();
+			expectTypeOf(flattened).toEqualTypeOf<ResultAsync<number, "outer" | "inner">>();
 		});
 	});
 });

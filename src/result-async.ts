@@ -303,6 +303,20 @@ interface ResultAsyncMethods<T, E> {
 	 * @returns The original result, unchanged.
 	 */
 	inspectErr(fn: (error: E) => void): ResultAsync<T, E>;
+
+	/**
+	 * Flattens a nested `ResultAsync<Result<U, F>, E>` into `ResultAsync<U, E | F>`.
+	 *
+	 * @example
+	 * ```ts
+	 * await okAsync(ok(42)).flatten(); // ok(42)
+	 * await okAsync(err("inner")).flatten(); // err("inner")
+	 * await errAsync("outer").flatten(); // err("outer")
+	 * ```
+	 *
+	 * @returns The flattened result.
+	 */
+	flatten<U, F>(this: ResultAsync<Result<U, F>, E>): ResultAsync<U, E | F>;
 }
 
 export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsyncMethods<T, E> {
@@ -504,6 +518,10 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 
 	inspectErr(fn: (error: E) => void): ResultAsync<T, E> {
 		return new ResultAsync(this.promise.then((result) => result.inspectErr(fn)));
+	}
+
+	flatten<U, F>(this: ResultAsync<Result<U, F>, E>): ResultAsync<U, E | F> {
+		return this.andThen((result) => result);
 	}
 
 	async *[Symbol.asyncIterator](): AsyncGenerator<Err<never, E>, T> {

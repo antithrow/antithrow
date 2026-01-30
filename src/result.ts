@@ -316,6 +316,20 @@ interface ResultMethods<T, E> {
 	 * @returns The original result, unchanged.
 	 */
 	inspectErr(fn: (error: E) => void): Result<T, E>;
+
+	/**
+	 * Flattens a nested `Result<Result<U, F>, E>` into `Result<U, E | F>`.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(ok(42)).flatten(); // ok(42)
+	 * ok(err("inner")).flatten(); // err("inner")
+	 * err("outer").flatten(); // err("outer")
+	 * ```
+	 *
+	 * @returns The flattened result.
+	 */
+	flatten<U, F>(this: Result<Result<U, F>, E>): Result<U, E | F>;
 }
 
 /**
@@ -438,6 +452,10 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 
 	inspectErr(_fn: (error: E) => void): Result<T, E> {
 		return this;
+	}
+
+	flatten<U, F>(this: Ok<Result<U, F>, E>): Result<U, E | F> {
+		return this.value;
 	}
 }
 
@@ -562,6 +580,10 @@ export class Err<T, E> implements ResultMethods<T, E> {
 	inspectErr(fn: (error: E) => void): Result<T, E> {
 		fn(this.error);
 		return this;
+	}
+
+	flatten<U, F>(this: Err<Result<U, F>, E>): Result<U, E | F> {
+		return this as unknown as Err<U, E>;
 	}
 }
 

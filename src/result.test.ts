@@ -399,6 +399,33 @@ describe("Result", () => {
 		});
 	});
 
+	describe("flatten", () => {
+		test("flattens Ok(Ok(value)) to Ok(value)", () => {
+			const result = ok(ok(42)).flatten();
+			expect(result.isOk()).toBe(true);
+			expect(result.unwrap()).toBe(42);
+		});
+
+		test("flattens Ok(Err(error)) to Err(error)", () => {
+			const result = ok(err("inner")).flatten();
+			expect(result.isErr()).toBe(true);
+			expect(result.unwrapErr()).toBe("inner");
+		});
+
+		test("flattens Err to Err", () => {
+			const result: Result<Result<number, string>, string> = err("outer");
+			const flattened = result.flatten();
+			expect(flattened.isErr()).toBe(true);
+			expect(flattened.unwrapErr()).toBe("outer");
+		});
+
+		test("preserves inner value types", () => {
+			const inner = ok({ a: 1, b: "hello" });
+			const result = ok(inner).flatten();
+			expect(result.unwrap()).toEqual({ a: 1, b: "hello" });
+		});
+	});
+
 	describe("Result.try", () => {
 		test("returns Ok when function succeeds", () => {
 			const result = Result.try(() => 42);
@@ -672,6 +699,18 @@ describe("Result", () => {
 				code: number;
 				message: string;
 			}>();
+		});
+
+		test("flatten returns Result<U, E | F>", () => {
+			const result = ok<Result<number, "inner">, "outer">(ok(42));
+			const flattened = result.flatten();
+			expectTypeOf(flattened).toEqualTypeOf<Result<number, "outer" | "inner">>();
+		});
+
+		test("flatten on Err preserves outer error type", () => {
+			const result: Result<Result<number, "inner">, "outer"> = err("outer");
+			const flattened = result.flatten();
+			expectTypeOf(flattened).toEqualTypeOf<Result<number, "outer" | "inner">>();
 		});
 	});
 });

@@ -226,3 +226,4 @@ Both `Result` and `ResultAsync` support:
 | `match({ ok, err })` | Pattern matches on the result |
 | `inspect(fn)` | Side effects on success value |
 | `inspectErr(fn)` | Side effects on error value |
+| `flatten()` | Flattens nested `Result<Result<U, F>, E>` to `Result<U, E \| F>` |
