@@ -53,17 +53,14 @@ export function chain<T, E>(
 	generator: () => SyncChainGenerator<T, E> | AsyncChainGenerator<T, E>,
 ): Result<T, E> | ResultAsync<T, E> {
 	const iter = generator();
-	// The iterator only needs to advance a single time, as `Ok` values are immediately returned
-	// and `Err` values are yielded. This method short-circuits on the first error.
-	const first = iter.next();
 
-	if (first instanceof Promise) {
+	if (Symbol.asyncIterator in iter) {
 		return ResultAsync.fromPromise(
-			first.then(async (next) => {
+			iter.next().then(async (next) => {
 				if (!next.done) {
 					// Call `asyncIter.return` to ensure any cleanup is done.
 					// We pass `undefined as T` because the actual value is irrelevant.
-					await (iter as AsyncChainGenerator<T, E>).return?.(undefined as T);
+					await iter.return?.(undefined as T);
 
 					return next.value;
 				}
@@ -73,11 +70,11 @@ export function chain<T, E>(
 		);
 	}
 
-	const next = first;
+	const next = iter.next();
 	if (!next.done) {
 		// Call `syncIter.return` to ensure any cleanup is done
 		// We pass `undefined as T` because the actual value is irrelevant.
-		(iter as SyncChainGenerator<T, E>).return?.(undefined as T);
+		iter.return?.(undefined as T);
 
 		return next.value;
 	}
