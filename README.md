@@ -207,6 +207,8 @@ Both `Result` and `ResultAsync` support:
 |--------|-------------|
 | `isOk()` | Type predicate for success |
 | `isErr()` | Type predicate for failure |
+| `isOkAnd(fn)` | Returns `true` if `Ok` and predicate passes |
+| `isErrAnd(fn)` | Returns `true` if `Err` and predicate passes |
 | `unwrap()` | Returns value or throws |
 | `unwrapErr()` | Returns error or throws |
 | `expect(message)` | Returns value or throws with message |

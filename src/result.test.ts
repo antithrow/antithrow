@@ -28,6 +28,40 @@ describe("Result", () => {
 		});
 	});
 
+	describe("isOkAnd", () => {
+		test("returns true for Ok when predicate passes", () => {
+			const result = ok(42);
+			expect(result.isOkAnd((x) => x > 10)).toBe(true);
+		});
+
+		test("returns false for Ok when predicate fails", () => {
+			const result = ok(5);
+			expect(result.isOkAnd((x) => x > 10)).toBe(false);
+		});
+
+		test("returns false for Err", () => {
+			const result: Result<number, string> = err("error");
+			expect(result.isOkAnd((x) => x > 10)).toBe(false);
+		});
+	});
+
+	describe("isErrAnd", () => {
+		test("returns true for Err when predicate passes", () => {
+			const result = err("error");
+			expect(result.isErrAnd((e) => e.length > 3)).toBe(true);
+		});
+
+		test("returns false for Err when predicate fails", () => {
+			const result = err("e");
+			expect(result.isErrAnd((e) => e.length > 3)).toBe(false);
+		});
+
+		test("returns false for Ok", () => {
+			const result = ok<number, string>(42);
+			expect(result.isErrAnd((e) => e.length > 3)).toBe(false);
+		});
+	});
+
 	describe("unwrap", () => {
 		test("returns value for Ok", () => {
 			const result = ok(42);
@@ -455,6 +489,16 @@ describe("Result", () => {
 				expectTypeOf(result).toEqualTypeOf<Err<number, string>>();
 				expectTypeOf(result.error).toEqualTypeOf<string>();
 			}
+		});
+
+		test("isOkAnd returns boolean", () => {
+			const result: Result<number, string> = ok(42);
+			expectTypeOf(result.isOkAnd((x) => x > 0)).toEqualTypeOf<boolean>();
+		});
+
+		test("isErrAnd returns boolean", () => {
+			const result: Result<number, string> = err("error");
+			expectTypeOf(result.isErrAnd((e) => e.length > 0)).toEqualTypeOf<boolean>();
 		});
 
 		test("unwrap returns T", () => {
