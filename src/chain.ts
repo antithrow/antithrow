@@ -2,6 +2,9 @@ import type { Err, Result } from "./result.js";
 import { ok } from "./result.js";
 import { ResultAsync } from "./result-async.js";
 
+type SyncChainGenerator<T, E> = Generator<Err<never, E>, T, void>;
+type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
+
 /**
  * Chains multiple Result operations using generator syntax for early return on errors.
  *
@@ -23,7 +26,7 @@ import { ResultAsync } from "./result-async.js";
  *
  * @returns A `Result` containing the final value or the first error encountered.
  */
-export function chain<T, E>(generator: () => Generator<Err<never, E>, T, void>): Result<T, E>;
+export function chain<T, E>(generator: () => SyncChainGenerator<T, E>): Result<T, E>;
 /**
  * Chains multiple ResultAsync operations using async generator syntax for early return on errors.
  *
@@ -45,11 +48,9 @@ export function chain<T, E>(generator: () => Generator<Err<never, E>, T, void>):
  *
  * @returns A `ResultAsync` containing the final value or the first error encountered.
  */
+export function chain<T, E>(generator: () => AsyncChainGenerator<T, E>): ResultAsync<T, E>;
 export function chain<T, E>(
-	generator: () => AsyncGenerator<Err<never, E>, T, void>,
-): ResultAsync<T, E>;
-export function chain<T, E>(
-	generator: () => Generator<Err<never, E>, T, void> | AsyncGenerator<Err<never, E>, T, void>,
+	generator: () => SyncChainGenerator<T, E> | AsyncChainGenerator<T, E>,
 ): Result<T, E> | ResultAsync<T, E> {
 	const iter = generator();
 	// The iterator only needs to advance a single time, as `Ok` values are immediately returned
@@ -57,30 +58,26 @@ export function chain<T, E>(
 	const first = iter.next();
 
 	if (first instanceof Promise) {
-		const asyncIter = iter as AsyncGenerator<Err<never, E>, T, void>;
-
 		return ResultAsync.fromPromise(
-			(async () => {
-				const next = await first;
+			first.then(async (next) => {
 				if (!next.done) {
 					// Call `asyncIter.return` to ensure any cleanup is done.
 					// We pass `undefined as T` because the actual value is irrelevant.
-					await asyncIter.return?.(undefined as T);
+					await (iter as AsyncChainGenerator<T, E>).return?.(undefined as T);
 
 					return next.value;
 				}
 
 				return ok(next.value);
-			})(),
+			}),
 		);
 	}
 
-	const syncIter = iter as Generator<Err<never, E>, T, void>;
 	const next = first;
 	if (!next.done) {
 		// Call `syncIter.return` to ensure any cleanup is done
 		// We pass `undefined as T` because the actual value is irrelevant.
-		syncIter.return?.(undefined as T);
+		(iter as SyncChainGenerator<T, E>).return?.(undefined as T);
 
 		return next.value;
 	}
