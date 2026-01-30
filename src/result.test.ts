@@ -496,9 +496,25 @@ describe("Result", () => {
 			expectTypeOf(result.isOkAnd((x) => x > 0)).toEqualTypeOf<boolean>();
 		});
 
+		test("isOkAnd narrows type with type predicate", () => {
+			const result: Result<string | number, Error> = ok(42);
+			if (result.isOkAnd((v): v is number => typeof v === "number")) {
+				expectTypeOf(result).toEqualTypeOf<Ok<number, Error>>();
+				expectTypeOf(result.value).toEqualTypeOf<number>();
+			}
+		});
+
 		test("isErrAnd returns boolean", () => {
 			const result: Result<number, string> = err("error");
 			expectTypeOf(result.isErrAnd((e) => e.length > 0)).toEqualTypeOf<boolean>();
+		});
+
+		test("isErrAnd narrows type with type predicate", () => {
+			const result: Result<number, Error | string> = err(new Error("fail"));
+			if (result.isErrAnd((e): e is Error => e instanceof Error)) {
+				expectTypeOf(result).toEqualTypeOf<Err<number, Error>>();
+				expectTypeOf(result.error).toEqualTypeOf<Error>();
+			}
 		});
 
 		test("unwrap returns T", () => {

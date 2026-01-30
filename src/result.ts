@@ -27,33 +27,49 @@ interface ResultMethods<T, E> {
 	isErr(): this is Err<T, E>;
 	/**
 	 * Returns `true` if the result is `Ok` and the contained value satisfies the predicate.
+	 * When a type predicate is passed, narrows the result to `Ok<S, E>`.
 	 *
 	 * @example
 	 * ```ts
 	 * ok(42).isOkAnd((x) => x > 10); // true
 	 * ok(5).isOkAnd((x) => x > 10); // false
 	 * err("error").isOkAnd((x) => x > 10); // false
+	 *
+	 * // Type narrowing with type predicate
+	 * const result: Result<string | number, Error> = ok(42);
+	 * if (result.isOkAnd((v): v is number => typeof v === "number")) {
+	 *   result.value; // number
+	 * }
 	 * ```
 	 *
 	 * @param fn - The predicate to apply to the `Ok` value.
 	 *
 	 * @returns `true` if `Ok` and the predicate returns `true`.
 	 */
+	isOkAnd<S extends T>(fn: (value: T) => value is S): this is Ok<S, E>;
 	isOkAnd(fn: (value: T) => boolean): boolean;
 	/**
 	 * Returns `true` if the result is `Err` and the contained error satisfies the predicate.
+	 * When a type predicate is passed, narrows the result to `Err<T, F>`.
 	 *
 	 * @example
 	 * ```ts
 	 * err("error").isErrAnd((e) => e.length > 3); // true
 	 * err("e").isErrAnd((e) => e.length > 3); // false
 	 * ok(42).isErrAnd((e) => e.length > 3); // false
+	 *
+	 * // Type narrowing with type predicate
+	 * const result: Result<number, Error | string> = err(new Error("fail"));
+	 * if (result.isErrAnd((e): e is Error => e instanceof Error)) {
+	 *   result.error; // Error
+	 * }
 	 * ```
 	 *
 	 * @param fn - The predicate to apply to the `Err` value.
 	 *
 	 * @returns `true` if `Err` and the predicate returns `true`.
 	 */
+	isErrAnd<F extends E>(fn: (error: E) => error is F): this is Err<T, F>;
 	isErrAnd(fn: (error: E) => boolean): boolean;
 
 	/**
@@ -340,10 +356,14 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 		return false;
 	}
 
+	isOkAnd<S extends T>(fn: (value: T) => value is S): this is Ok<S, E>;
+	isOkAnd(fn: (value: T) => boolean): boolean;
 	isOkAnd(fn: (value: T) => boolean): boolean {
 		return fn(this.value);
 	}
 
+	isErrAnd<F extends E>(fn: (error: E) => error is F): this is Err<T, F>;
+	isErrAnd(fn: (error: E) => boolean): boolean;
 	isErrAnd(_fn: (error: E) => boolean): boolean {
 		return false;
 	}
@@ -460,10 +480,14 @@ export class Err<T, E> implements ResultMethods<T, E> {
 		return true;
 	}
 
+	isOkAnd<S extends T>(fn: (value: T) => value is S): this is Ok<S, E>;
+	isOkAnd(fn: (value: T) => boolean): boolean;
 	isOkAnd(_fn: (value: T) => boolean): boolean {
 		return false;
 	}
 
+	isErrAnd<F extends E>(fn: (error: E) => error is F): this is Err<T, F>;
+	isErrAnd(fn: (error: E) => boolean): boolean;
 	isErrAnd(fn: (error: E) => boolean): boolean {
 		return fn(this.error);
 	}
