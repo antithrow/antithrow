@@ -8,7 +8,7 @@
 # Initial setup (sets up git, bun, and installs dependencies)
 bun install
 
-# Build the library
+# Build the library (always run before linting)
 bun run build
 
 # Format code
