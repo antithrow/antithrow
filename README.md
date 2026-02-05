@@ -44,7 +44,7 @@ The same code rewritten with antithrow:
 
 ```ts
 interface RequestError {
-  status: number; 
+  status: number;
   message: string;
 }
 
@@ -159,3 +159,18 @@ Both `Result` and `ResultAsync` support:
 | `inspect(fn)` | Side effects on success value |
 | `inspectErr(fn)` | Side effects on error value |
 | `flatten()` | Flattens nested `Result<Result<U, F>, E>` to `Result<U, E \| F>` |
+
+#### Sync-to-Async Methods (`Result` only)
+
+These methods transition from `Result` to `ResultAsync`:
+
+| Method | Description |
+|--------|-------------|
+| `mapAsync(fn)` | Transforms `Ok` value with async function |
+| `mapErrAsync(fn)` | Transforms `Err` value with async function |
+| `andThenAsync(fn)` | Chains with async Result-returning function |
+| `orElseAsync(fn)` | Recovers from error with async Result-returning function |
+| `inspectAsync(fn)` | Async side effects on success value |
+| `inspectErrAsync(fn)` | Async side effects on error value |
+
+> **Note:** `ResultAsync` methods accept both sync and async callbacks via `MaybePromise<T>`, so you can pass async functions directly to `map`, `andThen`, etc.

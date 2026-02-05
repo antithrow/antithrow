@@ -1,4 +1,5 @@
 import type { SyncChainGenerator } from "./chain.js";
+import { ResultAsync } from "./result-async.js";
 
 interface ResultMethods<T, E> {
 	/**
@@ -332,6 +333,97 @@ interface ResultMethods<T, E> {
 	 * @returns The flattened result.
 	 */
 	flatten<U, F>(this: Result<Result<U, F>, E>): Result<U, E | F>;
+
+	/**
+	 * Transforms the `Ok` value using the provided async function, leaving `Err` unchanged.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(2).mapAsync(async (x) => x * 2); // ResultAsync containing ok(4)
+	 * err("oops").mapAsync(async (x) => x * 2); // ResultAsync containing err("oops")
+	 * ```
+	 *
+	 * @param fn - The async function to transform the `Ok` value.
+	 *
+	 * @returns A `ResultAsync` containing the result of the transformation.
+	 */
+	mapAsync<U>(fn: (value: T) => PromiseLike<U>): ResultAsync<U, E>;
+	/**
+	 * Transforms the `Err` value using the provided async function, leaving `Ok` unchanged.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(2).mapErrAsync(async (e) => e.toUpperCase()); // ResultAsync containing ok(2)
+	 * err("oops").mapErrAsync(async (e) => e.toUpperCase()); // ResultAsync containing err("OOPS")
+	 * ```
+	 *
+	 * @param fn - The async function to transform the `Err` value.
+	 *
+	 * @returns A `ResultAsync` containing the result of the transformation.
+	 */
+	mapErrAsync<F>(fn: (error: E) => PromiseLike<F>): ResultAsync<T, F>;
+	/**
+	 * Calls the provided async function with the `Ok` value and returns its result, or propagates the `Err`.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(2).andThenAsync(async (x) => ok(x * 2)); // ResultAsync containing ok(4)
+	 * ok(2).andThenAsync(async (x) => err("fail")); // ResultAsync containing err("fail")
+	 * err("oops").andThenAsync(async (x) => ok(x * 2)); // ResultAsync containing err("oops")
+	 * ```
+	 *
+	 * @param fn - The async function to call with the `Ok` value.
+	 *
+	 * @returns A `ResultAsync` containing the result of the function call, or the original `Err`.
+	 */
+	andThenAsync<U, F>(
+		fn: (value: T) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, E | F>;
+	/**
+	 * Calls the provided async function with the `Err` value and returns its result, or propagates the `Ok`.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(2).orElseAsync(async (e) => ok(0)); // ResultAsync containing ok(2)
+	 * err("oops").orElseAsync(async (e) => ok(0)); // ResultAsync containing ok(0)
+	 * err("oops").orElseAsync(async (e) => err("fail")); // ResultAsync containing err("fail")
+	 * ```
+	 *
+	 * @param fn - The async function to call with the `Err` value.
+	 *
+	 * @returns A `ResultAsync` containing the result of the function call, or the original `Ok`.
+	 */
+	orElseAsync<F>(
+		fn: (error: E) => PromiseLike<Result<T, F>> | ResultAsync<T, F>,
+	): ResultAsync<T, F>;
+	/**
+	 * Calls the provided async function with the `Ok` value for side effects, returning the original result.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(42).inspectAsync(async (x) => { await log(x); }); // logs 42, returns ResultAsync containing ok(42)
+	 * err("oops").inspectAsync(async (x) => { await log(x); }); // does nothing, returns ResultAsync containing err("oops")
+	 * ```
+	 *
+	 * @param fn - The async function to call with the `Ok` value.
+	 *
+	 * @returns A `ResultAsync` containing the original result, unchanged.
+	 */
+	inspectAsync(fn: (value: T) => PromiseLike<void>): ResultAsync<T, E>;
+	/**
+	 * Calls the provided async function with the `Err` value for side effects, returning the original result.
+	 *
+	 * @example
+	 * ```ts
+	 * ok(42).inspectErrAsync(async (e) => { await logError(e); }); // does nothing, returns ResultAsync containing ok(42)
+	 * err("oops").inspectErrAsync(async (e) => { await logError(e); }); // logs "oops", returns ResultAsync containing err("oops")
+	 * ```
+	 *
+	 * @param fn - The async function to call with the `Err` value.
+	 *
+	 * @returns A `ResultAsync` containing the original result, unchanged.
+	 */
+	inspectErrAsync(fn: (error: E) => PromiseLike<void>): ResultAsync<T, E>;
 }
 
 /**
@@ -458,6 +550,34 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 
 	flatten<U, F>(this: Ok<Result<U, F>, E>): Result<U, E | F> {
 		return this.value;
+	}
+
+	mapAsync<U>(fn: (value: T) => PromiseLike<U>): ResultAsync<U, E> {
+		return ResultAsync.fromPromise(Promise.resolve(fn(this.value)).then((v) => new Ok(v)));
+	}
+
+	mapErrAsync<F>(_fn: (error: E) => PromiseLike<F>): ResultAsync<T, F> {
+		return ResultAsync.fromResult(this as unknown as Ok<T, F>);
+	}
+
+	andThenAsync<U, F>(
+		fn: (value: T) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, E | F> {
+		return ResultAsync.fromPromise(Promise.resolve(fn(this.value)));
+	}
+
+	orElseAsync<F>(
+		_fn: (error: E) => PromiseLike<Result<T, F>> | ResultAsync<T, F>,
+	): ResultAsync<T, F> {
+		return ResultAsync.fromResult(this as unknown as Ok<T, F>);
+	}
+
+	inspectAsync(fn: (value: T) => PromiseLike<void>): ResultAsync<T, E> {
+		return ResultAsync.fromPromise(Promise.resolve(fn(this.value)).then(() => this));
+	}
+
+	inspectErrAsync(_fn: (error: E) => PromiseLike<void>): ResultAsync<T, E> {
+		return ResultAsync.fromResult(this);
 	}
 }
 
@@ -586,6 +706,34 @@ export class Err<T, E> implements ResultMethods<T, E> {
 
 	flatten<U, F>(this: Err<Result<U, F>, E>): Result<U, E | F> {
 		return this as unknown as Err<U, E>;
+	}
+
+	mapAsync<U>(_fn: (value: T) => PromiseLike<U>): ResultAsync<U, E> {
+		return ResultAsync.fromResult(this as unknown as Err<U, E>);
+	}
+
+	mapErrAsync<F>(fn: (error: E) => PromiseLike<F>): ResultAsync<T, F> {
+		return ResultAsync.fromPromise(Promise.resolve(fn(this.error)).then((e) => new Err(e)));
+	}
+
+	andThenAsync<U, F>(
+		_fn: (value: T) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, E | F> {
+		return ResultAsync.fromResult(this as unknown as Err<U, E>);
+	}
+
+	orElseAsync<F>(
+		fn: (error: E) => PromiseLike<Result<T, F>> | ResultAsync<T, F>,
+	): ResultAsync<T, F> {
+		return ResultAsync.fromPromise(Promise.resolve(fn(this.error)));
+	}
+
+	inspectAsync(_fn: (value: T) => PromiseLike<void>): ResultAsync<T, E> {
+		return ResultAsync.fromResult(this);
+	}
+
+	inspectErrAsync(fn: (error: E) => PromiseLike<void>): ResultAsync<T, E> {
+		return ResultAsync.fromPromise(Promise.resolve(fn(this.error)).then(() => this));
 	}
 }
 

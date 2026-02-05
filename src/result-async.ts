@@ -2,6 +2,11 @@ import type { AsyncChainGenerator } from "./chain.js";
 import type { Err, Ok, Result } from "./result.js";
 import { err, ok } from "./result.js";
 
+/**
+ * A type that can be either a value or a promise-like containing that value.
+ */
+export type MaybePromise<T> = T | PromiseLike<T>;
+
 interface ResultAsyncMethods<T, E> {
 	/**
 	 * Type predicate for `Ok`.
@@ -43,7 +48,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns A promise that resolves to `true` if `Ok` and the predicate returns `true`.
 	 */
-	isOkAnd(fn: (value: T) => boolean): Promise<boolean>;
+	isOkAnd(fn: (value: T) => MaybePromise<boolean>): Promise<boolean>;
 	/**
 	 * Returns `true` if the result is `Err` and the contained error satisfies the predicate.
 	 *
@@ -58,7 +63,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns A promise that resolves to `true` if `Err` and the predicate returns `true`.
 	 */
-	isErrAnd(fn: (error: E) => boolean): Promise<boolean>;
+	isErrAnd(fn: (error: E) => MaybePromise<boolean>): Promise<boolean>;
 
 	/**
 	 * Returns the contained `Ok` value. Throws if the result is `Err`.
@@ -139,7 +144,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns A promise that resolves to the contained `Ok` value, or the computed value from the error.
 	 */
-	unwrapOrElse(fn: (error: E) => T): Promise<T>;
+	unwrapOrElse(fn: (error: E) => MaybePromise<T>): Promise<T>;
 
 	/**
 	 * Transforms the `Ok` value using the provided function, leaving `Err` unchanged.
@@ -154,7 +159,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The result of the transformation.
 	 */
-	map<U>(fn: (value: T) => U): ResultAsync<U, E>;
+	map<U>(fn: (value: T) => MaybePromise<U>): ResultAsync<U, E>;
 	/**
 	 * Transforms the `Err` value using the provided function, leaving `Ok` unchanged.
 	 *
@@ -168,7 +173,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The result of the transformation.
 	 */
-	mapErr<F>(fn: (error: E) => F): ResultAsync<T, F>;
+	mapErr<F>(fn: (error: E) => MaybePromise<F>): ResultAsync<T, F>;
 	/**
 	 * Transforms the `Ok` value using the provided function, or returns the default value if `Err`.
 	 *
@@ -183,7 +188,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns A promise that resolves to the transformed value, or the default if `Err`.
 	 */
-	mapOr<U>(defaultValue: U, fn: (value: T) => U): Promise<U>;
+	mapOr<U>(defaultValue: U, fn: (value: T) => MaybePromise<U>): Promise<U>;
 	/**
 	 * Transforms the `Ok` value using the provided function, or computes a default from the error.
 	 *
@@ -198,7 +203,10 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns A promise that resolves to the transformed value, or the computed default if `Err`.
 	 */
-	mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => U): Promise<U>;
+	mapOrElse<U>(
+		defaultFn: (error: E) => MaybePromise<U>,
+		fn: (value: T) => MaybePromise<U>,
+	): Promise<U>;
 
 	/**
 	 * Calls the provided function with the `Ok` value and returns its result, or propagates the `Err`.
@@ -214,7 +222,9 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The result of the function call, or the original `Err`.
 	 */
-	andThen<U, F>(fn: (value: T) => Result<U, F> | ResultAsync<U, F>): ResultAsync<U, E | F>;
+	andThen<U, F>(
+		fn: (value: T) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, E | F>;
 	/**
 	 * Returns the provided `Result` if this is `Ok`, otherwise propagates the `Err`.
 	 *
@@ -257,7 +267,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The result of the function call, or the original `Ok`.
 	 */
-	orElse<F>(fn: (error: E) => Result<T, F> | ResultAsync<T, F>): ResultAsync<T, F>;
+	orElse<F>(fn: (error: E) => MaybePromise<Result<T, F>> | ResultAsync<T, F>): ResultAsync<T, F>;
 
 	/**
 	 * Pattern matches on the result, calling the appropriate handler and returning its value.
@@ -274,7 +284,10 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns A promise that resolves to the result of the handler call.
 	 */
-	match<U>(handlers: { ok: (value: T) => U; err: (error: E) => U }): Promise<U>;
+	match<U>(handlers: {
+		ok: (value: T) => MaybePromise<U>;
+		err: (error: E) => MaybePromise<U>;
+	}): Promise<U>;
 
 	/**
 	 * Calls the provided function with the `Ok` value for side effects, returning the original result.
@@ -289,7 +302,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The original result, unchanged.
 	 */
-	inspect(fn: (value: T) => void): ResultAsync<T, E>;
+	inspect(fn: (value: T) => MaybePromise<unknown>): ResultAsync<T, E>;
 	/**
 	 * Calls the provided function with the `Err` value for side effects, returning the original result.
 	 *
@@ -303,7 +316,7 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The original result, unchanged.
 	 */
-	inspectErr(fn: (error: E) => void): ResultAsync<T, E>;
+	inspectErr(fn: (error: E) => MaybePromise<unknown>): ResultAsync<T, E>;
 
 	/**
 	 * Flattens a nested `ResultAsync<Result<U, F>, E>` into `ResultAsync<U, E | F>`.
@@ -328,9 +341,17 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	}
 
 	private wrap<U, F>(
-		fn: (result: Result<T, E>) => Result<U, F> | ResultAsync<U, F>,
+		fn: (result: Result<T, E>) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
 	): ResultAsync<U, F> {
-		return ResultAsync.fromPromise(this.promise.then(fn));
+		return ResultAsync.fromPromise(
+			this.promise.then(async (r) => {
+				const result = fn(r);
+				if (result instanceof ResultAsync) {
+					return result;
+				}
+				return result;
+			}),
+		);
 	}
 
 	/**
@@ -420,12 +441,20 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		return (await this.promise).isErr();
 	}
 
-	async isOkAnd(fn: (value: T) => boolean): Promise<boolean> {
-		return (await this.promise).isOkAnd(fn);
+	async isOkAnd(fn: (value: T) => MaybePromise<boolean>): Promise<boolean> {
+		const result = await this.promise;
+		if (result.isErr()) {
+			return false;
+		}
+		return fn(result.value);
 	}
 
-	async isErrAnd(fn: (error: E) => boolean): Promise<boolean> {
-		return (await this.promise).isErrAnd(fn);
+	async isErrAnd(fn: (error: E) => MaybePromise<boolean>): Promise<boolean> {
+		const result = await this.promise;
+		if (result.isOk()) {
+			return false;
+		}
+		return fn(result.error);
 	}
 
 	async unwrap(): Promise<T> {
@@ -448,27 +477,54 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		return (await this.promise).unwrapOr(defaultValue);
 	}
 
-	async unwrapOrElse(fn: (error: E) => T): Promise<T> {
-		return (await this.promise).unwrapOrElse(fn);
+	async unwrapOrElse(fn: (error: E) => MaybePromise<T>): Promise<T> {
+		const result = await this.promise;
+		if (result.isOk()) {
+			return result.value;
+		}
+		return fn(result.error);
 	}
 
-	map<U>(fn: (value: T) => U): ResultAsync<U, E> {
-		return this.wrap((result) => result.map(fn));
+	map<U>(fn: (value: T) => MaybePromise<U>): ResultAsync<U, E> {
+		return this.wrap(async (result) => {
+			if (result.isErr()) {
+				return result as unknown as Err<U, E>;
+			}
+			return ok(await fn(result.value));
+		});
 	}
 
-	mapErr<F>(fn: (error: E) => F): ResultAsync<T, F> {
-		return this.wrap((result) => result.mapErr(fn));
+	mapErr<F>(fn: (error: E) => MaybePromise<F>): ResultAsync<T, F> {
+		return this.wrap(async (result) => {
+			if (result.isOk()) {
+				return result as unknown as Ok<T, F>;
+			}
+			return err(await fn(result.error));
+		});
 	}
 
-	async mapOr<U>(defaultValue: U, fn: (value: T) => U): Promise<U> {
-		return (await this.promise).mapOr(defaultValue, fn);
+	async mapOr<U>(defaultValue: U, fn: (value: T) => MaybePromise<U>): Promise<U> {
+		const result = await this.promise;
+		if (result.isErr()) {
+			return defaultValue;
+		}
+		return fn(result.value);
 	}
 
-	async mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => U): Promise<U> {
-		return (await this.promise).mapOrElse(defaultFn, fn);
+	async mapOrElse<U>(
+		defaultFn: (error: E) => MaybePromise<U>,
+		fn: (value: T) => MaybePromise<U>,
+	): Promise<U> {
+		const result = await this.promise;
+		if (result.isErr()) {
+			return defaultFn(result.error);
+		}
+		return fn(result.value);
 	}
 
-	andThen<U, F>(fn: (value: T) => Result<U, F> | ResultAsync<U, F>): ResultAsync<U, E | F> {
+	andThen<U, F>(
+		fn: (value: T) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, E | F> {
 		return this.wrap((result) => {
 			if (result.isErr()) {
 				// Cast avoids allocating a new Err; the value type U is phantom here.
@@ -501,7 +557,7 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		});
 	}
 
-	orElse<F>(fn: (error: E) => Result<T, F> | ResultAsync<T, F>): ResultAsync<T, F> {
+	orElse<F>(fn: (error: E) => MaybePromise<Result<T, F>> | ResultAsync<T, F>): ResultAsync<T, F> {
 		return this.wrap((result) => {
 			if (result.isOk()) {
 				// Cast avoids allocating a new Ok; the error type F is phantom here.
@@ -512,16 +568,33 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		});
 	}
 
-	async match<U>(handlers: { ok: (value: T) => U; err: (error: E) => U }): Promise<U> {
-		return (await this.promise).match(handlers);
+	async match<U>(handlers: {
+		ok: (value: T) => MaybePromise<U>;
+		err: (error: E) => MaybePromise<U>;
+	}): Promise<U> {
+		const result = await this.promise;
+		if (result.isOk()) {
+			return handlers.ok(result.value);
+		}
+		return handlers.err(result.error);
 	}
 
-	inspect(fn: (value: T) => void): ResultAsync<T, E> {
-		return this.wrap((result) => result.inspect(fn));
+	inspect(fn: (value: T) => MaybePromise<unknown>): ResultAsync<T, E> {
+		return this.wrap(async (result) => {
+			if (result.isOk()) {
+				await fn(result.value);
+			}
+			return result;
+		});
 	}
 
-	inspectErr(fn: (error: E) => void): ResultAsync<T, E> {
-		return this.wrap((result) => result.inspectErr(fn));
+	inspectErr(fn: (error: E) => MaybePromise<unknown>): ResultAsync<T, E> {
+		return this.wrap(async (result) => {
+			if (result.isErr()) {
+				await fn(result.error);
+			}
+			return result;
+		});
 	}
 
 	flatten<U, F>(this: ResultAsync<Result<U, F>, E>): ResultAsync<U, E | F> {
