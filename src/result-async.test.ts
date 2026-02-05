@@ -494,6 +494,21 @@ describe("ResultAsync", () => {
 	});
 
 	describe("ResultAsync.try", () => {
+		test("returns Ok when function returns synchronously", async () => {
+			const result = ResultAsync.try(() => 42);
+			expect(await result.isOk()).toBe(true);
+			expect(await result.unwrap()).toBe(42);
+		});
+
+		test("returns Err when function throws synchronously", async () => {
+			const error = new Error("sync boom");
+			const result = ResultAsync.try(() => {
+				throw error;
+			});
+			expect(await result.isErr()).toBe(true);
+			expect(await result.unwrapErr()).toBe(error);
+		});
+
 		test("returns Ok when async function resolves", async () => {
 			const result = ResultAsync.try(async () => 42);
 			expect(await result.isOk()).toBe(true);
