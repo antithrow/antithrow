@@ -328,7 +328,7 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	}
 
 	/**
-	 * Executes an async function and wraps the result in a `ResultAsync`. If the function
+	 * Executes a function and wraps the result in a `ResultAsync`. If the function
 	 * throws or the promise rejects, the error is caught and wrapped in an `Err`.
 	 *
 	 * @example
@@ -337,16 +337,17 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	 * const failed = ResultAsync.try(async () => { throw new Error('oops'); });
 	 * ```
 	 *
-	 * @template T - The resolved type of the promise.
+	 * @template T - The resolved type of the promise or return value.
 	 * @template E - The error type (defaults to `unknown`).
 	 *
-	 * @param fn - The async function to execute.
+	 * @param fn - The function to execute.
 	 *
 	 * @returns A `ResultAsync` containing either the resolved value or the caught error.
 	 */
-	static try<T, E = unknown>(fn: () => Promise<T>): ResultAsync<T, E> {
+	static try<T, E = unknown>(fn: () => T | Promise<T>): ResultAsync<T, E> {
 		return new ResultAsync(
-			fn()
+			Promise.resolve()
+				.then(fn)
 				.then((value) => ok<T, E>(value))
 				.catch((error) => err<T, E>(error)),
 		);
