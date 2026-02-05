@@ -345,11 +345,10 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	 * @returns A `ResultAsync` containing either the resolved value or the caught error.
 	 */
 	static try<T, E = unknown>(fn: () => T | Promise<T>): ResultAsync<T, E> {
-		return new ResultAsync(
+		return ResultAsync.fromPromise(
 			Promise.resolve()
 				.then(fn)
-				.then((value) => ok<T, E>(value))
-				.catch((error) => err<T, E>(error)),
+				.then((value) => ok(value)),
 		);
 	}
 
@@ -375,7 +374,8 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	}
 
 	/**
-	 * Wraps an existing `Promise<Result<T, E>>` into a `ResultAsync`.
+	 * Wraps an existing `Promise<Result<T, E>>` into a `ResultAsync`. If the promise
+	 * rejects, the error is caught and wrapped in an `Err`.
 	 *
 	 * @example
 	 * ```ts
@@ -391,7 +391,7 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	 * @returns A `ResultAsync` containing the resolved `Result`.
 	 */
 	static fromPromise<T, E>(promise: Promise<Result<T, E>>): ResultAsync<T, E> {
-		return new ResultAsync(promise);
+		return new ResultAsync(promise.catch((error) => err(error)));
 	}
 
 	// biome-ignore lint/suspicious/noThenProperty: We are implementing `PromiseLike`.

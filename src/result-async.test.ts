@@ -480,6 +480,13 @@ describe("ResultAsync", () => {
 			expect(await result.unwrapErr()).toBe("error");
 		});
 
+		test("wraps rejected Promise as Err", async () => {
+			const error = new Error("rejected");
+			const result = ResultAsync.fromPromise(Promise.reject(error));
+			expect(await result.isErr()).toBe(true);
+			expect(await result.unwrapErr()).toBe(error);
+		});
+
 		test("can be chained with map", async () => {
 			const promise = Promise.resolve(ok(21));
 			const result = ResultAsync.fromPromise(promise).map((x) => x * 2);
