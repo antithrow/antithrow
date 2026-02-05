@@ -802,6 +802,8 @@ export const Result = {
 	/**
 	 * Executes a function and wraps the result in a `Result`. If the function throws,
 	 * the error is caught and wrapped in an `Err`.
+	 * Use this to wrap throwable operations before passing them into `Result`
+	 * callbacks or `chain(...)` generators.
 	 *
 	 * @example
 	 * ```ts

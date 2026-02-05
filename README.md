@@ -115,6 +115,21 @@ const result = await chain(async function* () {
 // ok(3)
 ```
 
+### Exception Boundaries
+
+> [!WARNING]
+> `antithrow` preserves the `Result<T, E>` error kind. Because of that, it does **not** implicitly convert thrown values from callbacks or generator bodies into `Err<E>`.
+>
+> - Callbacks passed to methods like `map`, `mapErr`, `andThen`, `orElse`, `inspect` (and async variants) can still throw/reject.
+> - `chain(...)` generator bodies can still throw/reject.
+> - If logic can throw, wrap it explicitly with `Result.try(...)` or `ResultAsync.try(...)` before feeding it into pipelines.
+>
+> ```ts
+> const safeJsonParse = (input: string) => Result.try(() => JSON.parse(input));
+>
+> const result = ok("{\"a\":1}").andThen(safeJsonParse);
+> ```
+
 ## API
 
 ### Constructors
@@ -129,7 +144,7 @@ const result = await chain(async function* () {
 | `ResultAsync.try(fn)` | Wraps an async throwing function in a ResultAsync |
 | `ResultAsync.fromResult(result)` | Wraps an existing Result in a ResultAsync |
 | `ResultAsync.fromPromise(promise)` | Wraps a Promise\<Result\> in a ResultAsync |
-| `chain(generator)` | Chains results using generator syntax |
+| `chain(generator)` | Chains results using generator syntax (generator throws/rejections are not auto-wrapped) |
 
 ### Methods
 

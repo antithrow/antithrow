@@ -357,6 +357,8 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	/**
 	 * Executes a function and wraps the result in a `ResultAsync`. If the function
 	 * throws or the promise rejects, the error is caught and wrapped in an `Err`.
+	 * Use this to wrap throwable operations before passing them into `ResultAsync`
+	 * pipelines (`map`, `andThen`, `orElse`, `inspect`, etc.).
 	 *
 	 * @example
 	 * ```ts
@@ -407,6 +409,10 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	 * This method does not catch promise rejections. If the promise may reject,
 	 * use {@link ResultAsync.try} instead, which catches exceptions and wraps
 	 * them as `Err<unknown>`.
+	 *
+	 * Likewise, callbacks passed to `ResultAsync` methods are not implicit
+	 * exception boundaries. Wrap throwable logic with {@link ResultAsync.try}
+	 * (or {@link Result.try}) before returning from callbacks.
 	 *
 	 * @example
 	 * ```ts

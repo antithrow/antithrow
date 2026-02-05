@@ -9,6 +9,8 @@ export type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
  * Chains multiple Result operations using generator syntax for early return on errors.
  *
  * Use `yield*` with a `Result` to unwrap its value or short-circuit on error.
+ * Thrown exceptions from the generator body are not converted into `Err`.
+ * Wrap throwable logic with `Result.try(...)` before yielding/returning.
  *
  * @example
  * ```ts
@@ -31,6 +33,8 @@ export function chain<T, E>(generator: () => SyncChainGenerator<T, E>): Result<T
  * Chains multiple ResultAsync operations using async generator syntax for early return on errors.
  *
  * Use `yield*` with a `ResultAsync` to unwrap its value or short-circuit on error.
+ * Thrown exceptions or rejected awaits from the generator body are not converted into `Err`.
+ * Wrap throwable logic with `Result.try(...)` / `ResultAsync.try(...)` before yielding/returning.
  *
  * @example
  * ```ts
