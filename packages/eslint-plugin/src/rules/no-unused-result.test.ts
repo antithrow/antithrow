@@ -52,6 +52,10 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 			code: `${preamble}42;`,
 		},
 		{
+			name: "expression typed as any",
+			code: `${preamble}JSON.parse("1");`,
+		},
+		{
 			name: "void-returning function",
 			code: `${preamble}console.log("hi");`,
 		},
