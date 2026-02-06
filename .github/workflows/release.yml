@@ -11,12 +11,13 @@ jobs:
   release:
     # Don't run on forks
     if: github.repository == 'jack-weilage/antithrow'
+    # TODO: Trusted publishing requires npm@11.5.1, but ubuntu-latest currently ships with
+    # npm@10.8.2. ubuntu-slim is slightly newer, shipping with npm@11.6.2
+    runs-on: ubuntu-slim
     permissions:
       contents: write # To create releases
       id-token: write # OIDC trusted publishing
       pull-requests: write # Create changeset pull request
-
-    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -24,18 +25,10 @@ jobs:
 
       - name: Set up Bun.sh
         uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2
-        
-        # Trusted publishing requires npm@11.5.1, but Github Actions uses npm@10.8.2
-      - name: Set up Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
-        with:
-          node-version: 24
-      - name: Upgrade npm
-        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: bun install
-        
+
       - name: Run changesets
         uses: changesets/action@v1
         with:
