@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Build the workspace
+        run: bun run build
+
       - name: Run tests with coverage
         run: bun test --coverage --coverage-reporter=lcov
 
@@ -50,7 +53,7 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build the library
+      - name: Build the workspace
         run: bun run build
 
       - name: Run linter
