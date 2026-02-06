@@ -4,9 +4,9 @@ import { createRule } from "../create-rule.js";
 
 const RESULT_TYPE_NAMES = new Set(["Ok", "Err", "ResultAsync"]);
 
-function isResultType(type: ts.Type, _checker: ts.TypeChecker): boolean {
+function isResultType(type: ts.Type): boolean {
 	if (type.isUnion()) {
-		return type.types.some((t) => isResultType(t, _checker));
+		return type.types.some((t) => isResultType(t));
 	}
 
 	const flags = type.getFlags();
@@ -60,7 +60,7 @@ export const noUnusedResult = createRule({
 				const tsNode = services.esTreeNodeToTSNodeMap.get(node.expression);
 				const type = checker.getTypeAtLocation(tsNode);
 
-				if (!isResultType(type, checker)) {
+				if (!isResultType(type)) {
 					return;
 				}
 
