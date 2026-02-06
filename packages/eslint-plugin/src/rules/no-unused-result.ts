@@ -19,10 +19,7 @@ function isResultType(type: ts.Type): boolean {
 		return false;
 	}
 
-	const declarations = symbol.getDeclarations();
-	if (!declarations || declarations.length === 0) {
-		return false;
-	}
+	const declarations = symbol.getDeclarations() ?? [];
 
 	return declarations.some((decl) => {
 		const sourceFile = decl.getSourceFile();
