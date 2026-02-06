@@ -17,18 +17,16 @@ const plugin: Plugin = {
 	configs: {},
 };
 
-Object.defineProperty(plugin.configs, "recommended", {
-	enumerable: true,
-	get() {
-		return {
-			plugins: {
-				"@antithrow": plugin,
-			},
-			rules: {
-				"@antithrow/no-unused-result": "error",
-			},
-		} satisfies TSESLint.FlatConfig.Config;
+plugin.configs = {
+	...plugin.configs,
+	recommended: {
+		plugins: {
+			"@antithrow": plugin,
+		},
+		rules: {
+			"@antithrow/no-unused-result": "error",
+		},
 	},
-});
+};
 
 export default plugin;
