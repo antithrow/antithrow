@@ -6,6 +6,7 @@
 		"helpers:pinGithubActionDigestsToSemver",
 		"customManagers:biomeVersions"
 	],
+	"labels": ["dependencies"],
 	"packageRules": [
 		{
 			"groupName": "bun",
