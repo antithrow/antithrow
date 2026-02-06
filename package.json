@@ -1,38 +1,15 @@
 {
-	"name": "antithrow",
-	"version": "1.1.0",
-	"description": "Rust-style Result types for type-safe error handling without exceptions",
-	"license": "MIT",
-	"author": "Jack Weilage",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/jack-weilage/antithrow.git"
-	},
-	"keywords": [
-		"result",
-		"error-handling",
-		"typescript",
-		"functional"
-	],
+	"name": "@antithrow/workspace",
+	"private": true,
 	"type": "module",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js"
-		}
-	},
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"files": [
-		"dist"
+	"workspaces": [
+		"packages/*"
 	],
 	"scripts": {
-		"build": "tsc -p tsconfig.build.json",
-		"clean": "rm -rf dist",
-		"lint": "biome check . && bun lint:knip && bun lint:publint && bun lint:types",
+		"build": "bun run --workspaces --if-present build",
+		"clean": "bun run --workspaces --if-present clean",
+		"lint": "biome check . && bun lint:knip && bun run --workspaces --if-present lint",
 		"lint:knip": "knip --cache",
-		"lint:publint": "publint",
-		"lint:types": "tsc --noEmit",
 		"format": "biome check --write .",
 		"release": "bun run clean && bun run build && changeset publish"
 	},
