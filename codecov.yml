@@ -1,0 +1,6 @@
+component_management:
+  individual_components:
+    - component_id: antithrow
+      name: antithrow
+      paths:
+        - packages/antithrow
