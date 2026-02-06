@@ -1,4 +1,14 @@
 {
 	"$schema": "https://unpkg.com/knip@5/schema.json",
-	"ignore": ["**/examples/**", "**/*.test.ts"]
+	"ignore": ["**/examples/**", "**/*.test.ts"],
+	"tags": ["-lintignore"],
+	"workspaces": {
+		"packages/eslint-plugin": {
+			"ignoreDependencies": [
+				"@typescript-eslint/parser",
+				"@typescript-eslint/rule-tester",
+				"antithrow"
+			]
+		}
+	}
 }

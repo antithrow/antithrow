@@ -13,3 +13,4 @@ and visible at compile time.
 ## Packages
 
 - [`antithrow`](./packages/antithrow) - Core `Result`, `ResultAsync`, and `chain` utilities.
+- [`@antithrow/eslint-plugin`](./packages/eslint-plugin) - ESLint rules for antithrow Result types.

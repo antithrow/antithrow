@@ -4,3 +4,7 @@ component_management:
       name: antithrow
       paths:
         - packages/antithrow
+    - component_id: eslint-plugin
+      name: "@antithrow/eslint-plugin"
+      paths:
+        - packages/eslint-plugin
