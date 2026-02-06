@@ -67,6 +67,22 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 			name: "match returns non-Result",
 			code: `${preamble}ok(1).match({ ok: (v) => v, err: (e) => 0 });`,
 		},
+		{
+			name: "non-void unary on Result (typeof)",
+			code: `${preamble}typeof ok(1);`,
+		},
+		{
+			name: "ternary with both branches voided",
+			code: `${preamble}declare const cond: boolean;\ncond ? void ok(1) : void ok(2);`,
+		},
+		{
+			name: "logical AND with voided Result",
+			code: `${preamble}true && void ok(1);`,
+		},
+		{
+			name: "entire ternary voided",
+			code: `${preamble}declare const cond: boolean;\nvoid (cond ? ok(1) : ok(2));`,
+		},
 	],
 	invalid: [
 		{
@@ -107,6 +123,46 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		{
 			name: "bare errAsync() expression",
 			code: `${preamble}errAsync("x");`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "Result with ts as-cast, unused",
+			code: `${preamble}ok(1) as Result<number, never>;`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "Result with non-null assertion, unused",
+			code: `${preamble}declare const r: Result<number, string> | undefined;\nr!;`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "optional chain producing Result, unused",
+			code: `${preamble}declare const o: { f(): Result<number, string> } | undefined;\no?.f();`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "ternary with both branches producing Result",
+			code: `${preamble}declare const cond: boolean;\ncond ? ok(1) : ok(2);`,
+			errors: [{ messageId: "unusedResult" }, { messageId: "unusedResult" }],
+		},
+		{
+			name: "logical AND producing Result",
+			code: `${preamble}true && ok(1);`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "comma operator with non-final Result discarded",
+			code: `${preamble}ok(1), console.log("hi");`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "logical OR producing Result",
+			code: `${preamble}false || ok(1);`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "nullish coalescing producing Result",
+			code: `${preamble}declare const cond: null | number;\ncond ?? ok(1);`,
 			errors: [{ messageId: "unusedResult" }],
 		},
 	],

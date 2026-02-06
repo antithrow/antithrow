@@ -1,3 +1,4 @@
+import type { TSESTree } from "@typescript-eslint/utils";
 import { ESLintUtils } from "@typescript-eslint/utils";
 import ts from "typescript";
 import { createRule } from "../create-rule.js";
@@ -48,23 +49,56 @@ export const noUnusedResult = createRule({
 		const services = ESLintUtils.getParserServices(context);
 		const checker = services.program.getTypeChecker();
 
+		function checkExpression(node: TSESTree.Expression): void {
+			switch (node.type) {
+				case "UnaryExpression":
+					if (node.operator === "void") {
+						return;
+					}
+					break;
+
+				case "ConditionalExpression":
+					checkExpression(node.consequent);
+					checkExpression(node.alternate);
+					return;
+
+				case "LogicalExpression":
+					checkExpression(node.left);
+					checkExpression(node.right);
+					return;
+
+				case "SequenceExpression":
+					for (const expr of node.expressions) {
+						checkExpression(expr);
+					}
+					return;
+
+				case "TSAsExpression":
+				case "TSNonNullExpression":
+					checkExpression(node.expression);
+					return;
+
+				case "ChainExpression":
+					checkExpression(node.expression);
+					return;
+			}
+
+			const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+			const type = checker.getTypeAtLocation(tsNode);
+
+			if (!isResultType(type)) {
+				return;
+			}
+
+			context.report({
+				node,
+				messageId: "unusedResult",
+			});
+		}
+
 		return {
 			ExpressionStatement(node) {
-				if (node.expression.type === "UnaryExpression" && node.expression.operator === "void") {
-					return;
-				}
-
-				const tsNode = services.esTreeNodeToTSNodeMap.get(node.expression);
-				const type = checker.getTypeAtLocation(tsNode);
-
-				if (!isResultType(type)) {
-					return;
-				}
-
-				context.report({
-					node,
-					messageId: "unusedResult",
-				});
+				checkExpression(node.expression);
 			},
 		};
 	},
