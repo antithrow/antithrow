@@ -1,42 +1,51 @@
-# AGENTS.md
+# antithrow
+
+This is the monorepo repository for the `antithrow` ecosystem - a group of libraries based around bringing explicitly-typed errors to JavaScript, making it easier to ensure errors are tracked and handled.
 
 ## Commands
 
-### Essentials
-
 ```sh
-# Initial setup (sets up git, bun, and installs dependencies)
-bun install
-
-# Build the library (always run before linting)
+# Build all workspace packages (always run before linting)
 bun run build
 
-# Format code
+# Format code (always run to fix formatting issues)
 bun run format
 
-# Lint code (runs biome, knip, publint, and tsc)
+# Lint code (runs biome at root, then package lint pipelines)
 bun run lint
 ```
 
-### Testing
+## Testing
+
+### Running Tests
 
 ```sh
-# Run all tests
+# Run all tests across workspaces
 bun test
 
 # Run a single test
-bun test src/result.test.ts
+bun test packages/antithrow/src/result.test.ts
 
 # Run tests with a specific pattern
 bun test --test-name-pattern "pattern"
 ```
 
+### Test Organization
+
+Tests should be placed alongside their subjects where possible (e.g. `result.ts` and `result.test.ts`).
+
+### Writing Tests
+
+Tests are written using Bun's built-in Jest-compatible test runner (`bun:test`).
+
+- Always use sematic matchers where possible (`expect(a).toHaveLength(2)` vs `expect(a.length).toBe(2)`)
+- Use mock functions and associated matchers where useful.
+
 ## Architecture
-A TypeScript library implementing Rust-style `Result<T, E>` types for error handling without exceptions.
-- `src/result.ts` - Core `Ok`, `Err` classes and `Result` type
-- `src/result-async.ts` - Async result utilities
-- `src/chain.ts` - Chaining/composition utilities
-- Tests use Bun's built-in test runner (`bun:test`)
+
+A TypeScript monorepo centered around Rust-style `Result<T, E>` error handling utilities.
+
+- `packages/antithrow` - Core `Result`, `ResultAsync`, and associated chaining/composition utilities.
 
 ## Code Style
 - **Formatter**: Biome with tabs, double quotes
@@ -46,3 +55,10 @@ A TypeScript library implementing Rust-style `Result<T, E>` types for error hand
 - **Errors**: Return `Result<T, E>` instead of throwing; use `Result.try()` to wrap throwing functions
 - **Unused params**: Prefix with underscore (e.g., `_defaultValue`)
 - **Docs**: Use JSDoc with `@example` blocks for public API
+
+## Important Development Notes
+
+1. **All changes must be tested** - If you haven't created tests for your changes, you're not done.
+2. **Get your tests to pass** - If you didn't run the tests, your code doesn't work.
+3. **Follow existing code style** - check neighboring files for patterns
+4. **Use absolute paths** - Always use absolute paths in file operations
