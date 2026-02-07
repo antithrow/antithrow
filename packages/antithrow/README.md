@@ -58,6 +58,7 @@ const port = readEnv("PORT").andThen(parsePort).unwrapOr(3000);
 > - `chain(...)` generator bodies can still throw/reject.
 >
 > If logic can throw, wrap it explicitly with `Result.try(...)` or `ResultAsync.try(...)` before feeding it into pipelines.
+> Or use [`@antithrow/std`](../std) which provides pre-wrapped versions of common globals.
 >
 > ```ts
 > const safeJsonParse = (input: string): Result<unknown, SyntaxError> =>

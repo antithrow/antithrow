@@ -13,4 +13,5 @@ and visible at compile time.
 ## Packages
 
 - [`antithrow`](./packages/antithrow) - Core `Result`, `ResultAsync`, and `chain` utilities.
+- [`@antithrow/std`](./packages/std) - Non-throwing wrappers around standard globals (`fetch`, `JSON`, `atob`, etc.).
 - [`@antithrow/eslint-plugin`](./packages/eslint-plugin) - ESLint rules for antithrow Result types.
