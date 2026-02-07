@@ -26,10 +26,10 @@ function isAntithrowResultTypeSymbol(symbol: ts.Symbol): boolean {
 	});
 }
 
-type ResultTypeCollection = {
+interface ResultTypeCollection {
 	hasNonResultMembers: boolean;
 	names: Set<string>;
-};
+}
 
 function collectResultTypes(type: ts.Type, collection: ResultTypeCollection): void {
 	if (type.isUnion()) {
