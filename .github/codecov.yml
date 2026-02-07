@@ -8,3 +8,7 @@ component_management:
       name: "@antithrow/eslint-plugin"
       paths:
         - packages/eslint-plugin
+    - component_id: std
+      name: "@antithrow/std"
+      paths:
+        - packages/std
