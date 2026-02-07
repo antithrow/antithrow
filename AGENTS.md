@@ -49,7 +49,7 @@ A TypeScript monorepo centered around Rust-style `Result<T, E>` error handling u
 - `packages/eslint-plugin` - ESLint plugin (`@antithrow/eslint-plugin`) with rules for enforcing correct Result usage.
 
 ## Code Style
-- **Formatter**: Biome with tabs, double quotes
+- **Formatter**: Biome with tabs, double quotes (use 2-space indentation in `.md` files)
 - **Imports**: Use `.js` extension for local imports (ESM); organize imports automatically
 - **Types**: Strict TypeScript (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `strict`)
 - **Naming**: `camelCase` for functions/variables, `PascalCase` for classes/types
