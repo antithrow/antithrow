@@ -40,6 +40,7 @@ export default [
       "@antithrow": antithrow,
     },
     rules: {
+      "@antithrow/no-unsafe-unwrap": "warn",
       "@antithrow/no-unused-result": "error",
     },
   },
@@ -50,4 +51,5 @@ export default [
 
 | Rule | Description | Recommended |
 | --- | --- | --- |
+| [`no-unsafe-unwrap`](./docs/rules/no-unsafe-unwrap.md) | Disallow `unwrap`/`expect` APIs on antithrow `Result` values | `warn` |
 | [`no-unused-result`](./docs/rules/no-unused-result.md) | Require `Result` and `ResultAsync` values to be used | `error` |
