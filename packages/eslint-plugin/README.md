@@ -24,8 +24,8 @@ Add the recommended config to your `eslint.config.ts`:
 import antithrow from "@antithrow/eslint-plugin";
 
 export default [
-	// ... your other configs
-	antithrow.configs.recommended,
+  // ... your other configs
+  antithrow.configs.recommended,
 ];
 ```
 
@@ -35,14 +35,14 @@ Or configure rules individually:
 import antithrow from "@antithrow/eslint-plugin";
 
 export default [
-	{
-		plugins: {
-			"@antithrow": antithrow,
-		},
-		rules: {
-			"@antithrow/no-unused-result": "error",
-		},
-	},
+  {
+    plugins: {
+      "@antithrow": antithrow,
+    },
+    rules: {
+      "@antithrow/no-unused-result": "error",
+    },
+  },
 ];
 ```
 
