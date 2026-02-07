@@ -68,10 +68,6 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 			code: `${preamble}ok(1).match({ ok: (v) => v, err: (e) => 0 });`,
 		},
 		{
-			name: "non-void unary on Result (typeof)",
-			code: `${preamble}typeof ok(1);`,
-		},
-		{
 			name: "ternary with both branches voided",
 			code: `${preamble}declare const cond: boolean;\ncond ? void ok(1) : void ok(2);`,
 		},
@@ -163,6 +159,36 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		{
 			name: "nullish coalescing producing Result",
 			code: `${preamble}declare const cond: null | number;\ncond ?? ok(1);`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "unary operator + on Result",
+			code: `${preamble}+ ok(1);`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "unary operator - on Result",
+			code: `${preamble}- ok(1);`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "unary operator ! on Result",
+			code: `${preamble}! ok(1);`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "unary operator ~ on Result",
+			code: `${preamble}~ ok(1);`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "unary operator typeof on Result",
+			code: `${preamble}typeof ok(1);`,
+			errors: [{ messageId: "unusedResult" }],
+		},
+		{
+			name: "unary operator delete on Result",
+			code: `${preamble}delete ok(1);`,
 			errors: [{ messageId: "unusedResult" }],
 		},
 	],

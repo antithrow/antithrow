@@ -55,7 +55,8 @@ export const noUnusedResult = createRule({
 					if (node.operator === "void") {
 						return;
 					}
-					break;
+					checkExpression(node.argument);
+					return;
 
 				case "ConditionalExpression":
 					checkExpression(node.consequent);
