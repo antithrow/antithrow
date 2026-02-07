@@ -73,6 +73,12 @@ async function g() {
 console.log("hi");
 ```
 
+## Suggestions
+
+This rule provides a suggestion to explicitly discard the Result by wrapping the expression with `void`. The suggestion accounts for operator precedence, adding parentheses when necessary.
+
+For example, `ok(1);` suggests `void ok(1);`, while `cond ? ok(1) : ok(2);` suggests `void (cond ? ok(1) : ok(2));`.
+
 ## When Not To Use It
 
 If you intentionally discard `Result` values in fire-and-forget scenarios and don't want to add `void` before each one.
