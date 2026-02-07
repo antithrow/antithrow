@@ -1,0 +1,42 @@
+{
+	"name": "@antithrow/std",
+	"version": "0.0.0",
+	"description": "Non-throwing wrappers around standard globals using antithrow Result types",
+	"license": "MIT",
+	"author": "Jack Weilage",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jack-weilage/antithrow.git",
+		"directory": "packages/std"
+	},
+	"keywords": [
+		"result",
+		"error-handling",
+		"typescript",
+		"functional",
+		"fetch",
+		"json"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"clean": "rm -rf dist",
+		"lint": "bun run lint:publint && bun run lint:types",
+		"lint:publint": "publint",
+		"lint:types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"antithrow": "workspace:*"
+	}
+}

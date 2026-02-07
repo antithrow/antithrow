@@ -1,3 +1,6 @@
 [install]
 # Prevent installing packages newer than 3 days old
 minimumReleaseAge = 259200
+
+[test]
+coveragePathIgnorePatterns = ["**/dist/**"]
