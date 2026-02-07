@@ -17,3 +17,15 @@ export const ruleTester = new RuleTester({
 		},
 	},
 });
+
+export function createCodeHelper(
+	preamble: string,
+): (strings: TemplateStringsArray, ...values: unknown[]) => string {
+	return (strings, ...values) => {
+		let body = strings[0] ?? "";
+		for (const [index, value] of values.entries()) {
+			body += `${String(value)}${strings[index + 1] ?? ""}`;
+		}
+		return `${preamble}${body}`;
+	};
+}
