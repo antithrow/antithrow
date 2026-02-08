@@ -1,5 +1,11 @@
 # @antithrow/eslint-plugin
 
+## 1.2.0
+
+### Minor Changes
+
+- [#75](https://github.com/antithrow/antithrow/pull/75) [`e1d2da9`](https://github.com/antithrow/antithrow/commit/e1d2da948fcf3b0d5a9bb21797ea5f2f419acc1e) Thanks [@jack-weilage](https://github.com/jack-weilage)! - feat: add `no-throwing-call` lint to suggest usage of `@antithrow/std`
+
 ## 1.1.0
 
 ### Minor Changes
