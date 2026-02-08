@@ -6,7 +6,7 @@
 	"author": "Jack Weilage",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/jack-weilage/antithrow.git",
+		"url": "git+https://github.com/antithrow/antithrow.git",
 		"directory": "packages/eslint-plugin"
 	},
 	"keywords": [

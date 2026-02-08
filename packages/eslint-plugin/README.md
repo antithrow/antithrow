@@ -1,7 +1,7 @@
 <div align="center">
 	<h1>@antithrow/eslint-plugin</h1>
 	<p>
-		ESLint rules for <a href="https://github.com/jack-weilage/antithrow">antithrow</a> Result types
+		ESLint rules for <a href="https://github.com/antithrow/antithrow">antithrow</a> Result types
 	</p>
 
 ![NPM Version](https://img.shields.io/npm/v/@antithrow/eslint-plugin)
