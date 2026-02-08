@@ -5,7 +5,7 @@ import { err, ok } from "./result.js";
 /**
  * A type that can be either a value or a promise-like containing that value.
  */
-export type MaybePromise<T> = T | PromiseLike<T>;
+type MaybePromise<T> = T | PromiseLike<T>;
 
 interface ResultAsyncMethods<T, E> {
 	/**
