@@ -44,6 +44,10 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			code: `interface MyResponse { json(): Promise<unknown> }\ndeclare const r: MyResponse;\nr.json();`,
 		},
 		{
+			name: "json method on generic with non-Response constraint",
+			code: `function foo<T extends { json(): Promise<unknown> }>(obj: T) { obj.json(); }`,
+		},
+		{
 			name: "shadowed globalThis is not detected",
 			code: `const globalThis = { fetch: () => {} };\nglobalThis.fetch("https://example.com");`,
 		},
@@ -186,6 +190,11 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			name: "window.JSON.stringify call",
 			code: `window.JSON.stringify({ a: 1 });`,
 			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "JSON.stringify" } }],
+		},
+		{
+			name: "response.json() on generic type parameter extending Response",
+			code: `function foo<T extends Response>(resp: T) { resp.json(); }`,
+			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "response.json" } }],
 		},
 	],
 });
