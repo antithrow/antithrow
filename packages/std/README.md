@@ -1,7 +1,7 @@
 <div align="center">
 	<h1>@antithrow/std</h1>
 	<p>
-		non-throwing wrappers around standard globals, powered by <a href="https://github.com/jack-weilage/antithrow">antithrow</a>
+		non-throwing wrappers around standard globals, powered by <a href="https://github.com/antithrow/antithrow">antithrow</a>
 	</p>
 
 ![NPM Version](https://img.shields.io/npm/v/@antithrow/std)
