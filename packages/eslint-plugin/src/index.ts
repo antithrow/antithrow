@@ -1,6 +1,6 @@
 import type { TSESLint } from "@typescript-eslint/utils";
 import packageJson from "../package.json" with { type: "json" };
-import { noUnsafeUnwrap, noUnusedResult } from "./rules/index.js";
+import { noThrowingCall, noUnsafeUnwrap, noUnusedResult } from "./rules/index.js";
 
 type Plugin = TSESLint.FlatConfig.Plugin & {
 	configs: Record<string, TSESLint.FlatConfig.Config>;
@@ -12,6 +12,7 @@ const plugin: Plugin = {
 		version: packageJson.version,
 	},
 	rules: {
+		"no-throwing-call": noThrowingCall,
 		"no-unsafe-unwrap": noUnsafeUnwrap,
 		"no-unused-result": noUnusedResult,
 	},
@@ -25,6 +26,7 @@ plugin.configs = {
 			"@antithrow": plugin,
 		},
 		rules: {
+			"@antithrow/no-throwing-call": "warn",
 			"@antithrow/no-unsafe-unwrap": "warn",
 			"@antithrow/no-unused-result": "error",
 		},
