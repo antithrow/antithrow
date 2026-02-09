@@ -1,0 +1,43 @@
+{
+	"name": "@antithrow/standard-schema",
+	"version": "0.1.0",
+	"description": "Bridge Standard Schema validators to antithrow Result/ResultAsync",
+	"license": "MIT",
+	"author": "Jack Weilage",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/antithrow/antithrow.git",
+		"directory": "packages/standard-schema"
+	},
+	"keywords": [
+		"result",
+		"error-handling",
+		"typescript",
+		"standard-schema",
+		"zod",
+		"valibot"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"clean": "rm -rf dist",
+		"lint": "bun run lint:publint && bun run lint:types",
+		"lint:publint": "publint",
+		"lint:types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@standard-schema/spec": "1.1.0",
+		"antithrow": "workspace:*"
+	}
+}
