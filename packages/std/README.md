@@ -6,6 +6,7 @@
 
 ![NPM Version](https://img.shields.io/npm/v/@antithrow/std)
 ![NPM License](https://img.shields.io/npm/l/@antithrow/std)
+
 </div>
 
 ## Why
@@ -114,25 +115,25 @@ atob("!!!");    // err(DOMException)
 
 ### Sync (`Result`)
 
-| Export               | Signature                                                            | Error Type      |
-| -------------------- | -------------------------------------------------------------------- | --------------- |
-| `JSON.parse`         | `<T = unknown>(text, reviver?) → Result<T, SyntaxError>`             | `SyntaxError`   |
-| `JSON.stringify`     | `(value, replacer?, space?) → Result<string \| undefined, TypeError>` | `TypeError`     |
-| `structuredClone`    | `<T>(value, options?) → Result<T, DOMException>`                     | `DOMException`  |
-| `decodeURI`          | `(encodedURI) → Result<string, URIError>`                            | `URIError`      |
-| `decodeURIComponent` | `(encodedURIComponent) → Result<string, URIError>`                   | `URIError`      |
-| `encodeURI`          | `(uri) → Result<string, URIError>`                                   | `URIError`      |
-| `encodeURIComponent` | `(uriComponent) → Result<string, URIError>`                          | `URIError`      |
-| `atob`               | `(data) → Result<string, DOMException>`                              | `DOMException`  |
-| `btoa`               | `(data) → Result<string, DOMException>`                              | `DOMException`  |
+| Export               | Signature                                                             | Error Type     |
+| -------------------- | --------------------------------------------------------------------- | -------------- |
+| `JSON.parse`         | `<T = unknown>(text, reviver?) → Result<T, SyntaxError>`              | `SyntaxError`  |
+| `JSON.stringify`     | `(value, replacer?, space?) → Result<string \| undefined, TypeError>` | `TypeError`    |
+| `structuredClone`    | `<T>(value, options?) → Result<T, DOMException>`                      | `DOMException` |
+| `decodeURI`          | `(encodedURI) → Result<string, URIError>`                             | `URIError`     |
+| `decodeURIComponent` | `(encodedURIComponent) → Result<string, URIError>`                    | `URIError`     |
+| `encodeURI`          | `(uri) → Result<string, URIError>`                                    | `URIError`     |
+| `encodeURIComponent` | `(uriComponent) → Result<string, URIError>`                           | `URIError`     |
+| `atob`               | `(data) → Result<string, DOMException>`                               | `DOMException` |
+| `btoa`               | `(data) → Result<string, DOMException>`                               | `DOMException` |
 
 ### Async (`ResultAsync`)
 
-| Export                 | Signature                                                              | Error Type                             |
-| ---------------------- | ---------------------------------------------------------------------- | -------------------------------------- |
-| `fetch`                | `(input, init?) → ResultAsync<Response, DOMException \| TypeError>`    | `DOMException \| TypeError`            |
+| Export                 | Signature                                                                       | Error Type                                 |
+| ---------------------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
+| `fetch`                | `(input, init?) → ResultAsync<Response, DOMException \| TypeError>`             | `DOMException \| TypeError`                |
 | `Response.json`        | `<T = unknown>(res) → ResultAsync<T, DOMException \| TypeError \| SyntaxError>` | `DOMException \| TypeError \| SyntaxError` |
-| `Response.text`        | `(res) → ResultAsync<string, DOMException \| TypeError>`               | `DOMException \| TypeError`            |
-| `Response.arrayBuffer` | `(res) → ResultAsync<ArrayBuffer, DOMException \| TypeError \| RangeError>` | `DOMException \| TypeError \| RangeError` |
-| `Response.blob`        | `(res) → ResultAsync<Blob, DOMException \| TypeError>`                 | `DOMException \| TypeError`            |
-| `Response.formData`    | `(res) → ResultAsync<FormData, DOMException \| TypeError>`             | `DOMException \| TypeError`            |
+| `Response.text`        | `(res) → ResultAsync<string, DOMException \| TypeError>`                        | `DOMException \| TypeError`                |
+| `Response.arrayBuffer` | `(res) → ResultAsync<ArrayBuffer, DOMException \| TypeError \| RangeError>`     | `DOMException \| TypeError \| RangeError`  |
+| `Response.blob`        | `(res) → ResultAsync<Blob, DOMException \| TypeError>`                          | `DOMException \| TypeError`                |
+| `Response.formData`    | `(res) → ResultAsync<FormData, DOMException \| TypeError>`                      | `DOMException \| TypeError`                |
