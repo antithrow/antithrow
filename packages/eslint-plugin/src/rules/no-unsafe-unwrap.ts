@@ -135,7 +135,7 @@ export const noUnsafeUnwrap = createRule<[], MessageId>({
 		return {
 			MemberExpression(node) {
 				const method = getStaticMemberName(node);
-				if (!method || !BANNED_METHOD_NAMES.has(method)) {
+				if (!(method && BANNED_METHOD_NAMES.has(method))) {
 					return;
 				}
 
@@ -211,7 +211,7 @@ export const noUnsafeUnwrap = createRule<[], MessageId>({
 				}
 
 				const method = getDestructuredPropertyName(node);
-				if (!method || !BANNED_METHOD_NAMES.has(method)) {
+				if (!(method && BANNED_METHOD_NAMES.has(method))) {
 					return;
 				}
 

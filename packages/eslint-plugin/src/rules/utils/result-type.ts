@@ -46,7 +46,7 @@ function collectResultTypes(type: ts.Type, collection: ResultTypeCollection): vo
 	}
 
 	const symbol = type.getSymbol();
-	if (!symbol || !isAntithrowResultTypeSymbol(symbol)) {
+	if (!(symbol && isAntithrowResultTypeSymbol(symbol))) {
 		collection.hasNonResultMembers = true;
 		return;
 	}
