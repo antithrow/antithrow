@@ -47,11 +47,9 @@ export function validate<S extends StandardSchemaV1>(
 	value: unknown,
 	options?: StandardSchemaV1.Options,
 ): ResultAsync<StandardSchemaV1.InferOutput<S>, StandardSchemaV1.FailureResult> {
-	type Output = StandardSchemaV1.InferOutput<S>;
-
 	return ResultAsync.try(() => schema["~standard"].validate(value, options))
 		.mapErr(toFailureResult)
-		.andThen((result) => convertResult<Output>(result));
+		.andThen(convertResult);
 }
 
 /**
@@ -90,8 +88,6 @@ export function validateSync<S extends StandardSchemaV1>(
 	value: unknown,
 	options?: StandardSchemaV1.Options,
 ): Result<StandardSchemaV1.InferOutput<S>, StandardSchemaV1.FailureResult> {
-	type Output = StandardSchemaV1.InferOutput<S>;
-
 	return Result.try(() => schema["~standard"].validate(value, options))
 		.mapErr(toFailureResult)
 		.andThen((result) => {
@@ -101,6 +97,6 @@ export function validateSync<S extends StandardSchemaV1>(
 				);
 			}
 
-			return convertResult<Output>(result);
+			return convertResult(result);
 		});
 }
