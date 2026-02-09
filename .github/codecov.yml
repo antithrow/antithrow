@@ -8,6 +8,10 @@ component_management:
       name: "@antithrow/eslint-plugin"
       paths:
         - packages/eslint-plugin
+    - component_id: standard-schema
+      name: "@antithrow/standard-schema"
+      paths:
+        - packages/standard-schema
     - component_id: std
       name: "@antithrow/std"
       paths:

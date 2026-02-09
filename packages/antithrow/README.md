@@ -7,6 +7,7 @@
 ![NPM Version](https://img.shields.io/npm/v/antithrow)
 ![NPM License](https://img.shields.io/npm/l/antithrow)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/jack-weilage/antithrow/check.yml)
+
 </div>
 
 ## Features
@@ -104,8 +105,8 @@ const result = await chain(async function* () {
 
 ```ts
 interface RequestError {
-	status: number;
-	message: string;
+  status: number;
+  message: string;
 }
 
 async function handler(request: Request): Promise<Response> {
@@ -119,8 +120,7 @@ async function handler(request: Request): Promise<Response> {
 
   return result.match({
     ok: (user) => Response.json(user, { status: 201 }),
-    err: ({ status, message }) =>
-      Response.json({ error: message }, { status }),
+    err: ({ status, message }) => Response.json({ error: message }, { status }),
   });
 }
 ```
