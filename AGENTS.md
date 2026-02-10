@@ -45,6 +45,7 @@ Tests are written using Bun's built-in Jest-compatible test runner (`bun:test`).
 
 A TypeScript monorepo centered around Rust-style `Result<T, E>` error handling utilities.
 
+- `apps/docs` - Docusaurus-powered documentation website, hosted at `antithrow.dev`.
 - `packages/antithrow` - Core `Result`, `ResultAsync`, and associated chaining/composition utilities.
 - `packages/std` - Non-throwing wrappers around standard globals (`@antithrow/std`), using core `Result`/`ResultAsync` types.
 - `packages/standard-schema` - Standard Schema bridge (`@antithrow/standard-schema`), wrapping validators (Zod, Valibot, ArkType, etc.) into `Result`/`ResultAsync`.

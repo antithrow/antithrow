@@ -1,0 +1,42 @@
+{
+	"name": "docs",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "docusaurus start",
+		"build": "docusaurus build",
+		"clean": "docusaurus clear",
+		"lint:types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@docusaurus/core": "3.9.2",
+		"@docusaurus/plugin-content-docs": "3.9.2",
+		"@docusaurus/preset-classic": "3.9.2",
+		"@docusaurus/remark-plugin-npm2yarn": "^3.9.2",
+		"@mdx-js/react": "3.1.1",
+		"prism-react-renderer": "2.4.1",
+		"react": "19.2.4",
+		"react-dom": "19.2.4"
+	},
+	"devDependencies": {
+		"@docusaurus/module-type-aliases": "3.9.2",
+		"@docusaurus/tsconfig": "3.9.2",
+		"@docusaurus/types": "3.9.2",
+		"typescript": "5.9.3"
+	},
+	"browserslist": {
+		"production": [
+			">0.5%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 3 chrome version",
+			"last 3 firefox version",
+			"last 5 safari version"
+		]
+	},
+	"engines": {
+		"node": ">=20.0"
+	}
+}
