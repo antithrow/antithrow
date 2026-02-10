@@ -52,6 +52,14 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			code: `const globalThis = { fetch: () => {} };\nglobalThis.fetch("https://example.com");`,
 		},
 		{
+			name: "shadowed window is not detected",
+			code: `const window = { fetch: () => Promise.resolve(new Response()) };\nwindow.fetch("https://example.com");`,
+		},
+		{
+			name: "shadowed self is not detected for JSON.parse",
+			code: `const self = { JSON: { parse: (value: string) => value } };\nself.JSON.parse("{}");`,
+		},
+		{
 			name: "any-typed receiver is ignored",
 			code: `declare const r: any;\nr.json();`,
 		},
@@ -177,6 +185,11 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "fetch" } }],
 		},
 		{
+			name: "window fetch call with bracket notation",
+			code: `window["fetch"]("https://example.com");`,
+			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "fetch" } }],
+		},
+		{
 			name: "self.atob call",
 			code: `self.atob("aGVsbG8=");`,
 			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "atob" } }],
@@ -190,6 +203,11 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			name: "window.JSON.stringify call",
 			code: `window.JSON.stringify({ a: 1 });`,
 			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "JSON.stringify" } }],
+		},
+		{
+			name: "self JSON.parse call with bracket notation",
+			code: `self["JSON"]["parse"]("{}");`,
+			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "JSON.parse" } }],
 		},
 		{
 			name: "response.json() on generic type parameter extending Response",
