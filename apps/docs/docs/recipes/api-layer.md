@@ -84,8 +84,10 @@ Database or external API calls return `ResultAsync`:
 ```ts
 import { okAsync, errAsync, type ResultAsync } from "antithrow";
 
-function checkEmailExists(email: string): ResultAsync<boolean, ApiError> {
-  return okAsync(existingEmails.includes(email));
+function findUserByEmail(
+  email: string,
+): ResultAsync<User | undefined, ApiError> {
+  return okAsync(users.find((u) => u.email === email));
 }
 
 function saveUser(input: CreateUserInput): ResultAsync<User, ApiError> {
@@ -108,8 +110,8 @@ function createUser(input: CreateUserInput): ResultAsync<User, ApiError> {
     const validatedInput = yield* validateInput(input);
 
     // Async business logic
-    const emailExists = yield* checkEmailExists(validatedInput.email);
-    if (emailExists) {
+    const existingUser = yield* findUserByEmail(validatedInput.email);
+    if (existingUser) {
       return yield* errAsync<User, ApiError>({
         type: "validation",
         message: "Email already exists",
