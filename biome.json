@@ -25,9 +25,6 @@
 				"useSimplifiedLogicExpression": "warn",
 				"useWhile": "error"
 			},
-			"correctness": {
-				"noUndeclaredDependencies": "error"
-			},
 			"performance": {
 				"noAwaitInLoops": "error",
 				"noNamespaceImport": "warn",
@@ -36,7 +33,6 @@
 			},
 			"style": {
 				"noCommonJs": "error",
-				"noDefaultExport": "error",
 				"noDoneCallback": "error",
 				"noEnum": "error",
 				"noExportedImports": "error",

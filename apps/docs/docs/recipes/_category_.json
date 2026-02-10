@@ -1,0 +1,8 @@
+{
+	"label": "Recipes",
+	"position": 5,
+	"link": {
+		"type": "generated-index",
+		"description": "Practical patterns and real-world examples for building with antithrow."
+	}
+}

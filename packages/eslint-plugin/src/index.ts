@@ -33,5 +33,4 @@ plugin.configs = {
 	},
 };
 
-// biome-ignore lint/style/noDefaultExport: Common ESLint pattern.
 export default plugin;

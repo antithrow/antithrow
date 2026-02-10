@@ -1,23 +1,27 @@
 ci:
   - changed-files:
-      - any-glob-to-any-file: .github/**
+    - any-glob-to-any-file: .github/**
 
 dependencies:
   - changed-files:
-      - any-glob-to-any-file: bun.lock
+    - any-glob-to-any-file: bun.lock
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: '**/*.md'
 
 pkg:antithrow:
   - changed-files:
-      - any-glob-to-any-file: packages/antithrow/**
+    - any-glob-to-any-file: packages/antithrow/**
 
 pkg:eslint-plugin:
   - changed-files:
-      - any-glob-to-any-file: packages/eslint-plugin/**
+    - any-glob-to-any-file: packages/eslint-plugin/**
 
 pkg:standard-schema:
   - changed-files:
-      - any-glob-to-any-file: packages/standard-schema/**
+    - any-glob-to-any-file: packages/standard-schema/**
 
 pkg:std:
   - changed-files:
-      - any-glob-to-any-file: packages/std/**
+    - any-glob-to-any-file: packages/std/**
