@@ -67,6 +67,18 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			name: "bare reference to fetch without calling",
 			code: `const f = fetch;\nvoid f;`,
 		},
+		{
+			name: "member call on call-expression object is ignored",
+			code: `declare function makeClient(): { fetch(url: string): Promise<Response> };\nmakeClient().fetch("https://example.com");`,
+		},
+		{
+			name: "nested member call with call-expression base is ignored",
+			code: `declare function makeClient(): { nested: { fetch(url: string): Promise<Response> } };\nmakeClient().nested.fetch("https://example.com");`,
+		},
+		{
+			name: "super constructor call is ignored",
+			code: `class Base {\n\tconstructor() {}\n}\nclass Child extends Base {\n\tconstructor() {\n\t\tsuper();\n\t}\n}`,
+		},
 	],
 	invalid: [
 		{
