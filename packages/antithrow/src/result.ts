@@ -2,7 +2,7 @@ import type { SyncChainGenerator } from "./chain.js";
 import { ResultAsync } from "./result-async.js";
 
 type InferOk<ResultType> = ResultType extends Result<infer T, unknown> ? T : never;
-type InferErr<ResultType> = ResultType extends Result<unknown, infer E> ? E : never;
+export type InferErr<ResultType> = ResultType extends Result<unknown, infer E> ? E : never;
 
 interface ResultMethods<T, E> {
 	/**
