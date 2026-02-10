@@ -1,10 +1,9 @@
-import type { Err, Result } from "./result.js";
+import type { Err, InferErr, Result } from "./result.js";
 import { ok } from "./result.js";
 import { ResultAsync } from "./result-async.js";
 
 export type SyncChainGenerator<T, E> = Generator<Err<never, E>, T, void>;
 export type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
-type InferErr<YieldErr> = YieldErr extends Err<never, infer E> ? E : never;
 
 /**
  * Chains multiple Result operations using generator syntax for early return on errors.

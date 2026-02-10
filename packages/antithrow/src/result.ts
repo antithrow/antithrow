@@ -1,6 +1,9 @@
 import type { SyncChainGenerator } from "./chain.js";
 import { ResultAsync } from "./result-async.js";
 
+type InferOk<ResultType> = ResultType extends Result<infer T, unknown> ? T : never;
+export type InferErr<ResultType> = ResultType extends Result<unknown, infer E> ? E : never;
+
 interface ResultMethods<T, E> {
 	/**
 	 * Type predicate for `Ok`.
@@ -229,7 +232,10 @@ interface ResultMethods<T, E> {
 	 *
 	 * @returns The result of the function call, or the original `Err`.
 	 */
-	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, E | F>;
+	andThen<U, F, This extends Result<unknown, unknown>>(
+		this: This,
+		fn: (value: InferOk<This>) => Result<U, F>,
+	): Result<U, InferErr<This> | F>;
 	/**
 	 * Returns the provided `Result` if this is `Ok`, otherwise propagates the `Err`.
 	 *
@@ -376,9 +382,10 @@ interface ResultMethods<T, E> {
 	 *
 	 * @returns A `ResultAsync` containing the result of the function call, or the original `Err`.
 	 */
-	andThenAsync<U, F>(
-		fn: (value: T) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
-	): ResultAsync<U, E | F>;
+	andThenAsync<U, F, This extends Result<unknown, unknown>>(
+		this: This,
+		fn: (value: InferOk<This>) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, InferErr<This> | F>;
 	/**
 	 * Calls the provided async function with the `Err` value and returns its result, or propagates the `Ok`.
 	 *
@@ -517,8 +524,11 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 		return fn(this.value);
 	}
 
-	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, E | F> {
-		return fn(this.value);
+	andThen<U, F, This extends Result<unknown, unknown>>(
+		this: This,
+		fn: (value: InferOk<This>) => Result<U, F>,
+	): Result<U, InferErr<This> | F> {
+		return fn((this as Ok<InferOk<This>, E>).value);
 	}
 
 	and<U, F>(result: Result<U, F>): Result<U, E | F> {
@@ -560,10 +570,11 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 		return ResultAsync.fromResult(this as unknown as Ok<T, F>);
 	}
 
-	andThenAsync<U, F>(
-		fn: (value: T) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
-	): ResultAsync<U, E | F> {
-		return ResultAsync.fromPromise(Promise.resolve(fn(this.value)));
+	andThenAsync<U, F, This extends Result<unknown, unknown>>(
+		this: This,
+		fn: (value: InferOk<This>) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, InferErr<This> | F> {
+		return ResultAsync.fromPromise(Promise.resolve(fn((this as Ok<InferOk<This>, E>).value)));
 	}
 
 	orElseAsync<F>(
@@ -673,9 +684,12 @@ export class Err<T, E> implements ResultMethods<T, E> {
 		return defaultFn(this.error);
 	}
 
-	andThen<U, F>(_fn: (value: T) => Result<U, F>): Result<U, E | F> {
+	andThen<U, F, This extends Result<unknown, unknown>>(
+		this: This,
+		_fn: (value: InferOk<This>) => Result<U, F>,
+	): Result<U, InferErr<This> | F> {
 		// Cast avoids allocating a new Err; the value type U is phantom here.
-		return this as unknown as Err<U, E>;
+		return this as Err<U, InferErr<This>>;
 	}
 
 	and<U, F>(_result: Result<U, F>): Result<U, E | F> {
@@ -716,10 +730,11 @@ export class Err<T, E> implements ResultMethods<T, E> {
 		return ResultAsync.fromPromise(Promise.resolve(fn(this.error)).then((e) => new Err(e)));
 	}
 
-	andThenAsync<U, F>(
-		_fn: (value: T) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
-	): ResultAsync<U, E | F> {
-		return ResultAsync.fromResult(this as unknown as Err<U, E>);
+	andThenAsync<U, F, This extends Result<unknown, unknown>>(
+		this: This,
+		_fn: (value: InferOk<This>) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, InferErr<This> | F> {
+		return ResultAsync.fromResult(this as Err<U, InferErr<This>>);
 	}
 
 	orElseAsync<F>(
