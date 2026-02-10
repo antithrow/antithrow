@@ -134,10 +134,8 @@ function getStaticCalleePath(callee: TSESTree.Expression): StaticCalleePath | nu
 }
 
 function normalizeGlobalPath(calleePath: StaticCalleePath, scope: Scope.Scope): string[] | null {
-	const [root, ...rest] = calleePath.segments;
-	if (!root) {
-		return null;
-	}
+	// Invariant: getStaticCalleePath always returns at least one segment.
+	const [root = "", ...rest] = calleePath.segments;
 
 	if (GLOBAL_OBJECTS.has(root)) {
 		if (!isImplicitGlobal(root, scope)) {
