@@ -83,6 +83,10 @@ const config: Config = {
 							to: "/docs/getting-started",
 						},
 						{
+							label: "Why antithrow?",
+							to: "/docs/why-antithrow",
+						},
+						{
 							label: "Core Concepts",
 							to: "/docs/concepts/result",
 						},
