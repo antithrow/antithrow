@@ -1,6 +1,7 @@
-import type { Err, InferErr, Result } from "./result.js";
+import type { Err, Result } from "./result.js";
 import { ok } from "./result.js";
 import { ResultAsync } from "./result-async.js";
+import type { InferErr } from "./types.js";
 
 export type SyncChainGenerator<T, E> = Generator<Err<never, E>, T, void>;
 export type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
