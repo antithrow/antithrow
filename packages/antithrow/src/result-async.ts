@@ -349,6 +349,52 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	}
 
 	/**
+	 * Combines multiple `Result` or `ResultAsync` values into a single `ResultAsync` containing
+	 * a tuple of all `Ok` values, or the first `Err` to resolve. Similar to `Promise.all`.
+	 *
+	 * All results are awaited concurrently. If any result is `Err`, the combined result
+	 * resolves to that `Err` as soon as it is encountered.
+	 *
+	 * @example
+	 * ```ts
+	 * const combined = ResultAsync.all([okAsync(1), okAsync("hello")]);
+	 * await combined.unwrap(); // [1, "hello"]
+	 *
+	 * const mixed = ResultAsync.all([ok(1), okAsync("hello")]);
+	 * await mixed.unwrap(); // [1, "hello"]
+	 *
+	 * const failed = ResultAsync.all([okAsync(1), errAsync("bad"), okAsync(3)]);
+	 * await failed.unwrapErr(); // "bad"
+	 * ```
+	 *
+	 * @template T - A readonly tuple or array of `Result` or `ResultAsync` values.
+	 *
+	 * @param results - The `Result` or `ResultAsync` values to combine.
+	 *
+	 * @returns A `ResultAsync` containing a tuple of all `Ok` values, or the first `Err` to resolve.
+	 */
+	static all<const T extends readonly AnyResult[]>(
+		results: T,
+	): ResultAsync<OkTuple<T>, ErrUnion<T>>;
+	static all<T, E>(results: readonly AnyResult<T, E>[]): ResultAsync<T[], E>;
+	static all(results: readonly AnyResult[]): ResultAsync<unknown[], unknown> {
+		if (results.length === 0) {
+			return okAsync([]);
+		}
+
+		return ResultAsync.try(() =>
+			Promise.all(
+				results.map(async (r) => {
+					const result = await r;
+					if (result.isErr()) throw result.error;
+
+					return result.value;
+				}),
+			),
+		);
+	}
+
+	/**
 	 * Executes a function and wraps the result in a `ResultAsync`. If the function
 	 * throws or the promise rejects, the error is caught and wrapped in an `Err`.
 	 * Use this to wrap throwable operations before passing them into `ResultAsync`

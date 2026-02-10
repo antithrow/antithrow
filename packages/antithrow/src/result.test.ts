@@ -843,5 +843,67 @@ describe("Result", () => {
 
 			expectTypeOf(chained(true)).toEqualTypeOf<ResultAsync<number, "bad" | "terrible">>();
 		});
+
+		test("all infers tuple Ok type", () => {
+			const result = Result.all([ok(1), ok("hello")]);
+			if (result.isOk()) {
+				expectTypeOf(result.value).toHaveProperty("length");
+				expectTypeOf(result.value[0]).toBeNumber();
+				expectTypeOf(result.value[1]).toBeString();
+			}
+		});
+
+		test("all infers union of Err types", () => {
+			const result = Result.all([ok<number, "a">(1), ok<string, "b">("hi")]);
+			if (result.isErr()) {
+				expectTypeOf(result.error).toEqualTypeOf<"a" | "b">();
+			}
+		});
+
+		test("all infers array type for homogeneous array", () => {
+			const results: Result<number, string>[] = [ok(1), ok(2)];
+			const result = Result.all(results);
+			expectTypeOf(result).toEqualTypeOf<Result<number[], string>>();
+		});
+	});
+
+	describe("all", () => {
+		test("returns Ok with tuple of values when all are Ok", () => {
+			const result = Result.all([ok(1), ok("hello"), ok(true)]);
+			expect(result.isOk()).toBe(true);
+			expect(result.unwrap()).toEqual([1, "hello", true]);
+		});
+
+		test("returns the first Err encountered", () => {
+			const e = err("bad");
+			const result = Result.all([ok(1), e, ok(3)]);
+			expect(result.isErr()).toBe(true);
+			expect(result.unwrapErr()).toBe("bad");
+		});
+
+		test("returns the same Err instance", () => {
+			const e = err("bad");
+			const result = Result.all([ok(1), e, ok(3)]);
+			expect(result).toBe(e);
+		});
+
+		test("short-circuits on first Err", () => {
+			const e1 = err("first");
+			const e2 = err("second");
+			const result = Result.all([ok(1), e1, e2]);
+			expect(result.unwrapErr()).toBe("first");
+		});
+
+		test("returns Ok with empty array for empty input", () => {
+			const result = Result.all([]);
+			expect(result.isOk()).toBe(true);
+			expect(result.unwrap()).toEqual([]);
+		});
+
+		test("works with homogeneous array input", () => {
+			const results: Result<number, string>[] = [ok(1), ok(2), ok(3)];
+			const result = Result.all(results);
+			expect(result.unwrap()).toEqual([1, 2, 3]);
+		});
 	});
 });
