@@ -6,6 +6,10 @@ import { err, ok } from "./result.js";
  * A type that can be either a value or a promise-like containing that value.
  */
 type MaybePromise<T> = T | PromiseLike<T>;
+type InferAsyncOk<ResultAsyncType> =
+	ResultAsyncType extends ResultAsync<infer T, unknown> ? T : never;
+type InferAsyncErr<ResultAsyncType> =
+	ResultAsyncType extends ResultAsync<unknown, infer E> ? E : never;
 
 interface ResultAsyncMethods<T, E> {
 	/**
@@ -222,9 +226,10 @@ interface ResultAsyncMethods<T, E> {
 	 *
 	 * @returns The result of the function call, or the original `Err`.
 	 */
-	andThen<U, F>(
-		fn: (value: T) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
-	): ResultAsync<U, E | F>;
+	andThen<U, F, This extends ResultAsync<unknown, unknown>>(
+		this: This,
+		fn: (value: InferAsyncOk<This>) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, InferAsyncErr<This> | F>;
 	/**
 	 * Returns the provided `Result` if this is `Ok`, otherwise propagates the `Err`.
 	 *
@@ -520,16 +525,17 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		return fn(result.value);
 	}
 
-	andThen<U, F>(
-		fn: (value: T) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
-	): ResultAsync<U, E | F> {
+	andThen<U, F, This extends ResultAsync<unknown, unknown>>(
+		this: This,
+		fn: (value: InferAsyncOk<This>) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, InferAsyncErr<This> | F> {
 		return this.wrap((result) => {
 			if (result.isErr()) {
 				// Cast avoids allocating a new Err; the value type U is phantom here.
-				return result as unknown as Err<U, E | F>;
+				return result as Err<U, F>;
 			}
 
-			return fn(result.value);
+			return fn(result.value as InferAsyncOk<This>);
 		});
 	}
 

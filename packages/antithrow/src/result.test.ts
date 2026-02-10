@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, mock, test } from "bun:test";
 import type { Err, Ok } from "./result.js";
 import { err, ok, Result } from "./result.js";
+import type { ResultAsync } from "./result-async.js";
 
 describe("Result", () => {
 	describe("ok", () => {
@@ -823,6 +824,24 @@ describe("Result", () => {
 			const result: Result<Result<number, "inner">, "outer"> = err("outer");
 			const flattened = result.flatten();
 			expectTypeOf(flattened).toEqualTypeOf<Result<number, "outer" | "inner">>();
+		});
+
+		test("andThen infers unified Err union on inferred Ok | Err receiver", () => {
+			const sync1 = (bool: boolean) => (bool ? ok(true) : err("bad" as const));
+			const sync2 = (bool2: boolean) => (bool2 ? ok(100) : err("terrible" as const));
+
+			const chained = (bool: boolean) => sync1(bool).andThen((result) => sync2(result));
+
+			expectTypeOf(chained(true)).toEqualTypeOf<Result<number, "bad" | "terrible">>();
+		});
+
+		test("andThenAsync infers unified Err union on inferred Ok | Err receiver", () => {
+			const sync1 = (bool: boolean) => (bool ? ok(true) : err("bad" as const));
+			const sync2 = (bool2: boolean) => (bool2 ? ok(100) : err("terrible" as const));
+
+			const chained = (bool: boolean) => sync1(bool).andThenAsync(async (result) => sync2(result));
+
+			expectTypeOf(chained(true)).toEqualTypeOf<ResultAsync<number, "bad" | "terrible">>();
 		});
 	});
 });
