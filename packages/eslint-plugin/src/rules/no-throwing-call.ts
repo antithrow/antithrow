@@ -10,7 +10,7 @@ export const MessageId = {
 } as const;
 export type MessageId = (typeof MessageId)[keyof typeof MessageId];
 
-const GLOBAL_FUNCTIONS = new Set([
+const BANNED_GLOBAL_CALLS = new Set([
 	"fetch",
 	"atob",
 	"btoa",
@@ -19,15 +19,21 @@ const GLOBAL_FUNCTIONS = new Set([
 	"decodeURIComponent",
 	"encodeURI",
 	"encodeURIComponent",
+	"JSON.parse",
+	"JSON.stringify",
 ]);
-
-const JSON_METHODS = new Set(["parse", "stringify"]);
 
 const RESPONSE_BODY_METHODS = new Set(["json", "text", "arrayBuffer", "blob", "formData"]);
 
 const GLOBAL_OBJECTS = new Set(["globalThis", "window", "self"]);
 
 const NULLISH_TYPE_FLAGS = ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void;
+
+interface StaticCalleePath {
+	segments: string[];
+	rootIdentifier: TSESTree.Identifier;
+	memberExpression: TSESTree.MemberExpression | null;
+}
 
 /**
  * Extracts the property name from a `MemberExpression` when it can be
@@ -72,8 +78,80 @@ function isImplicitGlobal(name: string, scope: Scope.Scope): boolean {
 	return true;
 }
 
-function isImplicitGlobalObject(node: TSESTree.Identifier, scope: Scope.Scope): boolean {
-	return GLOBAL_OBJECTS.has(node.name) && isImplicitGlobal(node.name, scope);
+function collectStaticMemberPath(
+	node: TSESTree.MemberExpression,
+): Pick<StaticCalleePath, "segments" | "rootIdentifier"> | null {
+	const propertyName = getStaticMemberName(node);
+	if (!propertyName) {
+		return null;
+	}
+
+	if (node.object.type === "Identifier") {
+		return {
+			segments: [node.object.name, propertyName],
+			rootIdentifier: node.object,
+		};
+	}
+
+	if (node.object.type !== "MemberExpression") {
+		return null;
+	}
+
+	const parentPath = collectStaticMemberPath(node.object);
+	if (!parentPath) {
+		return null;
+	}
+
+	return {
+		segments: [...parentPath.segments, propertyName],
+		rootIdentifier: parentPath.rootIdentifier,
+	};
+}
+
+function getStaticCalleePath(callee: TSESTree.Expression): StaticCalleePath | null {
+	if (callee.type === "Identifier") {
+		return {
+			segments: [callee.name],
+			rootIdentifier: callee,
+			memberExpression: null,
+		};
+	}
+
+	if (callee.type !== "MemberExpression") {
+		return null;
+	}
+
+	const memberPath = collectStaticMemberPath(callee);
+	if (!memberPath) {
+		return null;
+	}
+
+	return {
+		segments: memberPath.segments,
+		rootIdentifier: memberPath.rootIdentifier,
+		memberExpression: callee,
+	};
+}
+
+function normalizeGlobalPath(calleePath: StaticCalleePath, scope: Scope.Scope): string[] | null {
+	const [root, ...rest] = calleePath.segments;
+	if (!root) {
+		return null;
+	}
+
+	if (GLOBAL_OBJECTS.has(root)) {
+		if (!isImplicitGlobal(root, scope)) {
+			return null;
+		}
+
+		return rest.length > 0 ? rest : null;
+	}
+
+	if (!isImplicitGlobal(root, scope)) {
+		return null;
+	}
+
+	return calleePath.segments;
 }
 
 function containsGlobalResponseType(
@@ -136,82 +214,34 @@ export const noThrowingCall = createRule<[], MessageId>({
 
 		return {
 			CallExpression(node) {
-				const callee = node.callee;
+				const calleePath = getStaticCalleePath(node.callee);
+				if (!calleePath) {
+					return;
+				}
 
-				// fetch(), atob(), etc.
-				if (callee.type === "Identifier" && GLOBAL_FUNCTIONS.has(callee.name)) {
-					const scope = context.sourceCode.getScope(callee);
-					if (isImplicitGlobal(callee.name, scope)) {
+				const rootScope = context.sourceCode.getScope(calleePath.rootIdentifier);
+				const normalizedGlobalPath = normalizeGlobalPath(calleePath, rootScope);
+				if (normalizedGlobalPath) {
+					const api = normalizedGlobalPath.join(".");
+					if (BANNED_GLOBAL_CALLS.has(api)) {
 						context.report({
 							node,
 							messageId: MessageId.THROWING_CALL,
-							data: { api: callee.name },
+							data: { api },
 						});
+						return;
 					}
-					return;
 				}
 
-				if (callee.type !== "MemberExpression") {
-					return;
-				}
-
-				const methodName = getStaticMemberName(callee);
-				if (!methodName) {
-					return;
-				}
-
-				// globalThis.fetch(), window.atob(), self.structuredClone(), etc.
+				const methodName = calleePath.segments[calleePath.segments.length - 1];
+				const { memberExpression } = calleePath;
 				if (
-					GLOBAL_FUNCTIONS.has(methodName) &&
-					callee.object.type === "Identifier" &&
-					isImplicitGlobalObject(callee.object, context.sourceCode.getScope(callee.object))
+					methodName &&
+					memberExpression &&
+					RESPONSE_BODY_METHODS.has(methodName) &&
+					globalResponseType
 				) {
-					context.report({
-						node,
-						messageId: MessageId.THROWING_CALL,
-						data: { api: methodName },
-					});
-					return;
-				}
-
-				// JSON.parse(), JSON.stringify()
-				if (
-					JSON_METHODS.has(methodName) &&
-					callee.object.type === "Identifier" &&
-					callee.object.name === "JSON"
-				) {
-					const scope = context.sourceCode.getScope(callee.object);
-					if (isImplicitGlobal("JSON", scope)) {
-						context.report({
-							node,
-							messageId: MessageId.THROWING_CALL,
-							data: { api: `JSON.${methodName}` },
-						});
-					}
-					return;
-				}
-
-				// globalThis.JSON.parse(), window.JSON.stringify(), etc.
-				if (
-					JSON_METHODS.has(methodName) &&
-					callee.object.type === "MemberExpression" &&
-					getStaticMemberName(callee.object) === "JSON" &&
-					callee.object.object.type === "Identifier" &&
-					isImplicitGlobalObject(
-						callee.object.object,
-						context.sourceCode.getScope(callee.object.object),
-					)
-				) {
-					context.report({
-						node,
-						messageId: MessageId.THROWING_CALL,
-						data: { api: `JSON.${methodName}` },
-					});
-					return;
-				}
-
-				if (RESPONSE_BODY_METHODS.has(methodName) && globalResponseType) {
-					const tsNode = services.esTreeNodeToTSNodeMap.get(callee.object);
+					const tsNode = services.esTreeNodeToTSNodeMap.get(memberExpression.object);
 					const type = checker.getTypeAtLocation(tsNode);
 					if (containsGlobalResponseType(type, globalResponseType, checker)) {
 						context.report({
