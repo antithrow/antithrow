@@ -308,5 +308,44 @@ describe("chain", () => {
 				>
 			>();
 		});
+
+		test("chain preserves complex error types", () => {
+			interface Error1 {
+				tag: "one";
+			}
+			interface Error2 {
+				tag: "two";
+			}
+
+			const result = chain(function* () {
+				const a = yield* ok<number, Error1>(1);
+				const b = yield* ok<number, Error2>(2);
+
+				return a + b;
+			});
+
+			expectTypeOf(result).toEqualTypeOf<Result<number, Error1 | Error2>>();
+		});
+
+		test("workaround for microsoft/TypeScript#57625 generator TNext intersection with async chain", () => {
+			class Error1 extends Error {
+				readonly tag = "one";
+			}
+			class Error2 extends Error {
+				readonly tag = "two";
+			}
+
+			const fnOne = () => okAsync<number, Error1>(1);
+			const fnTwo = () => okAsync<number, Error2>(2);
+
+			const result = chain(async function* () {
+				const a = yield* fnOne();
+				const b = yield* fnTwo();
+
+				return a + b;
+			});
+
+			expectTypeOf(result).toEqualTypeOf<ResultAsync<number, Error1 | Error2>>();
+		});
 	});
 });

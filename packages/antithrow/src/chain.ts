@@ -4,6 +4,7 @@ import { ResultAsync } from "./result-async.js";
 
 export type SyncChainGenerator<T, E> = Generator<Err<never, E>, T, void>;
 export type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
+type InferErr<YieldErr> = YieldErr extends Err<never, infer E> ? E : never;
 
 /**
  * Chains multiple Result operations using generator syntax for early return on errors.
@@ -28,7 +29,9 @@ export type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
  *
  * @returns A `Result` containing the final value or the first error encountered.
  */
-export function chain<T, E>(generator: () => SyncChainGenerator<T, E>): Result<T, E>;
+export function chain<T, E, YieldErr extends Err<never, E>>(
+	generator: () => Generator<YieldErr, T, void>,
+): Result<T, InferErr<YieldErr>>;
 /**
  * Chains multiple ResultAsync operations using async generator syntax for early return on errors.
  *
@@ -52,7 +55,9 @@ export function chain<T, E>(generator: () => SyncChainGenerator<T, E>): Result<T
  *
  * @returns A `ResultAsync` containing the final value or the first error encountered.
  */
-export function chain<T, E>(generator: () => AsyncChainGenerator<T, E>): ResultAsync<T, E>;
+export function chain<T, E, YieldErr extends Err<never, E>>(
+	generator: () => AsyncGenerator<YieldErr, T, void>,
+): ResultAsync<T, InferErr<YieldErr>>;
 export function chain<T, E>(
 	generator: () => SyncChainGenerator<T, E> | AsyncChainGenerator<T, E>,
 ): Result<T, E> | ResultAsync<T, E> {
