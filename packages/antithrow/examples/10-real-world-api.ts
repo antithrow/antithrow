@@ -31,8 +31,8 @@ interface CreateUserInput {
 // --- Validation functions ---
 // Each returns Result<ValidatedValue, ApiError>, making errors explicit
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function validateEmail(email: string): Result<string, ApiError> {
-	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	if (!emailRegex.test(email)) {
 		return err({ type: "validation", message: "Invalid email format" });
 	}

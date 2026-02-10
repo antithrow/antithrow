@@ -16,7 +16,35 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"complexity": {
+				"noExcessiveCognitiveComplexity": "warn",
+				"noForEach": "warn",
+				"noImplicitCoercions": "error",
+				"noUselessStringConcat": "error",
+				"useSimplifiedLogicExpression": "warn",
+				"useWhile": "error"
+			},
+			"correctness": {
+				"noUndeclaredDependencies": "error"
+			},
+			"performance": {
+				"noAwaitInLoops": "error",
+				"noNamespaceImport": "warn",
+				"noReExportAll": "error",
+				"useTopLevelRegex": "error"
+			},
+			"style": {
+				"noCommonJs": "error",
+				"noDefaultExport": "error",
+				"noDoneCallback": "error",
+				"noEnum": "error",
+				"noExportedImports": "error",
+				"noInferrableTypes": "error",
+				"noNamespace": "error",
+				"noParameterAssign": "error",
+				"noSubstr": "error"
+			}
 		}
 	},
 	"javascript": {

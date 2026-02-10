@@ -52,12 +52,32 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			code: `const globalThis = { fetch: () => {} };\nglobalThis.fetch("https://example.com");`,
 		},
 		{
+			name: "shadowed window is not detected",
+			code: `const window = { fetch: () => Promise.resolve(new Response()) };\nwindow.fetch("https://example.com");`,
+		},
+		{
+			name: "shadowed self is not detected for JSON.parse",
+			code: `const self = { JSON: { parse: (value: string) => value } };\nself.JSON.parse("{}");`,
+		},
+		{
 			name: "any-typed receiver is ignored",
 			code: `declare const r: any;\nr.json();`,
 		},
 		{
 			name: "bare reference to fetch without calling",
 			code: `const f = fetch;\nvoid f;`,
+		},
+		{
+			name: "member call on call-expression object is ignored",
+			code: `declare function makeClient(): { fetch(url: string): Promise<Response> };\nmakeClient().fetch("https://example.com");`,
+		},
+		{
+			name: "nested member call with call-expression base is ignored",
+			code: `declare function makeClient(): { nested: { fetch(url: string): Promise<Response> } };\nmakeClient().nested.fetch("https://example.com");`,
+		},
+		{
+			name: "super constructor call is ignored",
+			code: `class Base {\n\tconstructor() {}\n}\nclass Child extends Base {\n\tconstructor() {\n\t\tsuper();\n\t}\n}`,
 		},
 	],
 	invalid: [
@@ -177,6 +197,11 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "fetch" } }],
 		},
 		{
+			name: "window fetch call with bracket notation",
+			code: `window["fetch"]("https://example.com");`,
+			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "fetch" } }],
+		},
+		{
 			name: "self.atob call",
 			code: `self.atob("aGVsbG8=");`,
 			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "atob" } }],
@@ -190,6 +215,11 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			name: "window.JSON.stringify call",
 			code: `window.JSON.stringify({ a: 1 });`,
 			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "JSON.stringify" } }],
+		},
+		{
+			name: "self JSON.parse call with bracket notation",
+			code: `self["JSON"]["parse"]("{}");`,
+			errors: [{ messageId: MessageId.THROWING_CALL, data: { api: "JSON.parse" } }],
 		},
 		{
 			name: "response.json() on generic type parameter extending Response",
