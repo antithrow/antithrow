@@ -37,6 +37,6 @@
 		"lint:types": "tsc --noEmit"
 	},
 	"dependencies": {
-		"antithrow": "workspace:*"
+		"antithrow": "workspace:^"
 	}
 }
