@@ -81,6 +81,30 @@ Result.try(() => JSON.parse('{"a": 1}')); // ok({ a: 1 })
 Result.try(() => JSON.parse("invalid")); // err(SyntaxError)
 ```
 
+### Result.all()
+
+```ts
+Result.all<const T extends readonly Result<unknown, unknown>[]>(results: T): Result<OkTuple<T>, ErrUnion<T>>;
+Result.all<T, E>(results: readonly Result<T, E>[]): Result<T[], E>;
+```
+
+Combines multiple `Result` values into a single `Result`. If all results are `Ok`, returns an `Ok` containing a tuple of all values. If any result is `Err`, returns the first `Err` encountered.
+
+Analogous to `Promise.all`, but for `Result` values.
+
+```ts
+Result.all([ok(1), ok("hello")]); // ok([1, "hello"])
+Result.all([ok(1), err("bad"), ok(3)]); // err("bad")
+Result.all([]); // ok([])
+```
+
+When called with a tuple of `Result` values, the `Ok` type is inferred as a tuple and the `Err` type is a union of all error types:
+
+```ts
+const results = Result.all([ok(1), ok("hello")]);
+// Result<[number, string], never>
+```
+
 ## Instance methods
 
 ### Type checking

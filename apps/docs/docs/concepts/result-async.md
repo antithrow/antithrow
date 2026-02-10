@@ -42,6 +42,14 @@ ResultAsync.try(async () => {
   return response.json();
 });
 // ResultAsync<unknown, unknown>
+
+// Combine multiple results concurrently (like Promise.all)
+ResultAsync.all([okAsync(1), okAsync("hello")]);
+// ResultAsync<[number, string], never>
+
+// Accepts mixed sync and async inputs
+ResultAsync.all([ok(1), okAsync("hello")]);
+// ResultAsync<[number, string], never>
 ```
 
 ### try vs fromPromise
