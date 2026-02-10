@@ -17,6 +17,7 @@
 		"zod",
 		"valibot"
 	],
+	"sideEffects": false,
 	"type": "module",
 	"exports": {
 		".": {

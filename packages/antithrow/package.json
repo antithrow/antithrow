@@ -15,6 +15,7 @@
 		"typescript",
 		"functional"
 	],
+	"sideEffects": false,
 	"type": "module",
 	"exports": {
 		".": {
