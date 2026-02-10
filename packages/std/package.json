@@ -17,6 +17,7 @@
 		"fetch",
 		"json"
 	],
+	"sideEffects": false,
 	"type": "module",
 	"exports": {
 		".": {
