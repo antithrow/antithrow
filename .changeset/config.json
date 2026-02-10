@@ -3,5 +3,6 @@
 	"changelog": ["@changesets/changelog-github", { "repo": "antithrow/antithrow" }],
 	"commit": false,
 	"access": "public",
-	"baseBranch": "main"
+	"baseBranch": "main",
+	"updateInternalDependencies": "minor"
 }
