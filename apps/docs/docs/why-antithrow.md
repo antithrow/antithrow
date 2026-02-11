@@ -100,20 +100,16 @@ result.match(
 
 With positional arguments, swapping the callbacks is a silent bug. The object form makes intent explicit.
 
-**Sync-to-async bridge methods**
+**Sync-to-async bridge**
 
-Both libraries let you transition from a sync `Result` to a `ResultAsync`, but antithrow provides a broader set of bridge methods:
+Both libraries let you transition from a sync `Result` to a `ResultAsync`. antithrow uses a single `toAsync()` method that converts a `Result` into a `ResultAsync`, after which you chain with the full async API:
 
-| Bridge method     | antithrow | neverthrow     |
-| ----------------- | --------- | -------------- |
-| `mapAsync`        | ✓         | `asyncMap`     |
-| `mapErrAsync`     | ✓         | —              |
-| `andThenAsync`    | ✓         | `asyncAndThen` |
-| `orElseAsync`     | ✓         | —              |
-| `inspectAsync`    | ✓         | —              |
-| `inspectErrAsync` | ✓         | —              |
+```ts
+ok(2).toAsync().map(async (x) => x * 2);
+ok(2).toAsync().andThen(async (x) => ok(x * 2));
+```
 
-neverthrow covers the two most common cases (`asyncMap`, `asyncAndThen`). antithrow adds the error-side and side-effect variants so you can stay in the `Result` → `ResultAsync` pipeline without converting early.
+neverthrow provides `asyncMap` and `asyncAndThen` as bridge methods directly on `Result`.
 
 **Rust-aligned naming**
 
@@ -181,7 +177,7 @@ The neverthrow issue tracker surfaces recurring pain points. The table below sum
 | `safeTry` error type inference across multiple yields ([#603](https://github.com/supermacro/neverthrow/issues/603))                                                                                              | Affected   | **Also affected** | Underlying TypeScript limitation — generators cannot infer a union of yielded error types across multiple `yield*` statements. Both libraries require an explicit type annotation on the generator when error types differ. |
 | `andThen` fails on union return types ([#629](https://github.com/supermacro/neverthrow/issues/629), [#417](https://github.com/supermacro/neverthrow/issues/417))                                                 | Affected   | **Fixed**         | antithrow uses `InferOk`/`InferErr` helper types on the `this` parameter of `andThen`, so union result types are inferred correctly.                                                                                        |
 | `combine()` broken for non-tuple arrays ([#434](https://github.com/supermacro/neverthrow/issues/434))                                                                                                            | Affected   | **Fixed**         | `Result.all()` / `ResultAsync.all()` provides correct type inference for both tuples and homogeneous arrays.                                                                                                                |
-| Poor async/await interop ([#340](https://github.com/supermacro/neverthrow/issues/340), [#514](https://github.com/supermacro/neverthrow/issues/514), [#608](https://github.com/supermacro/neverthrow/issues/608)) | Affected   | **Improved**      | `chain(async function*() {...})` seamlessly handles both `Result` and `ResultAsync` via `yield*`. Bridge methods (`mapAsync`, `andThenAsync`, etc.) on sync `Result` transition to `ResultAsync` without manual wrapping.   |
+| Poor async/await interop ([#340](https://github.com/supermacro/neverthrow/issues/340), [#514](https://github.com/supermacro/neverthrow/issues/514), [#608](https://github.com/supermacro/neverthrow/issues/608)) | Affected   | **Improved**      | `chain(async function*() {...})` seamlessly handles both `Result` and `ResultAsync` via `yield*`. `toAsync()` converts a sync `Result` to `ResultAsync` for async chaining.   |
 | ESLint plugin unmaintained ([#625](https://github.com/supermacro/neverthrow/issues/625))                                                                                                                         | Affected   | **Fixed**         | antithrow ships a first-party `@antithrow/eslint-plugin` with three type-aware rules, maintained in the same monorepo.                                                                                                      |
 | No `toJSON` / serialization ([#628](https://github.com/supermacro/neverthrow/issues/628))                                                                                                                        | Affected   | **Also affected** | Neither library provides built-in serialization. Results must be unwrapped before serializing.                                                                                                                              |
 | No "finally" functionality ([#525](https://github.com/supermacro/neverthrow/issues/525))                                                                                                                         | Affected   | **Also affected** | Workaround: chain `.inspect()` and `.inspectErr()` to run side-effects regardless of variant.                                                                                                                               |

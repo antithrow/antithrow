@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, mock, test } from "bun:test";
+import { describe, expect, expectTypeOf, test } from "bun:test";
 import type { Err, Ok } from "./result.js";
 import { err, ok, Result } from "./result.js";
 import type { ResultAsync } from "./result-async.js";
@@ -472,115 +472,38 @@ describe("Result", () => {
 		});
 	});
 
-	describe("mapAsync", () => {
-		test("transforms Ok value with async fn", async () => {
-			const result = ok(42).mapAsync(async (x) => x * 2);
+	describe("toAsync", () => {
+		test("converts Ok to ResultAsync", async () => {
+			const result = ok(42).toAsync();
+			expect(await result.isOk()).toBe(true);
+			expect(await result.unwrap()).toBe(42);
+		});
+
+		test("converts Err to ResultAsync", async () => {
+			const result = err("error").toAsync();
+			expect(await result.isErr()).toBe(true);
+			expect(await result.unwrapErr()).toBe("error");
+		});
+
+		test("can chain with async map after conversion", async () => {
+			const result = ok(42)
+				.toAsync()
+				.map(async (x) => x * 2);
 			expect(await result.unwrap()).toBe(84);
 		});
 
-		test("does not call fn for Err", async () => {
-			const fn = mock(async (x: number) => x * 2);
-			const result = err<number, string>("error").mapAsync(fn);
-			expect(await result.isErr()).toBe(true);
-			expect(await result.unwrapErr()).toBe("error");
-			expect(fn).not.toHaveBeenCalled();
-		});
-	});
-
-	describe("mapErrAsync", () => {
-		test("transforms Err value with async fn", async () => {
-			const result = err("error").mapErrAsync(async (e) => e.toUpperCase());
-			expect(await result.unwrapErr()).toBe("ERROR");
-		});
-
-		test("does not call fn for Ok", async () => {
-			const fn = mock(async (e: string) => e.toUpperCase());
-			const result = ok<number, string>(42).mapErrAsync(fn);
-			expect(await result.isOk()).toBe(true);
-			expect(await result.unwrap()).toBe(42);
-			expect(fn).not.toHaveBeenCalled();
-		});
-	});
-
-	describe("andThenAsync", () => {
-		test("chains Ok with async fn returning Result", async () => {
-			const result = ok(42).andThenAsync(async (x) => ok(x * 2));
+		test("can chain with async andThen after conversion", async () => {
+			const result = ok(42)
+				.toAsync()
+				.andThen(async (x) => ok(x * 2));
 			expect(await result.unwrap()).toBe(84);
 		});
 
-		test("chains Ok with async fn returning ResultAsync", async () => {
-			const { okAsync } = await import("./result-async.js");
-			const result = ok(42).andThenAsync((x) => okAsync(x * 2));
-			expect(await result.unwrap()).toBe(84);
-		});
-
-		test("short-circuits on Err", async () => {
-			const fn = mock(async (x: number) => ok(x * 2));
-			const result = err<number, string>("error").andThenAsync(fn);
-			expect(await result.isErr()).toBe(true);
-			expect(await result.unwrapErr()).toBe("error");
-			expect(fn).not.toHaveBeenCalled();
-		});
-
-		test("can return Err from chain", async () => {
-			const result = ok(42).andThenAsync(async () => err("new error"));
-			expect(await result.isErr()).toBe(true);
-			expect(await result.unwrapErr()).toBe("new error");
-		});
-	});
-
-	describe("orElseAsync", () => {
-		test("recovers Err with async fn returning Result", async () => {
-			const result: Result<number, string> = err("error");
-			const recovered = result.orElseAsync(async (e) => ok(e.length));
-			expect(await recovered.unwrap()).toBe(5);
-		});
-
-		test("recovers Err with async fn returning ResultAsync", async () => {
-			const { okAsync } = await import("./result-async.js");
-			const result: Result<number, string> = err("error");
-			const recovered = result.orElseAsync((e) => okAsync(e.length));
-			expect(await recovered.unwrap()).toBe(5);
-		});
-
-		test("does not call fn for Ok", async () => {
-			const fn = mock(async (e: string) => ok<number, number>(e.length));
-			const result = ok<number, string>(42).orElseAsync(fn);
-			expect(await result.isOk()).toBe(true);
-			expect(await result.unwrap()).toBe(42);
-			expect(fn).not.toHaveBeenCalled();
-		});
-	});
-
-	describe("inspectAsync", () => {
-		test("calls async fn for Ok", async () => {
-			const fn = mock(async (_x: number) => {});
-			const result = ok(42).inspectAsync(fn);
-			expect(await result.unwrap()).toBe(42);
-			expect(fn).toHaveBeenCalledWith(42);
-		});
-
-		test("does not call fn for Err", async () => {
-			const fn = mock(async (_x: number) => {});
-			const result = err<number, string>("error").inspectAsync(fn);
-			expect(await result.isErr()).toBe(true);
-			expect(fn).not.toHaveBeenCalled();
-		});
-	});
-
-	describe("inspectErrAsync", () => {
-		test("calls async fn for Err", async () => {
-			const fn = mock(async (_e: string) => {});
-			const result = err("error").inspectErrAsync(fn);
-			expect(await result.unwrapErr()).toBe("error");
-			expect(fn).toHaveBeenCalledWith("error");
-		});
-
-		test("does not call fn for Ok", async () => {
-			const fn = mock(async (_e: string) => {});
-			const result = ok<number, string>(42).inspectErrAsync(fn);
-			expect(await result.isOk()).toBe(true);
-			expect(fn).not.toHaveBeenCalled();
+		test("can chain with async mapErr after conversion", async () => {
+			const result = err("oops")
+				.toAsync()
+				.mapErr(async (e) => e.toUpperCase());
+			expect(await result.unwrapErr()).toBe("OOPS");
 		});
 	});
 
@@ -783,6 +706,12 @@ describe("Result", () => {
 			expectTypeOf(inspected).toEqualTypeOf<Result<number, string>>();
 		});
 
+		test("toAsync returns ResultAsync<T, E>", () => {
+			const result: Result<number, string> = ok(42);
+			const async_ = result.toAsync();
+			expectTypeOf(async_).toEqualTypeOf<ResultAsync<number, string>>();
+		});
+
 		test("Result.try returns Result<T, E>", () => {
 			const result = Result.try(() => 42);
 			expectTypeOf(result).toEqualTypeOf<Result<number, unknown>>();
@@ -833,15 +762,6 @@ describe("Result", () => {
 			const chained = (bool: boolean) => sync1(bool).andThen((result) => sync2(result));
 
 			expectTypeOf(chained(true)).toEqualTypeOf<Result<number, "bad" | "terrible">>();
-		});
-
-		test("andThenAsync infers unified Err union on inferred Ok | Err receiver", () => {
-			const sync1 = (bool: boolean) => (bool ? ok(true) : err("bad" as const));
-			const sync2 = (bool2: boolean) => (bool2 ? ok(100) : err("terrible" as const));
-
-			const chained = (bool: boolean) => sync1(bool).andThenAsync(async (result) => sync2(result));
-
-			expectTypeOf(chained(true)).toEqualTypeOf<ResultAsync<number, "bad" | "terrible">>();
 		});
 
 		test("all infers tuple Ok type", () => {

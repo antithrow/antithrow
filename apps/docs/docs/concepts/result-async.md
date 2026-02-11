@@ -25,7 +25,7 @@ const empty = okAsync(); // ResultAsync<void, never>
 import { ResultAsync, err, ok } from "antithrow";
 
 // Wrap a sync Result
-ResultAsync.fromResult(ok(42));
+ok(42).toAsync();
 // ResultAsync<number, never>
 
 // Wrap a Promise<Result> (does NOT catch rejections)

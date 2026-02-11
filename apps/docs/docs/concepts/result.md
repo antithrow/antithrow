@@ -225,17 +225,15 @@ err("outer").flatten(); // err("outer")
 
 ## Bridging to async
 
-When you need to introduce async operations mid-chain, use the async transition methods. These convert a `Result` into a [`ResultAsync`](./result-async):
+When you need to introduce async operations mid-chain, call `toAsync()` to convert a `Result` into a [`ResultAsync`](./result-async), then continue chaining with async-capable methods:
 
 ```ts
-ok(2).mapAsync(async (x) => x * 2);
+ok(2).toAsync().map(async (x) => x * 2);
 // ResultAsync<number, never>
 
-ok(2).andThenAsync(async (x) => ok(x * 2));
+ok(2).toAsync().andThen(async (x) => ok(x * 2));
 // ResultAsync<number, never>
 ```
-
-The full set of async transitions: `mapAsync`, `mapErrAsync`, `andThenAsync`, `orElseAsync`, `inspectAsync`, `inspectErrAsync`.
 
 ## Result.try()
 

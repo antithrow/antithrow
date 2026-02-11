@@ -430,74 +430,18 @@ ok(err("inner")).flatten(); // err("inner")
 err("outer").flatten(); // err("outer")
 ```
 
-### Async transitions
+### Async transition
 
-These methods convert a `Result` into a [`ResultAsync`](./result-async) when you need to introduce async operations mid-chain.
-
-#### mapAsync()
+#### toAsync()
 
 ```ts
-mapAsync<U>(fn: (value: T) => PromiseLike<U>): ResultAsync<U, E>
+toAsync(): ResultAsync<T, E>
 ```
 
-```ts
-ok(2).mapAsync(async (x) => x * 2); // ResultAsync containing ok(4)
-```
-
-#### mapErrAsync()
+Converts this `Result` into a [`ResultAsync`](./result-async), enabling async method chaining.
 
 ```ts
-mapErrAsync<F>(fn: (error: E) => PromiseLike<F>): ResultAsync<T, F>
-```
-
-```ts
-err("oops").mapErrAsync(async (e) => e.toUpperCase()); // ResultAsync containing err("OOPS")
-```
-
-#### andThenAsync()
-
-```ts
-andThenAsync<U, F>(
-	fn: (value: T) => PromiseLike<Result<U, F>> | ResultAsync<U, F>,
-): ResultAsync<U, E | F>
-```
-
-```ts
-ok(2).andThenAsync(async (x) => ok(x * 2)); // ResultAsync containing ok(4)
-```
-
-#### orElseAsync()
-
-```ts
-orElseAsync<F>(
-	fn: (error: E) => PromiseLike<Result<T, F>> | ResultAsync<T, F>,
-): ResultAsync<T, F>
-```
-
-```ts
-err("oops").orElseAsync(async (e) => ok(0)); // ResultAsync containing ok(0)
-```
-
-#### inspectAsync()
-
-```ts
-inspectAsync(fn: (value: T) => PromiseLike<void>): ResultAsync<T, E>
-```
-
-```ts
-ok(42).inspectAsync(async (x) => {
-  await log(x);
-}); // ResultAsync containing ok(42)
-```
-
-#### inspectErrAsync()
-
-```ts
-inspectErrAsync(fn: (error: E) => PromiseLike<void>): ResultAsync<T, E>
-```
-
-```ts
-err("oops").inspectErrAsync(async (e) => {
-  await logError(e);
-}); // ResultAsync containing err("oops")
+ok(2).toAsync().map(async (x) => x * 2); // ResultAsync containing ok(4)
+err("oops").toAsync().mapErr(async (e) => e.toUpperCase()); // ResultAsync containing err("OOPS")
+ok(2).toAsync().andThen(async (x) => ok(x * 2)); // ResultAsync containing ok(4)
 ```

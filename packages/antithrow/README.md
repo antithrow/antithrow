@@ -139,7 +139,6 @@ async function handler(request: Request): Promise<Response> {
 | `Result.all(results)`              | Combines multiple Results into one                |
 | `ResultAsync.try(fn)`              | Wraps an async throwing function in a ResultAsync |
 | `ResultAsync.all(results)`         | Combines multiple Results/ResultAsyncs into one   |
-| `ResultAsync.fromResult(result)`   | Wraps an existing Result in a ResultAsync         |
 | `ResultAsync.fromPromise(promise)` | Wraps a Promise\<Result\> in a ResultAsync        |
 | `chain(generator)`                 | Chains results using generator syntax             |
 
@@ -171,16 +170,3 @@ Both `Result` and `ResultAsync` support:
 | `inspect(fn)`              | Side effects on success value                                    |
 | `inspectErr(fn)`           | Side effects on error value                                      |
 | `flatten()`                | Flattens nested `Result<Result<U, F>, E>` to `Result<U, E \| F>` |
-
-#### Sync-to-Async Methods (`Result` only)
-
-These methods transition from `Result` to `ResultAsync`:
-
-| Method                | Description                                              |
-| --------------------- | -------------------------------------------------------- |
-| `mapAsync(fn)`        | Transforms `Ok` value with async function                |
-| `mapErrAsync(fn)`     | Transforms `Err` value with async function               |
-| `andThenAsync(fn)`    | Chains with async Result-returning function              |
-| `orElseAsync(fn)`     | Recovers from error with async Result-returning function |
-| `inspectAsync(fn)`    | Async side effects on success value                      |
-| `inspectErrAsync(fn)` | Async side effects on error value                        |
