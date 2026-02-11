@@ -423,27 +423,6 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 	}
 
 	/**
-	 * Wraps an existing `Result` into a `ResultAsync`.
-	 *
-	 * @example
-	 * ```ts
-	 * const syncResult = ok(42);
-	 * const asyncResult = ResultAsync.fromResult(syncResult);
-	 * await asyncResult.unwrap(); // 42
-	 * ```
-	 *
-	 * @template T - The type of the success value.
-	 * @template E - The type of the error value.
-	 *
-	 * @param result - The `Result` to wrap.
-	 *
-	 * @returns A `ResultAsync` containing the same value or error as the input `Result`.
-	 */
-	static fromResult<T, E>(result: Result<T, E>): ResultAsync<T, E> {
-		return new ResultAsync(Promise.resolve(result));
-	}
-
-	/**
 	 * Wraps an existing `Promise<Result<T, E>>` into a `ResultAsync`.
 	 *
 	 * This method does not catch promise rejections. If the promise may reject,
@@ -682,7 +661,7 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 export function okAsync<E = never>(): ResultAsync<void, E>;
 export function okAsync<T, E = never>(value: T): ResultAsync<T, E>;
 export function okAsync<T, E = never>(value?: T): ResultAsync<T, E> {
-	return ResultAsync.fromResult(ok(value as T));
+	return ResultAsync.fromPromise(Promise.resolve(ok(value as T)));
 }
 
 /**
@@ -702,5 +681,5 @@ export function okAsync<T, E = never>(value?: T): ResultAsync<T, E> {
  * @returns A `ResultAsync` containing an `Err` with the error.
  */
 export function errAsync<T = never, E = unknown>(error: E): ResultAsync<T, E> {
-	return ResultAsync.fromResult(err(error));
+	return ResultAsync.fromPromise(Promise.resolve(err(error)));
 }

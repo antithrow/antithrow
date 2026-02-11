@@ -67,20 +67,6 @@ const failed = ResultAsync.try(async () => {
 // ResultAsync<never, unknown>
 ```
 
-### ResultAsync.fromResult()
-
-```ts
-static fromResult<T, E>(result: Result<T, E>): ResultAsync<T, E>
-```
-
-Wraps an existing sync `Result` into a `ResultAsync`.
-
-```ts
-const syncResult = ok(42);
-const asyncResult = ResultAsync.fromResult(syncResult);
-await asyncResult.unwrap(); // 42
-```
-
 ### ResultAsync.fromPromise()
 
 ```ts

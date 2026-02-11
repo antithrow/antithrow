@@ -139,7 +139,6 @@ async function handler(request: Request): Promise<Response> {
 | `Result.all(results)`              | Combines multiple Results into one                |
 | `ResultAsync.try(fn)`              | Wraps an async throwing function in a ResultAsync |
 | `ResultAsync.all(results)`         | Combines multiple Results/ResultAsyncs into one   |
-| `ResultAsync.fromResult(result)`   | Wraps an existing Result in a ResultAsync         |
 | `ResultAsync.fromPromise(promise)` | Wraps a Promise\<Result\> in a ResultAsync        |
 | `chain(generator)`                 | Chains results using generator syntax             |
 
