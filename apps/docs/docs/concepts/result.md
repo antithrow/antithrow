@@ -251,3 +251,25 @@ Result.try(() => JSON.parse("invalid")); // err(SyntaxError)
 :::note
 For standard globals like `JSON.parse`, `fetch`, `atob`, etc., prefer the pre-built wrappers in [`@antithrow/std`](../api/std) which provide precise error types.
 :::
+
+## Combining Results
+
+`Result.all()` combines multiple `Result` values into a single `Result` — like `Promise.all`, but for Results. If all inputs are `Ok`, you get a tuple of their values. If any is `Err`, you get the first error:
+
+```ts
+import { Result, ok, err } from "antithrow";
+
+const results = Result.all([parseNumber("1"), parseNumber("2"), parseNumber("3")]);
+// Result<[number, number, number], string>
+
+results.map(([a, b, c]) => a + b + c); // ok(6)
+```
+
+If any result fails, the first `Err` is returned:
+
+```ts
+Result.all([parseNumber("1"), parseNumber("abc"), parseNumber("3")]);
+// err("Invalid number: abc")
+```
+
+For async scenarios, use [`ResultAsync.all()`](./result-async) which evaluates all inputs concurrently and accepts both `Result` and `ResultAsync` values.

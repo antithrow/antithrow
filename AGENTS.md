@@ -23,6 +23,9 @@ bun run lint
 # Run all tests across workspaces
 bun test
 
+# Run type tests
+bun lint:types
+
 # Run a single test
 bun test packages/antithrow/src/result.test.ts
 

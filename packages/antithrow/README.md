@@ -136,7 +136,9 @@ async function handler(request: Request): Promise<Response> {
 | `okAsync(value?)`                  | Creates an async successful result                |
 | `errAsync(error)`                  | Creates an async failed result                    |
 | `Result.try(fn)`                   | Wraps a throwing function in a Result             |
+| `Result.all(results)`              | Combines multiple Results into one                |
 | `ResultAsync.try(fn)`              | Wraps an async throwing function in a ResultAsync |
+| `ResultAsync.all(results)`         | Combines multiple Results/ResultAsyncs into one   |
 | `ResultAsync.fromResult(result)`   | Wraps an existing Result in a ResultAsync         |
 | `ResultAsync.fromPromise(promise)` | Wraps a Promise\<Result\> in a ResultAsync        |
 | `chain(generator)`                 | Chains results using generator syntax             |

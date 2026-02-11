@@ -21,7 +21,7 @@ title: "Why not neverthrow?"
 
 - The largest community and the most battle-tested option
 - Maximum Stack Overflow / blog coverage
-- `Result.combine` / `Result.combineWithAllErrors` utilities
+- `Result.combineWithAllErrors` — collects _every_ error instead of short-circuiting on the first (antithrow's `Result.all` returns only the first `Err`)
 
 ---
 
@@ -180,7 +180,7 @@ The neverthrow issue tracker surfaces recurring pain points. The table below sum
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `safeTry` error type inference across multiple yields ([#603](https://github.com/supermacro/neverthrow/issues/603))                                                                                              | Affected   | **Also affected** | Underlying TypeScript limitation — generators cannot infer a union of yielded error types across multiple `yield*` statements. Both libraries require an explicit type annotation on the generator when error types differ. |
 | `andThen` fails on union return types ([#629](https://github.com/supermacro/neverthrow/issues/629), [#417](https://github.com/supermacro/neverthrow/issues/417))                                                 | Affected   | **Fixed**         | antithrow uses `InferOk`/`InferErr` helper types on the `this` parameter of `andThen`, so union result types are inferred correctly.                                                                                        |
-| `combine()` broken for non-tuple arrays ([#434](https://github.com/supermacro/neverthrow/issues/434))                                                                                                            | Affected   | **N/A**           | antithrow does not have `combine()` — `chain()` covers sequential composition, and users can compose arrays with standard `Promise.all` or `Array.reduce` patterns.                                                         |
+| `combine()` broken for non-tuple arrays ([#434](https://github.com/supermacro/neverthrow/issues/434))                                                                                                            | Affected   | **Fixed**         | `Result.all()` / `ResultAsync.all()` provides correct type inference for both tuples and homogeneous arrays.                                                                                                                |
 | Poor async/await interop ([#340](https://github.com/supermacro/neverthrow/issues/340), [#514](https://github.com/supermacro/neverthrow/issues/514), [#608](https://github.com/supermacro/neverthrow/issues/608)) | Affected   | **Improved**      | `chain(async function*() {...})` seamlessly handles both `Result` and `ResultAsync` via `yield*`. Bridge methods (`mapAsync`, `andThenAsync`, etc.) on sync `Result` transition to `ResultAsync` without manual wrapping.   |
 | ESLint plugin unmaintained ([#625](https://github.com/supermacro/neverthrow/issues/625))                                                                                                                         | Affected   | **Fixed**         | antithrow ships a first-party `@antithrow/eslint-plugin` with three type-aware rules, maintained in the same monorepo.                                                                                                      |
 | No `toJSON` / serialization ([#628](https://github.com/supermacro/neverthrow/issues/628))                                                                                                                        | Affected   | **Also affected** | Neither library provides built-in serialization. Results must be unwrapped before serializing.                                                                                                                              |
@@ -202,7 +202,7 @@ The neverthrow issue tracker surfaces recurring pain points. The table below sum
 | Wrap async throwing fn    | `ResultAsync.try(fn)`                   | `ResultAsync.fromThrowable(fn)(args)`                  |
 | Generator composition     | `chain(function* () { yield* result })` | `safeTry(function* () { yield* result.safeUnwrap() })` |
 | Pattern match             | `match({ ok, err })`                    | `match(okFn, errFn)`                                   |
-| Combine results           | —                                       | `Result.combine(list)`                                 |
+| Combine results           | `Result.all(list)`                      | `Result.combine(list)`                                 |
 | Standard library wrappers | `@antithrow/std`                        | —                                                      |
 | Schema validation bridge  | `@antithrow/standard-schema`            | —                                                      |
 | ESLint rules              | 3 first-party rules                     | 1 third-party rule                                     |

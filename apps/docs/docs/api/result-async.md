@@ -97,6 +97,29 @@ const promise = fetchData().then(
 const result = ResultAsync.fromPromise(promise);
 ```
 
+### ResultAsync.all()
+
+```ts
+ResultAsync.all<const T extends readonly AnyResult[]>(results: T): ResultAsync<OkTuple<T>, ErrUnion<T>>;
+ResultAsync.all<T, E>(results: readonly AnyResult<T, E>[]): ResultAsync<T[], E>;
+```
+
+Combines multiple `Result` or `ResultAsync` values concurrently into a single `ResultAsync`. If all results are `Ok`, returns an `Ok` containing a tuple of all values. If any result is `Err`, returns the first `Err` to resolve.
+
+Analogous to `Promise.all`, but for `Result` / `ResultAsync` values. All inputs are evaluated concurrently.
+
+```ts
+await ResultAsync.all([okAsync(1), okAsync("hello")]); // ok([1, "hello"])
+await ResultAsync.all([okAsync(1), errAsync("bad"), okAsync(3)]); // err("bad")
+await ResultAsync.all([]); // ok([])
+```
+
+Accepts mixed sync and async inputs:
+
+```ts
+await ResultAsync.all([ok(1), okAsync("hello")]); // ok([1, "hello"])
+```
+
 ## Instance methods
 
 ### Type checking

@@ -84,9 +84,7 @@ Database or external API calls return `ResultAsync`:
 ```ts
 import { okAsync, errAsync, type ResultAsync } from "antithrow";
 
-function findUserByEmail(
-  email: string,
-): ResultAsync<User | undefined, ApiError> {
+function findUserByEmail(email: string): ResultAsync<User | undefined, ApiError> {
   return okAsync(users.find((u) => u.email === email));
 }
 

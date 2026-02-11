@@ -913,5 +913,131 @@ describe("ResultAsync", () => {
 			const flattened = result.flatten();
 			expectTypeOf(flattened).toEqualTypeOf<ResultAsync<number, "outer" | "inner">>();
 		});
+
+		test("all infers tuple Ok type", async () => {
+			const result = await ResultAsync.all([okAsync(1), okAsync("hello")]);
+			if (result.isOk()) {
+				expectTypeOf(result.value).toHaveProperty("length");
+				expectTypeOf(result.value[0]).toBeNumber();
+				expectTypeOf(result.value[1]).toBeString();
+			}
+		});
+
+		test("all infers union of Err types", async () => {
+			const result = await ResultAsync.all([okAsync<number, "a">(1), okAsync<string, "b">("hi")]);
+			if (result.isErr()) {
+				expectTypeOf(result.error).toEqualTypeOf<"a" | "b">();
+			}
+		});
+
+		test("all infers array type for homogeneous array", () => {
+			const results: ResultAsync<number, string>[] = [okAsync(1), okAsync(2)];
+			const result = ResultAsync.all(results);
+			expectTypeOf(result).toEqualTypeOf<ResultAsync<number[], string>>();
+		});
+
+		test("all infers tuple Ok type for mixed Result and ResultAsync", async () => {
+			const result = await ResultAsync.all([ok(1), okAsync("hello"), ok(true)]);
+			if (result.isOk()) {
+				expectTypeOf(result.value[0]).toBeNumber();
+				expectTypeOf(result.value[1]).toBeString();
+				expectTypeOf(result.value[2]).toBeBoolean();
+			}
+		});
+
+		test("all infers union of Err types for mixed Result and ResultAsync", async () => {
+			const result = await ResultAsync.all([ok<number, "a">(1), okAsync<string, "b">("hi")]);
+			if (result.isErr()) {
+				expectTypeOf(result.error).toEqualTypeOf<"a" | "b">();
+			}
+		});
+	});
+
+	describe("all", () => {
+		test("returns Ok with tuple of values when all are Ok", async () => {
+			const result = ResultAsync.all([okAsync(1), okAsync("hello"), okAsync(true)]);
+			expect(await result.unwrap()).toEqual([1, "hello", true]);
+		});
+
+		test("returns the first Err to resolve", async () => {
+			const result = ResultAsync.all([okAsync(1), errAsync("bad"), okAsync(3)]);
+			expect(await result.isErr()).toBe(true);
+			expect(await result.unwrapErr()).toBe("bad");
+		});
+
+		test("returns Ok with empty array for empty input", async () => {
+			const result = ResultAsync.all([]);
+			expect(await result.isOk()).toBe(true);
+			expect(await result.unwrap()).toEqual([]);
+		});
+
+		test("preserves input ordering", async () => {
+			const result = ResultAsync.all([
+				ResultAsync.try(async () => {
+					await new Promise((r) => setTimeout(r, 30));
+					return 1;
+				}),
+				ResultAsync.try(async () => {
+					await new Promise((r) => setTimeout(r, 10));
+					return 2;
+				}),
+				ResultAsync.try(async () => {
+					return 3;
+				}),
+			]);
+			expect(await result.unwrap()).toEqual([1, 2, 3]);
+		});
+
+		test("works with homogeneous array input", async () => {
+			const results: ResultAsync<number, string>[] = [okAsync(1), okAsync(2), okAsync(3)];
+			const result = ResultAsync.all(results);
+			expect(await result.unwrap()).toEqual([1, 2, 3]);
+		});
+
+		test("resolves early on Err", async () => {
+			let slowResolved = false;
+			const result = ResultAsync.all([
+				ResultAsync.try(async () => {
+					await new Promise((r) => setTimeout(r, 100));
+					slowResolved = true;
+					return 1;
+				}),
+				errAsync("fast-fail"),
+			]);
+			expect(await result.unwrapErr()).toBe("fast-fail");
+			expect(slowResolved).toBe(false);
+		});
+
+		test("accepts all sync Result values", async () => {
+			const result = ResultAsync.all([ok(1), ok("hello"), ok(true)]);
+			expect(await result.unwrap()).toEqual([1, "hello", true]);
+		});
+
+		test("accepts mixed Result and ResultAsync values", async () => {
+			const result = ResultAsync.all([ok(1), okAsync("hello"), ok(true)]);
+			expect(await result.unwrap()).toEqual([1, "hello", true]);
+		});
+
+		test("returns first Err from sync Result in mixed input", async () => {
+			const result = ResultAsync.all([okAsync(1), err("sync-fail"), okAsync(3)]);
+			expect(await result.unwrapErr()).toBe("sync-fail");
+		});
+
+		test("returns first Err from async ResultAsync in mixed input", async () => {
+			const result = ResultAsync.all([ok(1), errAsync("async-fail"), ok(3)]);
+			expect(await result.unwrapErr()).toBe("async-fail");
+		});
+
+		test("preserves ordering with mixed Result and ResultAsync", async () => {
+			const result = ResultAsync.all([
+				ok(1),
+				ResultAsync.try(async () => {
+					await new Promise((r) => setTimeout(r, 10));
+					return 2;
+				}),
+				ok(3),
+			]);
+			expect(await result.unwrap()).toEqual([1, 2, 3]);
+		});
 	});
 });

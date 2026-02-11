@@ -1,15 +1,12 @@
 import type { AsyncChainGenerator } from "./chain.js";
 import type { Err, Ok, Result } from "./result.js";
 import { err, ok } from "./result.js";
+import type { AnyResult, ErrUnion, InferErr, InferOk, OkTuple } from "./types.js";
 
 /**
  * A type that can be either a value or a promise-like containing that value.
  */
 type MaybePromise<T> = T | PromiseLike<T>;
-type InferAsyncOk<ResultAsyncType> =
-	ResultAsyncType extends ResultAsync<infer T, unknown> ? T : never;
-type InferAsyncErr<ResultAsyncType> =
-	ResultAsyncType extends ResultAsync<unknown, infer E> ? E : never;
 
 interface ResultAsyncMethods<T, E> {
 	/**
@@ -228,8 +225,8 @@ interface ResultAsyncMethods<T, E> {
 	 */
 	andThen<U, F, This extends ResultAsync<unknown, unknown>>(
 		this: This,
-		fn: (value: InferAsyncOk<This>) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
-	): ResultAsync<U, InferAsyncErr<This> | F>;
+		fn: (value: InferOk<This>) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, InferErr<This> | F>;
 	/**
 	 * Returns the provided `Result` if this is `Ok`, otherwise propagates the `Err`.
 	 *
@@ -349,6 +346,52 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 		fn: (result: Result<T, E>) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
 	): ResultAsync<U, F> {
 		return ResultAsync.fromPromise(this.promise.then(async (r) => fn(r)));
+	}
+
+	/**
+	 * Combines multiple `Result` or `ResultAsync` values into a single `ResultAsync` containing
+	 * a tuple of all `Ok` values, or the first `Err` to resolve. Similar to `Promise.all`.
+	 *
+	 * All results are awaited concurrently. If any result is `Err`, the combined result
+	 * resolves to that `Err` as soon as it is encountered.
+	 *
+	 * @example
+	 * ```ts
+	 * const combined = ResultAsync.all([okAsync(1), okAsync("hello")]);
+	 * await combined.unwrap(); // [1, "hello"]
+	 *
+	 * const mixed = ResultAsync.all([ok(1), okAsync("hello")]);
+	 * await mixed.unwrap(); // [1, "hello"]
+	 *
+	 * const failed = ResultAsync.all([okAsync(1), errAsync("bad"), okAsync(3)]);
+	 * await failed.unwrapErr(); // "bad"
+	 * ```
+	 *
+	 * @template T - A readonly tuple or array of `Result` or `ResultAsync` values.
+	 *
+	 * @param results - The `Result` or `ResultAsync` values to combine.
+	 *
+	 * @returns A `ResultAsync` containing a tuple of all `Ok` values, or the first `Err` to resolve.
+	 */
+	static all<const T extends readonly AnyResult[]>(
+		results: T,
+	): ResultAsync<OkTuple<T>, ErrUnion<T>>;
+	static all<T, E>(results: readonly AnyResult<T, E>[]): ResultAsync<T[], E>;
+	static all(results: readonly AnyResult[]): ResultAsync<unknown[], unknown> {
+		if (results.length === 0) {
+			return okAsync([]);
+		}
+
+		return ResultAsync.try(() =>
+			Promise.all(
+				results.map(async (r) => {
+					const result = await r;
+					if (result.isErr()) throw result.error;
+
+					return result.value;
+				}),
+			),
+		);
 	}
 
 	/**
@@ -527,15 +570,15 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 
 	andThen<U, F, This extends ResultAsync<unknown, unknown>>(
 		this: This,
-		fn: (value: InferAsyncOk<This>) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
-	): ResultAsync<U, InferAsyncErr<This> | F> {
+		fn: (value: InferOk<This>) => MaybePromise<Result<U, F>> | ResultAsync<U, F>,
+	): ResultAsync<U, InferErr<This> | F> {
 		return this.wrap((result) => {
 			if (result.isErr()) {
 				// Cast avoids allocating a new Err; the value type U is phantom here.
 				return result as Err<U, F>;
 			}
 
-			return fn(result.value as InferAsyncOk<This>);
+			return fn(result.value as InferOk<This>);
 		});
 	}
 

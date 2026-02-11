@@ -1,8 +1,6 @@
 import type { SyncChainGenerator } from "./chain.js";
 import { ResultAsync } from "./result-async.js";
-
-type InferOk<ResultType> = ResultType extends Result<infer T, unknown> ? T : never;
-export type InferErr<ResultType> = ResultType extends Result<unknown, infer E> ? E : never;
+import type { ErrUnion, InferErr, InferOk, OkTuple } from "./types.js";
 
 interface ResultMethods<T, E> {
 	/**
@@ -813,7 +811,31 @@ export function err<T = never, E = unknown>(error: E): Err<T, E> {
 	return new Err(error);
 }
 
-export const Result = {
+interface ResultNamespace {
+	/**
+	 * Combines multiple `Result` values into a single `Result` containing a tuple of all
+	 * `Ok` values, or the first `Err` encountered. Similar to `Promise.all`.
+	 *
+	 * @example
+	 * ```ts
+	 * const combined = Result.all([ok(1), ok("hello")]);
+	 * combined.unwrap(); // [1, "hello"]
+	 *
+	 * const failed = Result.all([ok(1), err("bad"), ok(3)]);
+	 * failed.unwrapErr(); // "bad"
+	 * ```
+	 *
+	 * @template T - A readonly tuple or array of `Result` values.
+	 *
+	 * @param results - The `Result` values to combine.
+	 *
+	 * @returns A `Result` containing a tuple of all `Ok` values, or the first `Err`.
+	 */
+	all<const T extends readonly Result<unknown, unknown>[]>(
+		results: T,
+	): Result<OkTuple<T>, ErrUnion<T>>;
+	all<T, E>(results: readonly Result<T, E>[]): Result<T[], E>;
+
 	/**
 	 * Executes a function and wraps the result in a `Result`. If the function throws,
 	 * the error is caught and wrapped in an `Err`.
@@ -833,6 +855,22 @@ export const Result = {
 	 *
 	 * @returns An `Ok` containing the function's return value, or an `Err` containing the thrown error.
 	 */
+	try<T, E = unknown>(fn: () => T): Result<T, E>;
+}
+
+export const Result: ResultNamespace = {
+	all(results: readonly Result<unknown, unknown>[]): Result<unknown[], unknown> {
+		const values: unknown[] = [];
+		for (const result of results) {
+			if (result.isErr()) {
+				// Cast avoids allocating a new Err; the value type is phantom here.
+				return result as Err<never, unknown>;
+			}
+			values.push(result.value);
+		}
+
+		return ok(values);
+	},
 	try<T, E = unknown>(fn: () => T): Result<T, E> {
 		try {
 			return ok(fn());
