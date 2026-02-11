@@ -21,7 +21,7 @@ title: "Why not neverthrow?"
 
 - The largest community and the most battle-tested option
 - Maximum Stack Overflow / blog coverage
-- `Result.combine` / `Result.combineWithAllErrors` utilities
+- `Result.combineWithAllErrors` — collects _every_ error instead of short-circuiting on the first (antithrow's `Result.all` returns only the first `Err`)
 
 ---
 
