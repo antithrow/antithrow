@@ -1,0 +1,56 @@
+{
+	"name": "@antithrow/node",
+	"version": "0.0.0",
+	"description": "Non-throwing wrappers around Node.js APIs using antithrow Result types",
+	"license": "MIT",
+	"author": "Jack Weilage",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/antithrow/antithrow.git",
+		"directory": "packages/node"
+	},
+	"homepage": "https://antithrow.dev",
+	"bugs": {
+		"url": "https://github.com/antithrow/antithrow/issues"
+	},
+	"keywords": [
+		"antithrow",
+		"result",
+		"error-handling",
+		"typescript",
+		"type-safe",
+		"node",
+		"fs",
+		"filesystem"
+	],
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./fs/promises": {
+			"types": "./dist/fs/promises/index.d.ts",
+			"import": "./dist/fs/promises/index.js"
+		}
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"clean": "rm -rf dist",
+		"lint": "bun run lint:publint && bun run lint:types",
+		"lint:publint": "publint",
+		"lint:types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"antithrow": "workspace:^"
+	},
+	"devDependencies": {
+		"@types/node": "25.2.2"
+	}
+}

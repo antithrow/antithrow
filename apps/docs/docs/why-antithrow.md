@@ -200,6 +200,7 @@ The neverthrow issue tracker surfaces recurring pain points. The table below sum
 | Pattern match             | `match({ ok, err })`                    | `match(okFn, errFn)`                                   |
 | Combine results           | `Result.all(list)`                      | `Result.combine(list)`                                 |
 | Standard library wrappers | `@antithrow/std`                        | —                                                      |
+| Node.js API wrappers      | `@antithrow/node`                       | —                                                      |
 | Schema validation bridge  | `@antithrow/standard-schema`            | —                                                      |
 | ESLint rules              | 3 first-party rules                     | 1 third-party rule                                     |
 | Dependencies              | 0                                       | 0                                                      |
@@ -228,7 +229,7 @@ As of February 2026:
 - [`eslint-plugin-neverthrow`](https://github.com/mdbetancourt/eslint-plugin-neverthrow) has not been released since November 2021 and is [reported as no longer working](https://github.com/supermacro/neverthrow/issues/625).
 - neverthrow has open issues around [type inference in `andThen`](https://github.com/supermacro/neverthrow/issues/629), [tree shaking support](https://github.com/supermacro/neverthrow/issues/660), and [code safety concerns](https://github.com/supermacro/neverthrow/issues/648).
 
-antithrow is actively maintained with all packages — core, `@antithrow/std`, `@antithrow/eslint-plugin`, and `@antithrow/standard-schema` — developed and released from a single monorepo.
+antithrow is actively maintained with all packages — core, `@antithrow/std`, `@antithrow/node`, `@antithrow/eslint-plugin`, and `@antithrow/standard-schema` — developed and released from a single monorepo.
 
 ---
 

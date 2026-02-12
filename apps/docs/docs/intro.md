@@ -56,6 +56,7 @@ antithrow is a family of packages that work together:
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | [`antithrow`](./api/result)                           | Core `Result<T, E>` and `ResultAsync<T, E>` types with chaining, composition, and pattern matching      |
 | [`@antithrow/std`](./api/std)                         | Non-throwing wrappers for standard globals — `fetch`, `JSON.parse`, `atob`, and more                    |
+| [`@antithrow/node`](./api/node)                       | Non-throwing wrappers for Node.js APIs — `fs/promises` and more                                         |
 | [`@antithrow/standard-schema`](./api/standard-schema) | Bridge for Standard Schema validators (Zod, Valibot, ArkType) into `Result` types                       |
 | [`@antithrow/eslint-plugin`](./api/eslint-plugin)     | ESLint rules enforcing correct `Result` usage — catch unused results, unsafe unwraps, and throwing APIs |
 

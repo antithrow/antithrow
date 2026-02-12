@@ -10,6 +10,9 @@
 				"antithrow"
 			],
 			"ignoreFiles": ["src/rules/utils/test-utils.ts"]
+		},
+		"packages/node": {
+			"entry": ["src/index.ts", "src/fs/promises/index.ts"]
 		}
 	}
 }

@@ -33,7 +33,7 @@ function fetchData(url: string): ResultAsync<Data, unknown> {
 }
 ```
 
-## Step 2: Replace standard globals
+## Step 2: Replace standard globals and Node.js APIs
 
 Install `@antithrow/std` and swap throwing globals for their non-throwing wrappers. This gives you precise error types instead of `unknown`:
 
@@ -49,6 +49,22 @@ import { JSON, fetch, atob } from "@antithrow/std";
 const data = JSON.parse<MyType>(input); // Result<MyType, SyntaxError>
 const response = await fetch(url); // Result<Response, DOMException | TypeError>
 const decoded = atob(encoded); // Result<string, DOMException>
+```
+
+For Node.js APIs, install `@antithrow/node`:
+
+```ts
+// Before
+import { readFile, writeFile } from "node:fs/promises";
+
+const content = await readFile("config.json", "utf-8"); // throws ErrnoException
+await writeFile("output.json", data); // throws ErrnoException
+
+// After
+import { readFile, writeFile } from "@antithrow/node/fs/promises";
+
+const content = await readFile("config.json", "utf-8"); // ResultAsync<string, FsError<ReadFileCode>>
+await writeFile("output.json", data); // ResultAsync<void, FsError<WriteFileCode>>
 ```
 
 Enable the `no-throwing-call` lint rule to find remaining usages:
