@@ -1,5 +1,11 @@
 # @antithrow/eslint-plugin
 
+## 1.2.1
+
+### Patch Changes
+
+- [#103](https://github.com/antithrow/antithrow/pull/103) [`90028b3`](https://github.com/antithrow/antithrow/commit/90028b3e5c7e3956e6cfddf2516e1bef15ac3d39) Thanks [@jack-weilage](https://github.com/jack-weilage)! - docs: rule documentation URLs now point to antithrow.dev instead of GitHub
+
 ## 1.2.0
 
 ### Minor Changes
