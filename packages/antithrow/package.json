@@ -9,11 +9,21 @@
 		"url": "git+https://github.com/antithrow/antithrow.git",
 		"directory": "packages/antithrow"
 	},
+	"homepage": "https://antithrow.dev",
+	"bugs": {
+		"url": "https://github.com/antithrow/antithrow/issues"
+	},
 	"keywords": [
 		"result",
 		"error-handling",
 		"typescript",
-		"functional"
+		"functional",
+		"antithrow",
+		"rust",
+		"result-type",
+		"neverthrow",
+		"exception",
+		"type-safe"
 	],
 	"sideEffects": false,
 	"type": "module",

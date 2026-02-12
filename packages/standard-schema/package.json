@@ -9,13 +9,20 @@
 		"url": "git+https://github.com/antithrow/antithrow.git",
 		"directory": "packages/standard-schema"
 	},
+	"homepage": "https://antithrow.dev",
+	"bugs": {
+		"url": "https://github.com/antithrow/antithrow/issues"
+	},
 	"keywords": [
+		"antithrow",
 		"result",
 		"error-handling",
 		"typescript",
 		"standard-schema",
+		"validation",
 		"zod",
-		"valibot"
+		"valibot",
+		"arktype"
 	],
 	"sideEffects": false,
 	"type": "module",

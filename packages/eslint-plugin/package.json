@@ -9,13 +9,20 @@
 		"url": "git+https://github.com/antithrow/antithrow.git",
 		"directory": "packages/eslint-plugin"
 	},
+	"homepage": "https://antithrow.dev",
+	"bugs": {
+		"url": "https://github.com/antithrow/antithrow/issues"
+	},
 	"keywords": [
+		"antithrow",
 		"eslint",
 		"eslintplugin",
+		"eslint-plugin",
 		"result",
 		"error-handling",
 		"typescript"
 	],
+	"sideEffects": false,
 	"type": "module",
 	"exports": {
 		".": {
