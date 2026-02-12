@@ -1,6 +1,14 @@
-# `@antithrow/no-unsafe-unwrap`
+---
+sidebar_position: 3
+title: "no-unsafe-unwrap"
+description: "Disallow unsafe Result extraction APIs that can throw at runtime"
+---
+
+# no-unsafe-unwrap
 
 Disallow unsafe `Result` extraction APIs that can throw at runtime.
+
+**Severity:** `warn` | **Fixable:** code
 
 ## Rule Details
 
@@ -19,12 +27,10 @@ It also reports extracting these members as properties, for example `const fn = 
 
 When the receiver is statically known to be `Ok` or `Err`, direct calls are auto-fixable:
 
-- `unwrap` on `Ok` -> `.value`
-- `unwrapErr` on `Err` -> `.error`
+- `unwrap` on `Ok` &rarr; `.value`
+- `unwrapErr` on `Err` &rarr; `.error`
 
 Calls to `expect`/`expectErr`, mixed or unknown variants (`Result<T, E>`, `ResultAsync`, etc.), and member extraction patterns are reported without autofix.
-
-**Default severity:** `warn` in the recommended config.
 
 ### Invalid
 
@@ -67,15 +73,15 @@ ok(1).unwrapOr(0);
 
 // Non-antithrow objects are ignored
 const box = {
-	unwrap() {
-		return 1;
-	},
+  unwrap() {
+    return 1;
+  },
 };
 box.unwrap();
 
 // Local helper names are ignored
 function expect(value: number): number {
-	return value;
+  return value;
 }
 expect(1);
 ```

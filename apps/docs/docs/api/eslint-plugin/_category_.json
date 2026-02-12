@@ -1,0 +1,8 @@
+{
+	"label": "@antithrow/eslint-plugin",
+	"position": 6,
+	"link": {
+		"type": "doc",
+		"id": "api/eslint-plugin/index"
+	}
+}

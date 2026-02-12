@@ -8,6 +8,5 @@ export interface AntithrowPluginDocs {
 }
 
 export const createRule = ESLintUtils.RuleCreator<AntithrowPluginDocs>(
-	(name) =>
-		`https://github.com/antithrow/antithrow/blob/main/packages/eslint-plugin/docs/rules/${name}.md`,
+	(name) => `https://antithrow.dev/docs/api/eslint-plugin/${name}`,
 );
