@@ -1,6 +1,6 @@
 {
 	"name": "@antithrow/std",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Non-throwing wrappers around standard globals using antithrow Result types",
 	"license": "MIT",
 	"author": "Jack Weilage",

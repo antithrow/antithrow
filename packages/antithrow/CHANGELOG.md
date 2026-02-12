@@ -1,5 +1,57 @@
 # antithrow
 
+## 2.0.0
+
+### Major Changes
+
+- [#99](https://github.com/antithrow/antithrow/pull/99) [`82be825`](https://github.com/antithrow/antithrow/commit/82be82527e7081fb5b7805de61fa349a9a70ea0b) Thanks [@jack-weilage](https://github.com/jack-weilage)! - feat!: remove redundant `ResultAsync.fromResult` method
+
+  Use `toAsync()` to convert a `Result` to a `ResultAsync`:
+
+  ```ts
+  // Before
+  ResultAsync.fromResult(ok(1)).map(async (x) => x * 2);
+
+  // After
+  ok(1)
+    .toAsync()
+    .map(async (x) => x * 2);
+  ```
+
+- [#99](https://github.com/antithrow/antithrow/pull/99) [`915a93b`](https://github.com/antithrow/antithrow/commit/915a93bdeec9d3f6d745d63486e4f52514b65107) Thanks [@jack-weilage](https://github.com/jack-weilage)! - feat!: replace 6 sync-to-async bridge methods with `toAsync()`
+
+  Removed `mapAsync`, `mapErrAsync`, `andThenAsync`, `orElseAsync`, `inspectAsync`, and `inspectErrAsync` from `Result`. Use `toAsync()` to convert to `ResultAsync`, then chain normally:
+
+  ```ts
+  // Before
+  ok(2).mapAsync(async (x) => x * 2);
+  ok(2).andThenAsync(async (x) => ok(x * 2));
+  err("oops").orElseAsync(async (e) => ok(0));
+
+  // After
+  ok(2)
+    .toAsync()
+    .map(async (x) => x * 2);
+  ok(2)
+    .toAsync()
+    .andThen(async (x) => ok(x * 2));
+  err("oops")
+    .toAsync()
+    .orElse(async (e) => ok(0));
+  ```
+
+### Minor Changes
+
+- [#97](https://github.com/antithrow/antithrow/pull/97) [`2e5b3fa`](https://github.com/antithrow/antithrow/commit/2e5b3fa808eae9c4c40e5c2f07887f958d0098c6) Thanks [@jack-weilage](https://github.com/jack-weilage)! - feat: implement new `Result.all` static function
+
+### Patch Changes
+
+- [#94](https://github.com/antithrow/antithrow/pull/94) [`329cdb9`](https://github.com/antithrow/antithrow/commit/329cdb96295c573c0810608b64cfa39ef729622c) Thanks [@jack-weilage](https://github.com/jack-weilage)! - fix: preserve unified Err union inference for `andThen` and `andThenAsync` on inferred `Ok | Err` receivers
+
+- [#91](https://github.com/antithrow/antithrow/pull/91) [`c7d3468`](https://github.com/antithrow/antithrow/commit/c7d34684d586e7de93ed619c7d7d5e2ebcc86e9c) Thanks [@jack-weilage](https://github.com/jack-weilage)! - fix: improve `chain` type inference to preserve unions of yielded `Err` types in sync and async generators
+
+- [#93](https://github.com/antithrow/antithrow/pull/93) [`0dd07d1`](https://github.com/antithrow/antithrow/commit/0dd07d191ca8cb86d636ee37c16ca5e3b064a33e) Thanks [@jack-weilage](https://github.com/jack-weilage)! - chore: mark packages as tree-shakable
+
 ## 1.2.0
 
 ### Minor Changes
