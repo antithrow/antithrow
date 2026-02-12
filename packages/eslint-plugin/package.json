@@ -1,6 +1,6 @@
 {
 	"name": "@antithrow/eslint-plugin",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "ESLint plugin for antithrow Result types",
 	"license": "MIT",
 	"author": "Jack Weilage",
