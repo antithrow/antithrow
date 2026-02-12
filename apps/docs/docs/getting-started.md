@@ -22,7 +22,7 @@ npm install antithrow
 Optionally install ecosystem packages as needed:
 
 ```bash npm2yarn
-npm install @antithrow/std @antithrow/standard-schema @antithrow/eslint-plugin
+npm install @antithrow/std @antithrow/node @antithrow/standard-schema @antithrow/eslint-plugin
 ```
 
 ## TypeScript configuration
@@ -91,6 +91,15 @@ import { JSON } from "@antithrow/std";
 
 const parsed = JSON.parse<{ name: string }>('{"name": "Alice"}');
 // Result<{ name: string }, SyntaxError>
+```
+
+For Node.js APIs like `fs/promises`, [`@antithrow/node`](./api/node) provides wrappers with precise error types:
+
+```ts
+import { readFile, writeFile } from "@antithrow/node/fs/promises";
+
+const content = await readFile("config.json", "utf-8");
+// ResultAsync<string, FsError<ReadFileCode>>
 ```
 
 ## Setting up the ESLint plugin

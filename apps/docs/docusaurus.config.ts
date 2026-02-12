@@ -104,6 +104,10 @@ const config: Config = {
 							to: "/docs/api/std",
 						},
 						{
+							label: "@antithrow/node",
+							to: "/docs/api/node",
+						},
+						{
 							label: "@antithrow/standard-schema",
 							to: "/docs/api/standard-schema",
 						},
