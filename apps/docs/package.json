@@ -1,5 +1,5 @@
 {
-	"name": "docs",
+	"name": "@antithrow/docs",
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {

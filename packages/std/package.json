@@ -9,13 +9,21 @@
 		"url": "git+https://github.com/antithrow/antithrow.git",
 		"directory": "packages/std"
 	},
+	"homepage": "https://antithrow.dev",
+	"bugs": {
+		"url": "https://github.com/antithrow/antithrow/issues"
+	},
 	"keywords": [
+		"antithrow",
 		"result",
 		"error-handling",
 		"typescript",
-		"functional",
+		"type-safe",
 		"fetch",
-		"json"
+		"json",
+		"base64",
+		"uri",
+		"structured-clone"
 	],
 	"sideEffects": false,
 	"type": "module",
