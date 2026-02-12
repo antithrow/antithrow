@@ -1,6 +1,14 @@
-# `@antithrow/no-throwing-call`
+---
+sidebar_position: 4
+title: "no-throwing-call"
+description: "Disallow calls to throwing built-in APIs with @antithrow/std replacements"
+---
+
+# no-throwing-call
 
 Disallow calls to known throwing built-in APIs that have `@antithrow/std` replacements.
+
+**Severity:** `warn` | **Fixable:** none
 
 ## Rule Details
 
@@ -30,7 +38,9 @@ Calls through `globalThis`, `window`, or `self` (e.g. `globalThis.fetch(...)`, `
 
 The rule is **type-aware**. Global functions and JSON methods use ESLint scope analysis to check whether the identifier has been overridden by an import or local declaration. Response body methods use TypeScript's type checker to verify the receiver is the built-in `Response` type.
 
-**Default severity:** `warn` in the recommended config.
+:::tip
+The rule uses scope analysis to avoid false positives — if you've shadowed a global (e.g., `const fetch = myCustomFetch`), the rule won't flag it.
+:::
 
 ### Invalid
 
@@ -60,13 +70,7 @@ response.formData();
 ### Valid
 
 ```ts
-import {
-  fetch,
-  JSON,
-  Response,
-  atob,
-  structuredClone,
-} from "@antithrow/std";
+import { fetch, JSON, Response, atob, structuredClone } from "@antithrow/std";
 
 // Imported from @antithrow/std — no warning
 fetch("https://example.com");
@@ -80,7 +84,9 @@ Response.json(response);
 Response.text(response);
 
 // Locally defined — no warning
-function myFetch(url: string) { /* ... */ }
+function myFetch(url: string) {
+  /* ... */
+}
 myFetch("https://example.com");
 
 // Non-Response objects are ignored
