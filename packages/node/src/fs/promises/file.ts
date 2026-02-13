@@ -11,21 +11,6 @@ import {
 import type { Stream } from "node:stream";
 
 import { ResultAsync } from "antithrow";
-import type { FsError } from "./errors.js";
-
-/** Errno codes thrown by `readFile`. */
-export type ReadFileCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EISDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "EIO"
-	| "EBADF"
-	| "EPERM"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.readFile`.
@@ -37,13 +22,13 @@ export type ReadFileCode =
  * import { readFile } from "@antithrow/node";
  *
  * const result = await readFile("/tmp/data.bin");
- * // ok(Buffer) or err(FsError<ReadFileCode>)
+ * // ok(Buffer) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to the file.
  * @param options - Optional read options.
  *
- * @returns A `ResultAsync` containing the file contents as a `Buffer`, or an `FsError`.
+ * @returns A `ResultAsync` containing the file contents as a `Buffer`, or a `NodeJS.ErrnoException`.
  */
 export function readFile(
 	path: PathLike | FileHandle,
@@ -53,7 +38,7 @@ export function readFile(
 				flag?: OpenMode | undefined;
 		  } & Abortable)
 		| null,
-): ResultAsync<Buffer, FsError<ReadFileCode>>;
+): ResultAsync<Buffer, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readFile`.
  *
@@ -64,13 +49,13 @@ export function readFile(
  * import { readFile } from "@antithrow/node";
  *
  * const result = await readFile("/tmp/hello.txt", "utf-8");
- * // ok("Hello, world!") or err(FsError<ReadFileCode>)
+ * // ok("Hello, world!") or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to the file.
  * @param options - The encoding or options object with an encoding.
  *
- * @returns A `ResultAsync` containing the file contents as a `string`, or an `FsError`.
+ * @returns A `ResultAsync` containing the file contents as a `string`, or a `NodeJS.ErrnoException`.
  */
 export function readFile(
 	path: PathLike | FileHandle,
@@ -80,7 +65,7 @@ export function readFile(
 				flag?: OpenMode | undefined;
 		  } & Abortable)
 		| BufferEncoding,
-): ResultAsync<string, FsError<ReadFileCode>>;
+): ResultAsync<string, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readFile`.
  *
@@ -91,13 +76,13 @@ export function readFile(
  * import { readFile } from "@antithrow/node";
  *
  * const result = await readFile("/tmp/hello.txt", { encoding: "utf-8" });
- * // ok(string | Buffer) or err(FsError<ReadFileCode>)
+ * // ok(string | Buffer) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to the file.
  * @param options - Optional encoding or options object.
  *
- * @returns A `ResultAsync` containing the file contents, or an `FsError`.
+ * @returns A `ResultAsync` containing the file contents, or a `NodeJS.ErrnoException`.
  */
 export function readFile(
 	path: PathLike | FileHandle,
@@ -108,7 +93,7 @@ export function readFile(
 				})
 		| BufferEncoding
 		| null,
-): ResultAsync<string | Buffer, FsError<ReadFileCode>>;
+): ResultAsync<string | Buffer, NodeJS.ErrnoException>;
 export function readFile(
 	path: PathLike | FileHandle,
 	options?:
@@ -118,24 +103,9 @@ export function readFile(
 				})
 		| BufferEncoding
 		| null,
-): ResultAsync<string | Buffer, FsError<ReadFileCode>> {
+): ResultAsync<string | Buffer, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeReadFile(path, options as BufferEncoding));
 }
-
-/** Errno codes thrown by `writeFile`. */
-export type WriteFileCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EISDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EIO"
-	| "EPERM"
-	| "EROFS"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.writeFile`.
@@ -145,14 +115,14 @@ export type WriteFileCode =
  * import { writeFile } from "@antithrow/node";
  *
  * const result = await writeFile("/tmp/hello.txt", "Hello, world!");
- * // ok(undefined) or err(FsError<WriteFileCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param file - The path or `FileHandle` to write to.
  * @param data - The data to write.
  * @param options - Optional write options.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function writeFile(
 	file: PathLike | FileHandle,
@@ -170,12 +140,9 @@ export function writeFile(
 		  } & Abortable)
 		| BufferEncoding
 		| null,
-): ResultAsync<void, FsError<WriteFileCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeWriteFile(file, data, options));
 }
-
-/** Errno codes thrown by `appendFile`. */
-export type AppendFileCode = WriteFileCode;
 
 /**
  * Non-throwing wrapper around `fs.promises.appendFile`.
@@ -185,14 +152,14 @@ export type AppendFileCode = WriteFileCode;
  * import { appendFile } from "@antithrow/node";
  *
  * const result = await appendFile("/tmp/log.txt", "new line\n");
- * // ok(undefined) or err(FsError<AppendFileCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path or `FileHandle` to append to.
  * @param data - The data to append.
  * @param options - Optional append options.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function appendFile(
 	path: PathLike | FileHandle,
@@ -201,21 +168,9 @@ export function appendFile(
 		| (ObjectEncodingOptions & { flag?: OpenMode | undefined; flush?: boolean | undefined })
 		| BufferEncoding
 		| null,
-): ResultAsync<void, FsError<AppendFileCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeAppendFile(path, data, options));
 }
-
-/** Errno codes thrown by `truncate`. */
-export type TruncateCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EISDIR"
-	| "EPERM"
-	| "EROFS"
-	| "EIO"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.truncate`.
@@ -225,34 +180,17 @@ export type TruncateCode =
  * import { truncate } from "@antithrow/node";
  *
  * const result = await truncate("/tmp/data.bin", 100);
- * // ok(undefined) or err(FsError<TruncateCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to the file.
  * @param len - The desired length in bytes. Defaults to `0`.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function truncate(path: PathLike, len?: number): ResultAsync<void, FsError<TruncateCode>> {
+export function truncate(path: PathLike, len?: number): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeTruncate(path, len));
 }
-
-/** Errno codes thrown by `open`. */
-export type OpenCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EISDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EEXIST"
-	| "EPERM"
-	| "EROFS"
-	| "EINVAL"
-	| "EIO"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.open`.
@@ -262,19 +200,19 @@ export type OpenCode =
  * import { open } from "@antithrow/node";
  *
  * const result = await open("/tmp/data.bin", "r");
- * // ok(FileHandle) or err(FsError<OpenCode>)
+ * // ok(FileHandle) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to the file.
  * @param flags - File system flags. Defaults to `'r'`.
  * @param mode - The file mode. Defaults to `0o666`.
  *
- * @returns A `ResultAsync` containing the `FileHandle`, or an `FsError`.
+ * @returns A `ResultAsync` containing the `FileHandle`, or a `NodeJS.ErrnoException`.
  */
 export function open(
 	path: PathLike,
 	flags?: string | number,
 	mode?: Mode,
-): ResultAsync<FileHandle, FsError<OpenCode>> {
+): ResultAsync<FileHandle, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeOpen(path, flags, mode));
 }

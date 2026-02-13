@@ -58,63 +58,63 @@ await mkdir("./nested/path", { recursive: true });
 
 #### File Operations
 
-| Function     | Signature                                                    | Error Type |
-| ------------ | ------------------------------------------------------------ | ---------- |
-| `readFile`   | `(path, encoding?) → ResultAsync<string \| Buffer, FsError>` | `FsError`  |
-| `writeFile`  | `(path, data) → ResultAsync<void, FsError>`                  | `FsError`  |
-| `appendFile` | `(path, data) → ResultAsync<void, FsError>`                  | `FsError`  |
-| `open`       | `(path, flags?, mode?) → ResultAsync<FileHandle, FsError>`   | `FsError`  |
-| `truncate`   | `(path, len?) → ResultAsync<void, FsError>`                  | `FsError`  |
+| Function     | Signature                                                                  | Error Type              |
+| ------------ | -------------------------------------------------------------------------- | ----------------------- |
+| `readFile`   | `(path, encoding?) → ResultAsync<string \| Buffer, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
+| `writeFile`  | `(path, data) → ResultAsync<void, NodeJS.ErrnoException>`                  | `NodeJS.ErrnoException` |
+| `appendFile` | `(path, data) → ResultAsync<void, NodeJS.ErrnoException>`                  | `NodeJS.ErrnoException` |
+| `open`       | `(path, flags?, mode?) → ResultAsync<FileHandle, NodeJS.ErrnoException>`   | `NodeJS.ErrnoException` |
+| `truncate`   | `(path, len?) → ResultAsync<void, NodeJS.ErrnoException>`                  | `NodeJS.ErrnoException` |
 
 #### Directory Operations
 
-| Function  | Signature                                                       | Error Type |
-| --------- | --------------------------------------------------------------- | ---------- |
-| `readdir` | `(path, options?) → ResultAsync<string[] \| Dirent[], FsError>` | `FsError`  |
-| `mkdir`   | `(path, options?) → ResultAsync<void, FsError>`                 | `FsError`  |
-| `rmdir`   | `(path) → ResultAsync<void, FsError>`                           | `FsError`  |
-| `rm`      | `(path, options?) → ResultAsync<void, FsError>`                 | `FsError`  |
-| `mkdtemp` | `(prefix) → ResultAsync<string, FsError>`                       | `FsError`  |
-| `opendir` | `(path, options?) → ResultAsync<Dir, FsError>`                  | `FsError`  |
+| Function  | Signature                                                                     | Error Type              |
+| --------- | ----------------------------------------------------------------------------- | ----------------------- |
+| `readdir` | `(path, options?) → ResultAsync<string[] \| Dirent[], NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
+| `mkdir`   | `(path, options?) → ResultAsync<void, NodeJS.ErrnoException>`                 | `NodeJS.ErrnoException` |
+| `rmdir`   | `(path) → ResultAsync<void, NodeJS.ErrnoException>`                           | `NodeJS.ErrnoException` |
+| `rm`      | `(path, options?) → ResultAsync<void, NodeJS.ErrnoException>`                 | `NodeJS.ErrnoException` |
+| `mkdtemp` | `(prefix) → ResultAsync<string, NodeJS.ErrnoException>`                       | `NodeJS.ErrnoException` |
+| `opendir` | `(path, options?) → ResultAsync<Dir, NodeJS.ErrnoException>`                  | `NodeJS.ErrnoException` |
 
 #### Metadata Operations
 
-| Function | Signature                                    | Error Type |
-| -------- | -------------------------------------------- | ---------- |
-| `stat`   | `(path) → ResultAsync<Stats, FsError>`       | `FsError`  |
-| `lstat`  | `(path) → ResultAsync<Stats, FsError>`       | `FsError`  |
-| `access` | `(path, mode?) → ResultAsync<void, FsError>` | `FsError`  |
-| `statfs` | `(path) → ResultAsync<StatsFs, FsError>`     | `FsError`  |
+| Function | Signature                                                  | Error Type              |
+| -------- | ---------------------------------------------------------- | ----------------------- |
+| `stat`   | `(path) → ResultAsync<Stats, NodeJS.ErrnoException>`       | `NodeJS.ErrnoException` |
+| `lstat`  | `(path) → ResultAsync<Stats, NodeJS.ErrnoException>`       | `NodeJS.ErrnoException` |
+| `access` | `(path, mode?) → ResultAsync<void, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
+| `statfs` | `(path) → ResultAsync<StatsFs, NodeJS.ErrnoException>`     | `NodeJS.ErrnoException` |
 
 #### Permissions & Ownership
 
-| Function | Signature                                       | Error Type |
-| -------- | ----------------------------------------------- | ---------- |
-| `chmod`  | `(path, mode) → ResultAsync<void, FsError>`     | `FsError`  |
-| `chown`  | `(path, uid, gid) → ResultAsync<void, FsError>` | `FsError`  |
-| `lchown` | `(path, uid, gid) → ResultAsync<void, FsError>` | `FsError`  |
+| Function | Signature                                                     | Error Type              |
+| -------- | ------------------------------------------------------------- | ----------------------- |
+| `chmod`  | `(path, mode) → ResultAsync<void, NodeJS.ErrnoException>`     | `NodeJS.ErrnoException` |
+| `chown`  | `(path, uid, gid) → ResultAsync<void, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
+| `lchown` | `(path, uid, gid) → ResultAsync<void, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
 
 #### Links & Paths
 
-| Function   | Signature                                                    | Error Type |
-| ---------- | ------------------------------------------------------------ | ---------- |
-| `link`     | `(existing, newPath) → ResultAsync<void, FsError>`           | `FsError`  |
-| `unlink`   | `(path) → ResultAsync<void, FsError>`                        | `FsError`  |
-| `symlink`  | `(target, path, type?) → ResultAsync<void, FsError>`         | `FsError`  |
-| `readlink` | `(path, encoding?) → ResultAsync<string \| Buffer, FsError>` | `FsError`  |
-| `realpath` | `(path, encoding?) → ResultAsync<string \| Buffer, FsError>` | `FsError`  |
+| Function   | Signature                                                                  | Error Type              |
+| ---------- | -------------------------------------------------------------------------- | ----------------------- |
+| `link`     | `(existing, newPath) → ResultAsync<void, NodeJS.ErrnoException>`           | `NodeJS.ErrnoException` |
+| `unlink`   | `(path) → ResultAsync<void, NodeJS.ErrnoException>`                        | `NodeJS.ErrnoException` |
+| `symlink`  | `(target, path, type?) → ResultAsync<void, NodeJS.ErrnoException>`         | `NodeJS.ErrnoException` |
+| `readlink` | `(path, encoding?) → ResultAsync<string \| Buffer, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
+| `realpath` | `(path, encoding?) → ResultAsync<string \| Buffer, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
 
 #### File Copy & Rename
 
-| Function   | Signature                                            | Error Type |
-| ---------- | ---------------------------------------------------- | ---------- |
-| `copyFile` | `(src, dest, mode?) → ResultAsync<void, FsError>`    | `FsError`  |
-| `cp`       | `(src, dest, options?) → ResultAsync<void, FsError>` | `FsError`  |
-| `rename`   | `(oldPath, newPath) → ResultAsync<void, FsError>`    | `FsError`  |
+| Function   | Signature                                                          | Error Type              |
+| ---------- | ------------------------------------------------------------------ | ----------------------- |
+| `copyFile` | `(src, dest, mode?) → ResultAsync<void, NodeJS.ErrnoException>`    | `NodeJS.ErrnoException` |
+| `cp`       | `(src, dest, options?) → ResultAsync<void, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
+| `rename`   | `(oldPath, newPath) → ResultAsync<void, NodeJS.ErrnoException>`    | `NodeJS.ErrnoException` |
 
 #### Time Operations
 
-| Function  | Signature                                           | Error Type |
-| --------- | --------------------------------------------------- | ---------- |
-| `utimes`  | `(path, atime, mtime) → ResultAsync<void, FsError>` | `FsError`  |
-| `lutimes` | `(path, atime, mtime) → ResultAsync<void, FsError>` | `FsError`  |
+| Function  | Signature                                                         | Error Type              |
+| --------- | ----------------------------------------------------------------- | ----------------------- |
+| `utimes`  | `(path, atime, mtime) → ResultAsync<void, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
+| `lutimes` | `(path, atime, mtime) → ResultAsync<void, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |

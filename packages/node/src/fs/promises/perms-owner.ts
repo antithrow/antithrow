@@ -2,18 +2,6 @@ import type { Mode, PathLike } from "node:fs";
 import { chmod as nodeChmod, chown as nodeChown, lchown as nodeLchown } from "node:fs/promises";
 
 import { ResultAsync } from "antithrow";
-import type { FsError } from "./errors.js";
-
-/** Errno codes thrown by `chmod`. */
-export type ChmodCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EPERM"
-	| "EROFS"
-	| "EIO"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.chmod`.
@@ -23,28 +11,17 @@ export type ChmodCode =
  * import { chmod } from "@antithrow/node";
  *
  * const result = await chmod("/tmp/script.sh", 0o755);
- * // ok(undefined) or err(FsError<ChmodCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The file path.
  * @param mode - The file mode bit mask.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function chmod(path: PathLike, mode: Mode): ResultAsync<void, FsError<ChmodCode>> {
+export function chmod(path: PathLike, mode: Mode): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeChmod(path, mode));
 }
-
-/** Errno codes thrown by `chown`. */
-export type ChownCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EPERM"
-	| "EROFS"
-	| "EIO"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.chown`.
@@ -54,25 +31,22 @@ export type ChownCode =
  * import { chown } from "@antithrow/node";
  *
  * const result = await chown("/tmp/hello.txt", 1000, 1000);
- * // ok(undefined) or err(FsError<ChownCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The file path.
  * @param uid - The new owner's user id.
  * @param gid - The new group's group id.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function chown(
 	path: PathLike,
 	uid: number,
 	gid: number,
-): ResultAsync<void, FsError<ChownCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeChown(path, uid, gid));
 }
-
-/** Errno codes thrown by `lchown`. */
-export type LchownCode = ChownCode;
 
 /**
  * Non-throwing wrapper around `fs.promises.lchown`.
@@ -84,19 +58,19 @@ export type LchownCode = ChownCode;
  * import { lchown } from "@antithrow/node";
  *
  * const result = await lchown("/tmp/my-link", 1000, 1000);
- * // ok(undefined) or err(FsError<LchownCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The symbolic link path.
  * @param uid - The new owner's user id.
  * @param gid - The new group's group id.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function lchown(
 	path: PathLike,
 	uid: number,
 	gid: number,
-): ResultAsync<void, FsError<LchownCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeLchown(path, uid, gid));
 }

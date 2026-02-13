@@ -18,18 +18,6 @@ import {
 } from "node:fs/promises";
 
 import { ResultAsync } from "antithrow";
-import type { FsError } from "./errors.js";
-
-/** Errno codes thrown by `readdir`. */
-export type ReaddirCode =
-	| "ENOENT"
-	| "EACCES"
-	| "ENOTDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "EIO"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.readdir`.
@@ -41,13 +29,13 @@ export type ReaddirCode =
  * import { readdir } from "@antithrow/node";
  *
  * const result = await readdir("/tmp");
- * // ok(["file1.txt", "file2.txt"]) or err(FsError<ReaddirCode>)
+ * // ok(["file1.txt", "file2.txt"]) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The directory path.
  * @param options - Optional encoding or options object.
  *
- * @returns A `ResultAsync` containing an array of filenames, or an `FsError`.
+ * @returns A `ResultAsync` containing an array of filenames, or a `NodeJS.ErrnoException`.
  */
 export function readdir(
 	path: PathLike,
@@ -58,7 +46,7 @@ export function readdir(
 		  })
 		| BufferEncoding
 		| null,
-): ResultAsync<string[], FsError<ReaddirCode>>;
+): ResultAsync<string[], NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readdir`.
  *
@@ -69,13 +57,13 @@ export function readdir(
  * import { readdir } from "@antithrow/node";
  *
  * const result = await readdir("/tmp", { encoding: "buffer" });
- * // ok(Buffer[]) or err(FsError<ReaddirCode>)
+ * // ok(Buffer[]) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The directory path.
  * @param options - Options with `encoding: "buffer"`.
  *
- * @returns A `ResultAsync` containing an array of `Buffer` filenames, or an `FsError`.
+ * @returns A `ResultAsync` containing an array of `Buffer` filenames, or a `NodeJS.ErrnoException`.
  */
 export function readdir(
 	path: PathLike,
@@ -86,7 +74,7 @@ export function readdir(
 				recursive?: boolean | undefined;
 		  }
 		| "buffer",
-): ResultAsync<Buffer[], FsError<ReaddirCode>>;
+): ResultAsync<Buffer[], NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readdir`.
  *
@@ -97,13 +85,13 @@ export function readdir(
  * import { readdir } from "@antithrow/node";
  *
  * const result = await readdir("/tmp", { withFileTypes: true });
- * // ok(Dirent[]) or err(FsError<ReaddirCode>)
+ * // ok(Dirent[]) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The directory path.
  * @param options - Options with `withFileTypes: true`.
  *
- * @returns A `ResultAsync` containing an array of `Dirent` objects, or an `FsError`.
+ * @returns A `ResultAsync` containing an array of `Dirent` objects, or a `NodeJS.ErrnoException`.
  */
 export function readdir(
 	path: PathLike,
@@ -111,7 +99,7 @@ export function readdir(
 		withFileTypes: true;
 		recursive?: boolean | undefined;
 	},
-): ResultAsync<Dirent[], FsError<ReaddirCode>>;
+): ResultAsync<Dirent[], NodeJS.ErrnoException>;
 export function readdir(
 	path: PathLike,
 	options?:
@@ -127,23 +115,9 @@ export function readdir(
 		| BufferEncoding
 		| "buffer"
 		| null,
-): ResultAsync<string[] | Buffer[] | Dirent[], FsError<ReaddirCode>> {
+): ResultAsync<string[] | Buffer[] | Dirent[], NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeReaddir(path, options as BufferEncoding));
 }
-
-/** Errno codes thrown by `mkdir`. */
-export type MkdirCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EEXIST"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EPERM"
-	| "EROFS"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.mkdir`.
@@ -155,20 +129,20 @@ export type MkdirCode =
  * import { mkdir } from "@antithrow/node";
  *
  * const result = await mkdir("/tmp/a/b/c", { recursive: true });
- * // ok("/tmp/a") or err(FsError<MkdirCode>)
+ * // ok("/tmp/a") or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The directory path.
  * @param options - Options with `recursive: true`.
  *
- * @returns A `ResultAsync` containing the first created path or `undefined`, or an `FsError`.
+ * @returns A `ResultAsync` containing the first created path or `undefined`, or a `NodeJS.ErrnoException`.
  */
 export function mkdir(
 	path: PathLike,
 	options: MakeDirectoryOptions & {
 		recursive: true;
 	},
-): ResultAsync<string | undefined, FsError<MkdirCode>>;
+): ResultAsync<string | undefined, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.mkdir`.
  *
@@ -179,13 +153,13 @@ export function mkdir(
  * import { mkdir } from "@antithrow/node";
  *
  * const result = await mkdir("/tmp/mydir");
- * // ok(undefined) or err(FsError<MkdirCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The directory path.
  * @param options - Optional mode or options object.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function mkdir(
 	path: PathLike,
@@ -195,26 +169,13 @@ export function mkdir(
 				recursive?: false | undefined;
 		  })
 		| null,
-): ResultAsync<undefined, FsError<MkdirCode>>;
+): ResultAsync<undefined, NodeJS.ErrnoException>;
 export function mkdir(
 	path: PathLike,
 	options?: Mode | MakeDirectoryOptions | null,
-): ResultAsync<string | undefined, FsError<MkdirCode>> {
+): ResultAsync<string | undefined, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeMkdir(path, options));
 }
-
-/** Errno codes thrown by `rmdir`. */
-export type RmdirCode =
-	| "ENOENT"
-	| "EACCES"
-	| "ENOTDIR"
-	| "ENOTEMPTY"
-	| "EMFILE"
-	| "ENFILE"
-	| "EPERM"
-	| "EBUSY"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.rmdir`.
@@ -224,28 +185,16 @@ export type RmdirCode =
  * import { rmdir } from "@antithrow/node";
  *
  * const result = await rmdir("/tmp/mydir");
- * // ok(undefined) or err(FsError<RmdirCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The directory path.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function rmdir(path: PathLike): ResultAsync<void, FsError<RmdirCode>> {
+export function rmdir(path: PathLike): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeRmdir(path));
 }
-
-/** Errno codes thrown by `rm`. */
-export type RmCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EPERM"
-	| "EBUSY"
-	| "EMFILE"
-	| "ENFILE"
-	| "EIO"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.rm`.
@@ -255,30 +204,17 @@ export type RmCode =
  * import { rm } from "@antithrow/node";
  *
  * const result = await rm("/tmp/mydir", { recursive: true, force: true });
- * // ok(undefined) or err(FsError<RmCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to remove.
  * @param options - Optional removal options.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function rm(path: PathLike, options?: RmOptions): ResultAsync<void, FsError<RmCode>> {
+export function rm(path: PathLike, options?: RmOptions): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeRm(path, options));
 }
-
-/** Errno codes thrown by `mkdtemp`. */
-export type MkdtempCode =
-	| "ENOENT"
-	| "EACCES"
-	| "ENOTDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EPERM"
-	| "EIO"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.mkdtemp`.
@@ -290,31 +226,20 @@ export type MkdtempCode =
  * import { tmpdir } from "node:os";
  *
  * const result = await mkdtemp(join(tmpdir(), "myapp-"));
- * // ok("/tmp/myapp-aBcDeF") or err(FsError<MkdtempCode>)
+ * // ok("/tmp/myapp-aBcDeF") or err(NodeJS.ErrnoException)
  * ```
  *
  * @param prefix - The prefix for the temporary directory name.
  * @param options - Optional encoding or options object.
  *
- * @returns A `ResultAsync` containing the created directory path, or an `FsError`.
+ * @returns A `ResultAsync` containing the created directory path, or a `NodeJS.ErrnoException`.
  */
 export function mkdtemp(
 	prefix: string,
 	options?: ObjectEncodingOptions | BufferEncoding | null,
-): ResultAsync<string, FsError<MkdtempCode>> {
+): ResultAsync<string, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeMkdtemp(prefix, options));
 }
-
-/** Errno codes thrown by `opendir`. */
-export type OpendirCode =
-	| "ENOENT"
-	| "EACCES"
-	| "ENOTDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "EIO"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.opendir`.
@@ -334,11 +259,11 @@ export type OpendirCode =
  * @param path - The directory path.
  * @param options - Optional options for opening the directory.
  *
- * @returns A `ResultAsync` containing the `Dir` handle, or an `FsError`.
+ * @returns A `ResultAsync` containing the `Dir` handle, or a `NodeJS.ErrnoException`.
  */
 export function opendir(
 	path: PathLike,
 	options?: OpenDirOptions,
-): ResultAsync<Dir, FsError<OpendirCode>> {
+): ResultAsync<Dir, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeOpendir(path, options));
 }
