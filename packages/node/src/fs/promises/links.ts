@@ -8,17 +8,6 @@ import {
 } from "node:fs/promises";
 
 import { ResultAsync } from "antithrow";
-import type { FsError } from "./errors.js";
-
-/** Errno codes thrown by `readlink`. */
-export type ReadlinkCode =
-	| "ENOENT"
-	| "EACCES"
-	| "ENOTDIR"
-	| "EINVAL"
-	| "EIO"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.readlink`.
@@ -30,18 +19,18 @@ export type ReadlinkCode =
  * import { readlink } from "@antithrow/node";
  *
  * const result = await readlink("/tmp/my-link");
- * // ok("/tmp/target") or err(FsError<ReadlinkCode>)
+ * // ok("/tmp/target") or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to the symbolic link.
  * @param options - Optional encoding or options object.
  *
- * @returns A `ResultAsync` containing the link target as a `string`, or an `FsError`.
+ * @returns A `ResultAsync` containing the link target as a `string`, or a `NodeJS.ErrnoException`.
  */
 export function readlink(
 	path: PathLike,
 	options?: ObjectEncodingOptions | BufferEncoding | null,
-): ResultAsync<string, FsError<ReadlinkCode>>;
+): ResultAsync<string, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readlink`.
  *
@@ -52,40 +41,24 @@ export function readlink(
  * import { readlink } from "@antithrow/node";
  *
  * const result = await readlink("/tmp/my-link", { encoding: "buffer" });
- * // ok(Buffer) or err(FsError<ReadlinkCode>)
+ * // ok(Buffer) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to the symbolic link.
  * @param options - Options with `encoding: "buffer"`.
  *
- * @returns A `ResultAsync` containing the link target as a `Buffer`, or an `FsError`.
+ * @returns A `ResultAsync` containing the link target as a `Buffer`, or a `NodeJS.ErrnoException`.
  */
 export function readlink(
 	path: PathLike,
 	options: BufferEncodingOption,
-): ResultAsync<Buffer<ArrayBuffer>, FsError<ReadlinkCode>>;
+): ResultAsync<Buffer<ArrayBuffer>, NodeJS.ErrnoException>;
 export function readlink(
 	path: PathLike,
 	options?: ObjectEncodingOptions | BufferEncoding | BufferEncodingOption | null,
-): ResultAsync<string | Buffer<ArrayBuffer>, FsError<ReadlinkCode>> {
+): ResultAsync<string | Buffer<ArrayBuffer>, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeReadlink(path, options as BufferEncoding));
 }
-
-/** Errno codes thrown by `link`. */
-export type LinkCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EEXIST"
-	| "ENOTDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EPERM"
-	| "EROFS"
-	| "EXDEV"
-	| "EIO"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.link`.
@@ -95,34 +68,20 @@ export type LinkCode =
  * import { link } from "@antithrow/node";
  *
  * const result = await link("/tmp/existing.txt", "/tmp/new-link.txt");
- * // ok(undefined) or err(FsError<LinkCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param existingPath - The existing file path.
  * @param newPath - The new link path.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function link(
 	existingPath: PathLike,
 	newPath: PathLike,
-): ResultAsync<void, FsError<LinkCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeLink(existingPath, newPath));
 }
-
-/** Errno codes thrown by `symlink`. */
-export type SymlinkCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EEXIST"
-	| "ENOTDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EPERM"
-	| "EIO"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.symlink`.
@@ -132,35 +91,22 @@ export type SymlinkCode =
  * import { symlink } from "@antithrow/node";
  *
  * const result = await symlink("/tmp/target", "/tmp/my-link");
- * // ok(undefined) or err(FsError<SymlinkCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param target - The target of the symbolic link.
  * @param path - The path of the symbolic link.
  * @param type - Optional type hint for Windows (`"dir"`, `"file"`, or `"junction"`).
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function symlink(
 	target: PathLike,
 	path: PathLike,
 	type?: string | null,
-): ResultAsync<void, FsError<SymlinkCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeSymlink(target, path, type));
 }
-
-/** Errno codes thrown by `unlink`. */
-export type UnlinkCode =
-	| "ENOENT"
-	| "EACCES"
-	| "ENOTDIR"
-	| "EPERM"
-	| "EROFS"
-	| "EBUSY"
-	| "EIO"
-	| "EISDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.unlink`.
@@ -170,19 +116,16 @@ export type UnlinkCode =
  * import { unlink } from "@antithrow/node";
  *
  * const result = await unlink("/tmp/old-file.txt");
- * // ok(undefined) or err(FsError<UnlinkCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to the file or symbolic link to remove.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function unlink(path: PathLike): ResultAsync<void, FsError<UnlinkCode>> {
+export function unlink(path: PathLike): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeUnlink(path));
 }
-
-/** Errno codes thrown by `realpath`. */
-export type RealpathCode = "ENOENT" | "EACCES" | "ENOTDIR" | "ELOOP" | "ENAMETOOLONG" | "EIO";
 
 /**
  * Non-throwing wrapper around `fs.promises.realpath`.
@@ -194,18 +137,18 @@ export type RealpathCode = "ENOENT" | "EACCES" | "ENOTDIR" | "ELOOP" | "ENAMETOO
  * import { realpath } from "@antithrow/node";
  *
  * const result = await realpath("/tmp/../tmp/hello.txt");
- * // ok("/tmp/hello.txt") or err(FsError<RealpathCode>)
+ * // ok("/tmp/hello.txt") or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to resolve.
  * @param options - Optional encoding or options object.
  *
- * @returns A `ResultAsync` containing the resolved path as a `string`, or an `FsError`.
+ * @returns A `ResultAsync` containing the resolved path as a `string`, or a `NodeJS.ErrnoException`.
  */
 export function realpath(
 	path: PathLike,
 	options?: ObjectEncodingOptions | BufferEncoding | null,
-): ResultAsync<string, FsError<RealpathCode>>;
+): ResultAsync<string, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.realpath`.
  *
@@ -216,21 +159,21 @@ export function realpath(
  * import { realpath } from "@antithrow/node";
  *
  * const result = await realpath("/tmp/hello.txt", { encoding: "buffer" });
- * // ok(Buffer) or err(FsError<RealpathCode>)
+ * // ok(Buffer) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param path - The path to resolve.
  * @param options - Options with `encoding: "buffer"`.
  *
- * @returns A `ResultAsync` containing the resolved path as a `Buffer`, or an `FsError`.
+ * @returns A `ResultAsync` containing the resolved path as a `Buffer`, or a `NodeJS.ErrnoException`.
  */
 export function realpath(
 	path: PathLike,
 	options: BufferEncodingOption,
-): ResultAsync<Buffer, FsError<RealpathCode>>;
+): ResultAsync<Buffer, NodeJS.ErrnoException>;
 export function realpath(
 	path: PathLike,
 	options?: ObjectEncodingOptions | BufferEncoding | BufferEncodingOption | null,
-): ResultAsync<string | Buffer, FsError<RealpathCode>> {
+): ResultAsync<string | Buffer, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeRealpath(path, options as BufferEncoding));
 }

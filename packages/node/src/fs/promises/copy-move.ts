@@ -2,24 +2,6 @@ import type { CopyOptions, PathLike } from "node:fs";
 import { copyFile as nodeCopyFile, cp as nodeCp, rename as nodeRename } from "node:fs/promises";
 
 import { ResultAsync } from "antithrow";
-import type { FsError } from "./errors.js";
-
-/** Errno codes thrown by `rename`. */
-export type RenameCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EEXIST"
-	| "EISDIR"
-	| "ENOTDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EPERM"
-	| "EROFS"
-	| "EBUSY"
-	| "EXDEV"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.rename`.
@@ -29,35 +11,20 @@ export type RenameCode =
  * import { rename } from "@antithrow/node";
  *
  * const result = await rename("/tmp/old.txt", "/tmp/new.txt");
- * // ok(undefined) or err(FsError<RenameCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param oldPath - The current path.
  * @param newPath - The new path.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function rename(
 	oldPath: PathLike,
 	newPath: PathLike,
-): ResultAsync<void, FsError<RenameCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeRename(oldPath, newPath));
 }
-
-/** Errno codes thrown by `copyFile`. */
-export type CopyFileCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EISDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EIO"
-	| "EPERM"
-	| "EEXIST"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.copyFile`.
@@ -67,37 +34,22 @@ export type CopyFileCode =
  * import { copyFile } from "@antithrow/node";
  *
  * const result = await copyFile("/tmp/source.txt", "/tmp/dest.txt");
- * // ok(undefined) or err(FsError<CopyFileCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param src - The source file path.
  * @param dest - The destination file path.
  * @param mode - Optional modifiers for the copy operation.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function copyFile(
 	src: PathLike,
 	dest: PathLike,
 	mode?: number,
-): ResultAsync<void, FsError<CopyFileCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeCopyFile(src, dest, mode));
 }
-
-/** Errno codes thrown by `cp`. */
-export type CpCode =
-	| "ENOENT"
-	| "EACCES"
-	| "EISDIR"
-	| "EMFILE"
-	| "ENFILE"
-	| "ENOSPC"
-	| "EIO"
-	| "EPERM"
-	| "EEXIST"
-	| "ENOTDIR"
-	| "ELOOP"
-	| "ENAMETOOLONG";
 
 /**
  * Non-throwing wrapper around `fs.promises.cp`.
@@ -107,19 +59,19 @@ export type CpCode =
  * import { cp } from "@antithrow/node";
  *
  * const result = await cp("/tmp/src-dir", "/tmp/dest-dir", { recursive: true });
- * // ok(undefined) or err(FsError<CpCode>)
+ * // ok(undefined) or err(NodeJS.ErrnoException)
  * ```
  *
  * @param source - The source path.
  * @param destination - The destination path.
  * @param opts - Optional copy options.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or an `FsError`.
+ * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function cp(
 	source: string | URL,
 	destination: string | URL,
 	opts?: CopyOptions,
-): ResultAsync<void, FsError<CpCode>> {
+): ResultAsync<void, NodeJS.ErrnoException> {
 	return ResultAsync.try(() => nodeCp(source, destination, opts));
 }

@@ -99,7 +99,7 @@ For Node.js APIs like `fs/promises`, [`@antithrow/node`](./api/node) provides wr
 import { readFile, writeFile } from "@antithrow/node/fs/promises";
 
 const content = await readFile("config.json", "utf-8");
-// ResultAsync<string, FsError<ReadFileCode>>
+// ResultAsync<string, NodeJS.ErrnoException>
 ```
 
 ## Setting up the ESLint plugin

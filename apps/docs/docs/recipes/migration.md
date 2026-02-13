@@ -63,8 +63,8 @@ await writeFile("output.json", data); // throws ErrnoException
 // After
 import { readFile, writeFile } from "@antithrow/node/fs/promises";
 
-const content = await readFile("config.json", "utf-8"); // ResultAsync<string, FsError<ReadFileCode>>
-await writeFile("output.json", data); // ResultAsync<void, FsError<WriteFileCode>>
+const content = await readFile("config.json", "utf-8"); // ResultAsync<string, NodeJS.ErrnoException>
+await writeFile("output.json", data); // ResultAsync<void, NodeJS.ErrnoException>
 ```
 
 Enable the `no-throwing-call` lint rule to find remaining usages:
