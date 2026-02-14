@@ -91,6 +91,14 @@ ruleTester.run("no-throwing-call", noThrowingCall, {
 			name: "callback-style readFile from node:fs is ignored",
 			code: `import { readFile } from "node:fs";\nreadFile("/tmp/test.txt", () => {});`,
 		},
+		{
+			name: "non-banned fs/promises export (lchmod) is ignored",
+			code: `import { lchmod } from "node:fs/promises";\nlchmod("/tmp/test.txt", 0o644);`,
+		},
+		{
+			name: "unresolvable call signature is ignored",
+			code: `declare const fn: { (): void; (x: number): void; (x: string): void };\nfn(true as never);`,
+		},
 	],
 	invalid: [
 		{

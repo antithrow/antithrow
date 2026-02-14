@@ -202,11 +202,8 @@ function isFsPromisesDeclaration(decl: ts.Declaration): boolean {
 
 function getFsPromisesCallViolation(checker: ts.TypeChecker, tsCallNode: ts.Node): string | null {
 	const signature = checker.getResolvedSignature(tsCallNode as ts.CallExpression);
-	if (!signature) {
-		return null;
-	}
 
-	const decl = signature.getDeclaration();
+	const decl = signature?.getDeclaration();
 	if (!decl) {
 		return null;
 	}
