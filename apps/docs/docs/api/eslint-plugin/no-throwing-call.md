@@ -1,20 +1,18 @@
 ---
 sidebar_position: 4
 title: "no-throwing-call"
-description: "Disallow calls to throwing built-in APIs with @antithrow/std replacements"
+description: "Disallow calls to well-known throwing/rejecting APIs that have antithrow replacements"
 ---
 
 # no-throwing-call
 
-Disallow calls to known throwing built-in APIs that have `@antithrow/std` replacements.
+Disallow calls to well-known throwing/rejecting APIs that have `@antithrow` bridge replacements available.
 
 **Severity:** `warn` | **Fixable:** none
 
 ## Rule Details
 
-This rule reports calls to built-in JavaScript/Web APIs that can throw and have non-throwing replacements in [`@antithrow/std`](https://www.npmjs.com/package/@antithrow/std).
-
-The rule detects three categories of APIs:
+This rule reports calls to well-known APIs that can throw or reject where an `@antithrow` bridge replacement exists. It currently detects four categories of APIs:
 
 ### Global functions
 
@@ -34,17 +32,36 @@ The rule detects three categories of APIs:
 
 **Replacement:** `import { Response } from "@antithrow/std"` (note: the API shape changes from `response.json()` to `Response.json(response)`).
 
-Calls through `globalThis`, `window`, or `self` (e.g. `globalThis.fetch(...)`, `window.JSON.parse(...)`) are also detected.
+### Node.js `fs/promises` functions {#fs-promises}
 
-The rule is **type-aware**. Global functions and JSON methods use ESLint scope analysis to check whether the identifier has been overridden by an import or local declaration. Response body methods use TypeScript's type checker to verify the receiver is the built-in `Response` type.
+`readFile`, `writeFile`, `appendFile`, `truncate`, `open`, `readdir`, `mkdir`, `rmdir`, `rm`, `mkdtemp`, `opendir`, `readlink`, `link`, `symlink`, `unlink`, `realpath`, `stat`, `lstat`, `statfs`, `access`, `chmod`, `chown`, `lchown`, `utimes`, `lutimes`, `copyFile`, `cp`, `rename`
+
+**Replacement:** Import the function from `@antithrow/node/fs/promises`. See the [`@antithrow/node` docs](../node.md) for the full API.
+
+The rule detects calls regardless of import style:
+
+- Named imports: `import { readFile } from "node:fs/promises"`
+- Aliased imports: `import { readFile as rf } from "node:fs/promises"`
+- Namespace imports: `import * as fsp from "node:fs/promises"; fsp.readFile(...)`
+- Property access via `node:fs`: `import fs from "node:fs"; fs.promises.readFile(...)`
+- Indirect references: `const fn = readFile; fn(...)`
+
+Both `"node:fs/promises"` and `"fs/promises"` module specifiers are detected.
+
+---
+
+Calls through `globalThis`, `window`, or `self` (e.g. `globalThis.fetch(...)`, `window.JSON.parse(...)`) are also detected for global/JSON/Response APIs.
+
+The rule is **type-aware**. Global functions and JSON methods use ESLint scope analysis to check whether the identifier has been overridden by an import or local declaration. Response body methods use TypeScript's type checker to verify the receiver is the built-in `Response` type. Node.js `fs/promises` detection uses the type checker to resolve the declaration's originating module.
 
 :::tip
-The rule uses scope analysis to avoid false positives — if you've shadowed a global (e.g., `const fetch = myCustomFetch`), the rule won't flag it.
+The rule uses scope analysis to avoid false positives — if you've shadowed a global (e.g., `const fetch = myCustomFetch`), the rule won't flag it. Similarly, a user-defined function named `readFile` that doesn't originate from `node:fs/promises` will not be flagged.
 :::
 
 ### Invalid
 
 ```ts
+// Global / JSON / Response APIs
 fetch("https://example.com");
 globalThis.fetch("https://example.com");
 window.fetch("https://example.com");
@@ -65,6 +82,17 @@ response.text();
 response.arrayBuffer();
 response.blob();
 response.formData();
+
+// Node.js fs/promises APIs
+import { readFile, writeFile } from "node:fs/promises";
+readFile("/tmp/hello.txt", "utf-8");
+writeFile("/tmp/hello.txt", "data");
+
+import * as fsp from "node:fs/promises";
+fsp.readFile("/tmp/hello.txt");
+
+import fs from "node:fs";
+fs.promises.readFile("/tmp/hello.txt");
 ```
 
 ### Valid
@@ -92,11 +120,26 @@ myFetch("https://example.com");
 // Non-Response objects are ignored
 const obj = { json: () => "test" };
 obj.json();
+
+// Imported from @antithrow/node — no warning
+import { readFile, writeFile } from "@antithrow/node/fs/promises";
+readFile("/tmp/hello.txt", "utf-8");
+writeFile("/tmp/hello.txt", "data");
+
+// User-defined function with same name — no warning
+function readFile(path: string) {
+  /* custom implementation */
+}
+readFile("/tmp/hello.txt");
+
+// Callback-style fs APIs (not from fs/promises) — no warning
+import { readFile as readFileCb } from "node:fs";
+readFileCb("/tmp/hello.txt", () => {});
 ```
 
 ## When Not To Use It
 
-If your codebase does not use `@antithrow/std` and you do not plan to migrate to non-throwing APIs.
+If your codebase does not use `@antithrow/std` or `@antithrow/node` and you do not plan to migrate to non-throwing APIs.
 
 ## Options
 
