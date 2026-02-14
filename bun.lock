@@ -46,6 +46,7 @@
         "@typescript-eslint/utils": "8.55.0",
       },
       "devDependencies": {
+        "@types/node": "25.2.2",
         "@typescript-eslint/parser": "8.55.0",
         "@typescript-eslint/rule-tester": "8.55.0",
         "antithrow": "workspace:^",

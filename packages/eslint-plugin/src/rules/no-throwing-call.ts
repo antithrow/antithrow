@@ -25,6 +25,39 @@ const BANNED_GLOBAL_CALLS = new Set([
 
 const RESPONSE_BODY_METHODS = new Set(["json", "text", "arrayBuffer", "blob", "formData"]);
 
+const BANNED_FS_PROMISES_CALLS = new Set([
+	"readFile",
+	"writeFile",
+	"appendFile",
+	"truncate",
+	"open",
+	"readdir",
+	"mkdir",
+	"rmdir",
+	"rm",
+	"mkdtemp",
+	"opendir",
+	"readlink",
+	"link",
+	"symlink",
+	"unlink",
+	"realpath",
+	"stat",
+	"lstat",
+	"statfs",
+	"access",
+	"chmod",
+	"chown",
+	"lchown",
+	"utimes",
+	"lutimes",
+	"copyFile",
+	"cp",
+	"rename",
+]);
+
+const FS_PROMISES_MODULE_NAMES = new Set(["node:fs/promises", "fs/promises"]);
+
 const GLOBAL_OBJECTS = new Set(["globalThis", "window", "self"]);
 
 const NULLISH_TYPE_FLAGS = ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void;
@@ -152,6 +185,44 @@ function normalizeGlobalPath(calleePath: StaticCalleePath, scope: Scope.Scope): 
 	return calleePath.segments;
 }
 
+function isFsPromisesDeclaration(decl: ts.Declaration): boolean {
+	let current: ts.Node = decl;
+	while (current) {
+		if (
+			ts.isModuleDeclaration(current) &&
+			ts.isStringLiteral(current.name) &&
+			FS_PROMISES_MODULE_NAMES.has(current.name.text)
+		) {
+			return true;
+		}
+		current = current.parent;
+	}
+	return false;
+}
+
+function getFsPromisesCallViolation(checker: ts.TypeChecker, tsCallNode: ts.Node): string | null {
+	const signature = checker.getResolvedSignature(tsCallNode as ts.CallExpression);
+	if (!signature) {
+		return null;
+	}
+
+	const decl = signature.getDeclaration();
+	if (!decl) {
+		return null;
+	}
+
+	if (!isFsPromisesDeclaration(decl)) {
+		return null;
+	}
+
+	const name = ts.isFunctionDeclaration(decl) ? decl.name?.text : undefined;
+	if (!(name && BANNED_FS_PROMISES_CALLS.has(name))) {
+		return null;
+	}
+
+	return name;
+}
+
 function containsGlobalResponseType(
 	type: ts.Type,
 	globalResponseType: ts.Type,
@@ -192,7 +263,7 @@ export const noThrowingCall = createRule<[], MessageId>({
 		},
 		messages: {
 			[MessageId.THROWING_CALL]:
-				"`{{ api }}` can throw. A non-throwing wrapper is available from `@antithrow/std`.",
+				"`{{ api }}` can throw. A non-throwing wrapper is available from `{{ replacement }}`.",
 		},
 		schema: [],
 	},
@@ -225,10 +296,21 @@ export const noThrowingCall = createRule<[], MessageId>({
 						context.report({
 							node,
 							messageId: MessageId.THROWING_CALL,
-							data: { api },
+							data: { api, replacement: "@antithrow/std" },
 						});
 						return;
 					}
+				}
+
+				const tsCallNode = services.esTreeNodeToTSNodeMap.get(node);
+				const fsApi = getFsPromisesCallViolation(checker, tsCallNode);
+				if (fsApi) {
+					context.report({
+						node,
+						messageId: MessageId.THROWING_CALL,
+						data: { api: fsApi, replacement: "@antithrow/node/fs/promises" },
+					});
+					return;
 				}
 
 				const methodName = calleePath.segments[calleePath.segments.length - 1];
@@ -245,7 +327,7 @@ export const noThrowingCall = createRule<[], MessageId>({
 						context.report({
 							node,
 							messageId: MessageId.THROWING_CALL,
-							data: { api: `response.${methodName}` },
+							data: { api: `response.${methodName}`, replacement: "@antithrow/std" },
 						});
 					}
 				}
