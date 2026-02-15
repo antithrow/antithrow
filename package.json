@@ -7,7 +7,7 @@
 		"packages/*"
 	],
 	"scripts": {
-		"build": "bun run --workspaces --if-present build",
+		"build": "bun run --filter antithrow build && bun run --filter '!antithrow' build",
 		"clean": "bun run --workspaces --if-present clean",
 		"lint": "biome check . && bun lint:knip && bun run --workspaces --if-present lint",
 		"lint:knip": "knip --cache",
