@@ -3,7 +3,7 @@ import ts from "typescript";
 const RESULT_TYPE_NAMES = new Set(["Ok", "Err", "ResultAsync"]);
 const FIXABLE_OK_TYPE_NAMES = new Set(["Ok"]);
 const FIXABLE_ERR_TYPE_NAMES = new Set(["Err"]);
-const NULLISH_TYPE_FLAGS = ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void;
+export const NULLISH_TYPE_FLAGS = ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void;
 
 export const ResultVariant = {
 	NONE: "none",

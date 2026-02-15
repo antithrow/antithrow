@@ -3,6 +3,7 @@ import { ASTUtils, ESLintUtils } from "@typescript-eslint/utils";
 import type { Scope } from "@typescript-eslint/utils/ts-eslint";
 import ts from "typescript";
 import { createRule } from "../create-rule.js";
+import { NULLISH_TYPE_FLAGS } from "./utils/result-type.js";
 
 /** @lintignore */
 export const MessageId = {
@@ -59,8 +60,6 @@ const BANNED_FS_PROMISES_CALLS = new Set([
 const FS_PROMISES_MODULE_NAMES = new Set(["node:fs/promises", "fs/promises"]);
 
 const GLOBAL_OBJECTS = new Set(["globalThis", "window", "self"]);
-
-const NULLISH_TYPE_FLAGS = ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void;
 
 interface StaticCalleePath {
 	segments: string[];
