@@ -9,7 +9,6 @@ dependencies:
 documentation:
   - changed-files:
     - any-glob-to-any-file: '**/*.md'
-    - all-globs-to-all-files: '!.changeset/**'
 
 pkg:antithrow:
   - changed-files:
