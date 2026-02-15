@@ -61,11 +61,11 @@
     "packages/node": {
       "name": "@antithrow/node",
       "version": "0.0.0",
-      "dependencies": {
-        "antithrow": "workspace:^",
-      },
       "devDependencies": {
         "@types/node": "25.2.3",
+      },
+      "peerDependencies": {
+        "antithrow": "workspace:^",
       },
     },
     "packages/standard-schema": {
@@ -73,14 +73,16 @@
       "version": "1.0.1",
       "dependencies": {
         "@standard-schema/spec": "1.1.0",
-        "antithrow": "workspace:*",
+      },
+      "peerDependencies": {
+        "antithrow": "workspace:^",
       },
     },
     "packages/std": {
       "name": "@antithrow/std",
       "version": "1.0.1",
-      "dependencies": {
-        "antithrow": "workspace:*",
+      "peerDependencies": {
+        "antithrow": "workspace:^",
       },
     },
   },
