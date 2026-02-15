@@ -45,7 +45,12 @@
 		"lint:types": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@standard-schema/spec": "1.1.0",
+		"@standard-schema/spec": "1.1.0"
+	},
+	"peerDependencies": {
+		"antithrow": "workspace:^"
+	},
+	"devDependencies": {
 		"antithrow": "workspace:^"
 	}
 }

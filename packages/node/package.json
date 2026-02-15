@@ -47,10 +47,11 @@
 		"lint:publint": "publint",
 		"lint:types": "tsc --noEmit"
 	},
-	"dependencies": {
+	"peerDependencies": {
 		"antithrow": "workspace:^"
 	},
 	"devDependencies": {
-		"@types/node": "25.2.3"
+		"@types/node": "25.2.3",
+		"antithrow": "workspace:^"
 	}
 }
