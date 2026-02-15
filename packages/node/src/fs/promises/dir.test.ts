@@ -117,6 +117,13 @@ describe("rm", () => {
 
 		expect(result.isOk()).toBe(true);
 	});
+
+	test("returns Err with ENOENT for missing path without force", async () => {
+		const result = await rm(join(tmpDir, "rm-missing-no-force"));
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr().code).toBe("ENOENT");
+	});
 });
 
 describe("mkdtemp", () => {
@@ -126,6 +133,13 @@ describe("mkdtemp", () => {
 		expect(result.isOk()).toBe(true);
 		const createdPath = result.unwrap();
 		expect(createdPath).toContain("mkdtemp-");
+	});
+
+	test("returns Err with ENOENT for invalid prefix path", async () => {
+		const result = await mkdtemp(join(tmpDir, "nonexistent-dir", "mkdtemp-"));
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr().code).toBe("ENOENT");
 	});
 });
 

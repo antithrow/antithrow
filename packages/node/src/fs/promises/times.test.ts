@@ -3,6 +3,7 @@ import {
 	mkdtemp as nodeMkdtemp,
 	rm as nodeRm,
 	stat as nodeStat,
+	symlink as nodeSymlink,
 	writeFile as nodeWriteFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -45,6 +46,20 @@ describe("utimes", () => {
 });
 
 describe("lutimes", () => {
+	test("returns Ok when setting times on a symlink", async () => {
+		const targetPath = join(tmpDir, "lutimes-target.txt");
+		const linkPath = join(tmpDir, "lutimes-link");
+		await nodeWriteFile(targetPath, "lutimes target");
+		await nodeSymlink(targetPath, linkPath);
+
+		const atime = new Date("2020-01-01T00:00:00Z");
+		const mtime = new Date("2021-06-15T12:00:00Z");
+
+		const result = await lutimes(linkPath, atime, mtime);
+
+		expect(result.isOk()).toBe(true);
+	});
+
 	test("returns Err with ENOENT for missing file", async () => {
 		const now = new Date();
 		const result = await lutimes(join(tmpDir, "lutimes-missing.txt"), now, now);

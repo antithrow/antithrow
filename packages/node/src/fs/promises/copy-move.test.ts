@@ -74,4 +74,11 @@ describe("cp", () => {
 		const contents = await Bun.file(destPath).text();
 		expect(contents).toBe("cp content");
 	});
+
+	test("returns Err with ENOENT for missing source", async () => {
+		const result = await cp(join(tmpDir, "cp-missing.txt"), join(tmpDir, "cp-dest2.txt"));
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr().code).toBe("ENOENT");
+	});
 });
