@@ -46,7 +46,6 @@ export const noUnusedResult = createRule<[], MessageId>({
 	defaultOptions: [],
 	create(context) {
 		const services = ESLintUtils.getParserServices(context);
-		const checker = services.program.getTypeChecker();
 
 		function checkExpression(
 			node: TSESTree.Expression,
@@ -86,8 +85,7 @@ export const noUnusedResult = createRule<[], MessageId>({
 					return;
 			}
 
-			const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-			const type = checker.getTypeAtLocation(tsNode);
+			const type = services.getTypeAtLocation(node);
 
 			if (!isResultType(type)) {
 				return;

@@ -68,8 +68,6 @@ export const noUnsafeUnwrap = createRule<[], MessageId>({
 	defaultOptions: [],
 	create(context) {
 		const services = ESLintUtils.getParserServices(context);
-		const checker = services.program.getTypeChecker();
-
 		return {
 			MemberExpression(node) {
 				const method = ASTUtils.getPropertyName(node);
@@ -77,8 +75,7 @@ export const noUnsafeUnwrap = createRule<[], MessageId>({
 					return;
 				}
 
-				const tsNode = services.esTreeNodeToTSNodeMap.get(node.object);
-				const type = checker.getTypeAtLocation(tsNode);
+				const type = services.getTypeAtLocation(node.object);
 
 				if (!isResultType(type)) {
 					return;
@@ -164,8 +161,7 @@ export const noUnsafeUnwrap = createRule<[], MessageId>({
 					typeSourceNode = pattern.parent.right;
 				}
 
-				const tsNode = services.esTreeNodeToTSNodeMap.get(typeSourceNode);
-				const type = checker.getTypeAtLocation(tsNode);
+				const type = services.getTypeAtLocation(typeSourceNode);
 
 				if (!isResultType(type)) {
 					return;

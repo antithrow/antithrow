@@ -279,8 +279,7 @@ export const noThrowingCall = createRule<[], MessageId>({
 					RESPONSE_BODY_METHODS.has(methodName) &&
 					globalResponseType
 				) {
-					const tsNode = services.esTreeNodeToTSNodeMap.get(memberExpression.object);
-					const type = checker.getTypeAtLocation(tsNode);
+					const type = services.getTypeAtLocation(memberExpression.object);
 					if (containsGlobalResponseType(type, globalResponseType, checker)) {
 						context.report({
 							node,
