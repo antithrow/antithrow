@@ -1,4 +1,4 @@
-import type { TSESTree } from "@typescript-eslint/utils";
+import type { ParserServicesWithTypeInformation, TSESTree } from "@typescript-eslint/utils";
 import { ASTUtils, ESLintUtils } from "@typescript-eslint/utils";
 import type { Scope } from "@typescript-eslint/utils/ts-eslint";
 import ts from "typescript";
@@ -161,8 +161,11 @@ function isFsPromisesDeclaration(decl: ts.Declaration): boolean {
 	return false;
 }
 
-function getFsPromisesCallViolation(checker: ts.TypeChecker, tsCallNode: ts.Node): string | null {
-	const signature = checker.getResolvedSignature(tsCallNode as ts.CallExpression);
+function getFsPromisesCallViolation(
+	services: ParserServicesWithTypeInformation,
+	node: TSESTree.CallExpression,
+): string | null {
+	const signature = services.getResolvedSignature(node);
 
 	const decl = signature?.getDeclaration();
 	if (!decl) {
@@ -260,8 +263,7 @@ export const noThrowingCall = createRule<[], MessageId>({
 					}
 				}
 
-				const tsCallNode = services.esTreeNodeToTSNodeMap.get(node);
-				const fsApi = getFsPromisesCallViolation(checker, tsCallNode);
+				const fsApi = getFsPromisesCallViolation(services, node);
 				if (fsApi) {
 					context.report({
 						node,
