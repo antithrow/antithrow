@@ -1,8 +1,9 @@
-import type { TSESTree } from "@typescript-eslint/utils";
-import { ESLintUtils } from "@typescript-eslint/utils";
+import type { ParserServicesWithTypeInformation, TSESTree } from "@typescript-eslint/utils";
+import { ASTUtils, ESLintUtils } from "@typescript-eslint/utils";
 import type { Scope } from "@typescript-eslint/utils/ts-eslint";
 import ts from "typescript";
 import { createRule } from "../create-rule.js";
+import { NULLISH_TYPE_FLAGS } from "./utils/result-type.js";
 
 /** @lintignore */
 export const MessageId = {
@@ -60,61 +61,21 @@ const FS_PROMISES_MODULE_NAMES = new Set(["node:fs/promises", "fs/promises"]);
 
 const GLOBAL_OBJECTS = new Set(["globalThis", "window", "self"]);
 
-const NULLISH_TYPE_FLAGS = ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void;
-
 interface StaticCalleePath {
 	segments: string[];
 	rootIdentifier: TSESTree.Identifier;
 	memberExpression: TSESTree.MemberExpression | null;
 }
 
-/**
- * Extracts the property name from a `MemberExpression` when it can be
- * statically determined. Handles `obj.prop`, `obj["prop"]`, and
- * `` obj[`prop`] `` (template literals with no interpolations).
- * Returns `null` for dynamic access like `obj[variable]`.
- */
-function getStaticMemberName(node: TSESTree.MemberExpression): string | null {
-	if (!node.computed && node.property.type === "Identifier") {
-		return node.property.name;
-	}
-
-	if (
-		node.computed &&
-		node.property.type === "Literal" &&
-		typeof node.property.value === "string"
-	) {
-		return node.property.value;
-	}
-
-	if (
-		node.computed &&
-		node.property.type === "TemplateLiteral" &&
-		node.property.expressions.length === 0
-	) {
-		const [quasi] = node.property.quasis;
-		return quasi?.value.cooked ?? null;
-	}
-
-	return null;
-}
-
 function isImplicitGlobal(name: string, scope: Scope.Scope): boolean {
-	let current: Scope.Scope | null = scope;
-	while (current) {
-		const variable = current.set.get(name);
-		if (variable) {
-			return variable.defs.length === 0;
-		}
-		current = current.upper;
-	}
-	return true;
+	const variable = ASTUtils.findVariable(scope, name);
+	return !variable || variable.defs.length === 0;
 }
 
 function collectStaticMemberPath(
 	node: TSESTree.MemberExpression,
 ): Pick<StaticCalleePath, "segments" | "rootIdentifier"> | null {
-	const propertyName = getStaticMemberName(node);
+	const propertyName = ASTUtils.getPropertyName(node);
 	if (!propertyName) {
 		return null;
 	}
@@ -200,8 +161,11 @@ function isFsPromisesDeclaration(decl: ts.Declaration): boolean {
 	return false;
 }
 
-function getFsPromisesCallViolation(checker: ts.TypeChecker, tsCallNode: ts.Node): string | null {
-	const signature = checker.getResolvedSignature(tsCallNode as ts.CallExpression);
+function getFsPromisesCallViolation(
+	services: ParserServicesWithTypeInformation,
+	node: TSESTree.CallExpression,
+): string | null {
+	const signature = services.getResolvedSignature(node);
 
 	const decl = signature?.getDeclaration();
 	if (!decl) {
@@ -299,8 +263,7 @@ export const noThrowingCall = createRule<[], MessageId>({
 					}
 				}
 
-				const tsCallNode = services.esTreeNodeToTSNodeMap.get(node);
-				const fsApi = getFsPromisesCallViolation(checker, tsCallNode);
+				const fsApi = getFsPromisesCallViolation(services, node);
 				if (fsApi) {
 					context.report({
 						node,
@@ -318,8 +281,7 @@ export const noThrowingCall = createRule<[], MessageId>({
 					RESPONSE_BODY_METHODS.has(methodName) &&
 					globalResponseType
 				) {
-					const tsNode = services.esTreeNodeToTSNodeMap.get(memberExpression.object);
-					const type = checker.getTypeAtLocation(tsNode);
+					const type = services.getTypeAtLocation(memberExpression.object);
 					if (containsGlobalResponseType(type, globalResponseType, checker)) {
 						context.report({
 							node,
