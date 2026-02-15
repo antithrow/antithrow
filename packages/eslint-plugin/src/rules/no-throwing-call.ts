@@ -1,5 +1,5 @@
 import type { TSESTree } from "@typescript-eslint/utils";
-import { ESLintUtils } from "@typescript-eslint/utils";
+import { ASTUtils, ESLintUtils } from "@typescript-eslint/utils";
 import type { Scope } from "@typescript-eslint/utils/ts-eslint";
 import ts from "typescript";
 import { createRule } from "../create-rule.js";
@@ -68,53 +68,15 @@ interface StaticCalleePath {
 	memberExpression: TSESTree.MemberExpression | null;
 }
 
-/**
- * Extracts the property name from a `MemberExpression` when it can be
- * statically determined. Handles `obj.prop`, `obj["prop"]`, and
- * `` obj[`prop`] `` (template literals with no interpolations).
- * Returns `null` for dynamic access like `obj[variable]`.
- */
-function getStaticMemberName(node: TSESTree.MemberExpression): string | null {
-	if (!node.computed && node.property.type === "Identifier") {
-		return node.property.name;
-	}
-
-	if (
-		node.computed &&
-		node.property.type === "Literal" &&
-		typeof node.property.value === "string"
-	) {
-		return node.property.value;
-	}
-
-	if (
-		node.computed &&
-		node.property.type === "TemplateLiteral" &&
-		node.property.expressions.length === 0
-	) {
-		const [quasi] = node.property.quasis;
-		return quasi?.value.cooked ?? null;
-	}
-
-	return null;
-}
-
 function isImplicitGlobal(name: string, scope: Scope.Scope): boolean {
-	let current: Scope.Scope | null = scope;
-	while (current) {
-		const variable = current.set.get(name);
-		if (variable) {
-			return variable.defs.length === 0;
-		}
-		current = current.upper;
-	}
-	return true;
+	const variable = ASTUtils.findVariable(scope, name);
+	return !variable || variable.defs.length === 0;
 }
 
 function collectStaticMemberPath(
 	node: TSESTree.MemberExpression,
 ): Pick<StaticCalleePath, "segments" | "rootIdentifier"> | null {
-	const propertyName = getStaticMemberName(node);
+	const propertyName = ASTUtils.getPropertyName(node);
 	if (!propertyName) {
 		return null;
 	}

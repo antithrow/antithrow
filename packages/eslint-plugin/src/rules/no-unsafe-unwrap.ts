@@ -1,5 +1,5 @@
 import type { TSESTree } from "@typescript-eslint/utils";
-import { ESLintUtils } from "@typescript-eslint/utils";
+import { ASTUtils, ESLintUtils } from "@typescript-eslint/utils";
 import type { SourceCode } from "@typescript-eslint/utils/ts-eslint";
 import { createRule } from "../create-rule.js";
 import { getResultVariant, isResultType, ResultVariant } from "./utils/result-type.js";
@@ -15,68 +15,6 @@ export type MessageId = (typeof MessageId)[keyof typeof MessageId];
 const BANNED_METHOD_NAMES = new Set(["unwrap", "unwrapErr", "expect", "expectErr"]);
 const FIXABLE_OK_METHOD_NAMES = new Set(["unwrap"]);
 const FIXABLE_ERR_METHOD_NAMES = new Set(["unwrapErr"]);
-
-/**
- * Extracts the property name from a `MemberExpression` when it can be
- * statically determined. Handles `obj.prop`, `obj["prop"]`, and
- * `` obj[`prop`] `` (template literals with no interpolations).
- * Returns `null` for dynamic access like `obj[variable]`.
- */
-function getStaticMemberName(node: TSESTree.MemberExpression): string | null {
-	if (!node.computed && node.property.type === "Identifier") {
-		return node.property.name;
-	}
-
-	if (
-		node.computed &&
-		node.property.type === "Literal" &&
-		typeof node.property.value === "string"
-	) {
-		return node.property.value;
-	}
-
-	if (
-		node.computed &&
-		node.property.type === "TemplateLiteral" &&
-		node.property.expressions.length === 0
-	) {
-		const [quasi] = node.property.quasis;
-		return quasi?.value.cooked ?? null;
-	}
-
-	return null;
-}
-
-/**
- * Like {@link getStaticMemberName} but for destructuring patterns.
- * Extracts the key name from `{ key: value }` in an `ObjectPattern`.
- * Handles identifier keys, string literal keys, and static template
- * literal keys. Returns `null` for computed keys with dynamic expressions.
- */
-function getDestructuredPropertyName(node: TSESTree.Property): string | null {
-	if (node.computed) {
-		if (node.key.type === "Literal" && typeof node.key.value === "string") {
-			return node.key.value;
-		}
-
-		if (node.key.type === "TemplateLiteral" && node.key.expressions.length === 0) {
-			const [quasi] = node.key.quasis;
-			return quasi?.value.cooked ?? null;
-		}
-
-		return null;
-	}
-
-	if (node.key.type === "Identifier") {
-		return node.key.name;
-	}
-
-	if (node.key.type === "Literal" && typeof node.key.value === "string") {
-		return node.key.value;
-	}
-
-	return null;
-}
 
 function getCallExpression(node: TSESTree.MemberExpression): TSESTree.CallExpression | null {
 	if (node.parent.type === "CallExpression" && node.parent.callee === node) {
@@ -134,7 +72,7 @@ export const noUnsafeUnwrap = createRule<[], MessageId>({
 
 		return {
 			MemberExpression(node) {
-				const method = getStaticMemberName(node);
+				const method = ASTUtils.getPropertyName(node);
 				if (!(method && BANNED_METHOD_NAMES.has(method))) {
 					return;
 				}
@@ -210,7 +148,7 @@ export const noUnsafeUnwrap = createRule<[], MessageId>({
 					return;
 				}
 
-				const method = getDestructuredPropertyName(node);
+				const method = ASTUtils.getPropertyName(node);
 				if (!(method && BANNED_METHOD_NAMES.has(method))) {
 					return;
 				}
