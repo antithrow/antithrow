@@ -74,13 +74,11 @@ export function getResultVariant(type: ts.Type): ResultVariant {
 		return ResultVariant.MIXED;
 	}
 
-	const isOnlyOk = [...names].every((name) => FIXABLE_OK_TYPE_NAMES.has(name));
-	if (isOnlyOk) {
+	if (names.isSubsetOf(FIXABLE_OK_TYPE_NAMES)) {
 		return ResultVariant.OK;
 	}
 
-	const isOnlyErr = [...names].every((name) => FIXABLE_ERR_TYPE_NAMES.has(name));
-	if (isOnlyErr) {
+	if (names.isSubsetOf(FIXABLE_ERR_TYPE_NAMES)) {
 		return ResultVariant.ERR;
 	}
 
