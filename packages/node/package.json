@@ -51,6 +51,7 @@
 		"antithrow": "workspace:^"
 	},
 	"devDependencies": {
-		"@types/node": "25.2.3"
+		"@types/node": "25.2.3",
+		"antithrow": "workspace:^"
 	}
 }

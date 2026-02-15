@@ -49,5 +49,8 @@
 	},
 	"peerDependencies": {
 		"antithrow": "workspace:^"
+	},
+	"devDependencies": {
+		"antithrow": "workspace:^"
 	}
 }

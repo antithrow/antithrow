@@ -63,6 +63,7 @@
       "version": "0.0.0",
       "devDependencies": {
         "@types/node": "25.2.3",
+        "antithrow": "workspace:^",
       },
       "peerDependencies": {
         "antithrow": "workspace:^",
@@ -74,6 +75,9 @@
       "dependencies": {
         "@standard-schema/spec": "1.1.0",
       },
+      "devDependencies": {
+        "antithrow": "workspace:^",
+      },
       "peerDependencies": {
         "antithrow": "workspace:^",
       },
@@ -81,6 +85,9 @@
     "packages/std": {
       "name": "@antithrow/std",
       "version": "1.0.1",
+      "devDependencies": {
+        "antithrow": "workspace:^",
+      },
       "peerDependencies": {
         "antithrow": "workspace:^",
       },
