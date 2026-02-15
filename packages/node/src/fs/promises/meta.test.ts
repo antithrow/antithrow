@@ -55,6 +55,13 @@ describe("lstat", () => {
 		const stats = result.unwrap();
 		expect(stats.isSymbolicLink()).toBe(true);
 	});
+
+	test("returns Err with ENOENT for missing path", async () => {
+		const result = await lstat(join(tmpDir, "lstat-missing.txt"));
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr().code).toBe("ENOENT");
+	});
 });
 
 describe("access", () => {
@@ -84,5 +91,12 @@ describe("statfs", () => {
 		const stats = result.unwrap();
 		expect(stats).toBeDefined();
 		expect(typeof stats.type).toBe("number");
+	});
+
+	test("returns Err with ENOENT for nonexistent path", async () => {
+		const result = await statfs(join(tmpDir, "statfs-missing"));
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr().code).toBe("ENOENT");
 	});
 });

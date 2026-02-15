@@ -108,6 +108,15 @@ describe("appendFile", () => {
 		const contents = await Bun.file(filePath).text();
 		expect(contents).toBe("new content");
 	});
+
+	test("returns Err with ENOENT for missing parent directory", async () => {
+		const filePath = join(tmpDir, "no", "such", "dir", "append.txt");
+
+		const result = await appendFile(filePath, "data");
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr().code).toBe("ENOENT");
+	});
 });
 
 describe("truncate", () => {
