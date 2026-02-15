@@ -1,5 +1,11 @@
 # @antithrow/eslint-plugin
 
+## 1.3.0
+
+### Minor Changes
+
+- [#113](https://github.com/antithrow/antithrow/pull/113) [`4455195`](https://github.com/antithrow/antithrow/commit/445519585fa4c718417a989215357e1a695042f9) Thanks [@jack-weilage](https://github.com/jack-weilage)! - feat: added `no-throwing-call` suggestions for `@antithrow/node`
+
 ## 1.2.1
 
 ### Patch Changes

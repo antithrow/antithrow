@@ -1,5 +1,11 @@
 # @antithrow/standard-schema
 
+## 1.1.0
+
+### Minor Changes
+
+- [#117](https://github.com/antithrow/antithrow/pull/117) [`86e5890`](https://github.com/antithrow/antithrow/commit/86e58904c84d5be64a0e029785ba0213eb17c87a) Thanks [@jack-weilage](https://github.com/jack-weilage)! - deps!: `antithrow` is now a peer dependency of bridge packages
+
 ## 1.0.1
 
 ### Patch Changes

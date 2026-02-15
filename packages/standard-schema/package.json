@@ -1,6 +1,6 @@
 {
 	"name": "@antithrow/standard-schema",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"description": "Bridge Standard Schema validators to antithrow Result/ResultAsync",
 	"license": "MIT",
 	"author": "Jack Weilage",
