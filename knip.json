@@ -12,7 +12,7 @@
 			"ignoreFiles": ["src/rules/utils/test-utils.ts"]
 		},
 		"packages/node": {
-			"entry": ["src/index.ts", "src/fs/promises/index.ts"]
+			"entry": ["src/index.ts", "src/fs/promises/index.ts", "src/os/index.ts"]
 		}
 	}
 }

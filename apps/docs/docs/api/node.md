@@ -472,3 +472,125 @@ const now = new Date();
 const result = await lutimes("/tmp/my-link", now, now);
 // ok(undefined) or err(NodeJS.ErrnoException)
 ```
+
+## os
+
+Import from `@antithrow/node/os` for non-throwing wrappers around `node:os` functions that can throw. These are **synchronous** and return `Result` (not `ResultAsync`).
+
+Errors are returned as `SystemError` — a [Node.js error class](https://nodejs.org/api/errors.html#class-systemerror) where `code` is `"ERR_SYSTEM_ERROR"` and the POSIX error code lives in `error.info.code`. The `SystemError` interface is exported from `@antithrow/node/os`.
+
+### System info
+
+#### homedir()
+
+```ts
+homedir(): Result<string, SystemError>
+```
+
+Returns the current user's home directory path.
+
+```ts
+import { homedir } from "@antithrow/node/os";
+
+const result = homedir();
+// ok("/home/user") or err(SystemError)
+```
+
+#### hostname()
+
+```ts
+hostname(): Result<string, SystemError>
+```
+
+Returns the host name of the operating system.
+
+```ts
+import { hostname } from "@antithrow/node/os";
+
+const result = hostname();
+// ok("my-machine") or err(SystemError)
+```
+
+#### uptime()
+
+```ts
+uptime(): Result<number, SystemError>
+```
+
+Returns the system uptime in seconds.
+
+```ts
+import { uptime } from "@antithrow/node/os";
+
+const result = uptime();
+// ok(123456) or err(SystemError)
+```
+
+### Network
+
+#### networkInterfaces()
+
+```ts
+networkInterfaces(): Result<NodeJS.Dict<NetworkInterfaceInfo[]>, SystemError>
+```
+
+Returns an object containing network interfaces with assigned addresses.
+
+```ts
+import { networkInterfaces } from "@antithrow/node/os";
+
+const result = networkInterfaces();
+// ok({ lo: [...], eth0: [...] }) or err(SystemError)
+```
+
+### User info
+
+#### userInfo()
+
+```ts
+userInfo(options?: UserInfoOptionsWithStringEncoding): Result<UserInfo<string>, SystemError>
+userInfo(options: UserInfoOptionsWithBufferEncoding): Result<UserInfo<Buffer>, SystemError>
+userInfo(options: UserInfoOptions): Result<UserInfo<string | Buffer>, SystemError>
+```
+
+Returns information about the currently effective user.
+
+```ts
+import { userInfo } from "@antithrow/node/os";
+
+const result = userInfo();
+// ok({ username: "user", uid: 1000, ... }) or err(SystemError)
+```
+
+### Process priority
+
+#### getPriority()
+
+```ts
+getPriority(pid?: number): Result<number, SystemError>
+```
+
+Returns the scheduling priority for the process specified by `pid`. Defaults to the current process.
+
+```ts
+import { getPriority } from "@antithrow/node/os";
+
+const result = getPriority();
+// ok(0) or err(SystemError)
+```
+
+#### setPriority()
+
+```ts
+setPriority(priority: number): Result<void, SystemError | RangeError>
+setPriority(pid: number, priority: number): Result<void, SystemError | RangeError>
+```
+
+Sets the scheduling priority for a process. Priority must be between -20 (high) and 19 (low). Throws a `RangeError` if the priority is outside the valid int32 range.
+
+```ts
+import { setPriority } from "@antithrow/node/os";
+
+const result = setPriority(10);
+// ok(undefined) or err(SystemError | RangeError)
+```

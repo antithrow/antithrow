@@ -33,6 +33,10 @@
 		"./fs/promises": {
 			"types": "./dist/fs/promises/index.d.ts",
 			"import": "./dist/fs/promises/index.js"
+		},
+		"./os": {
+			"types": "./dist/os/index.d.ts",
+			"import": "./dist/os/index.js"
 		}
 	},
 	"main": "./dist/index.js",
