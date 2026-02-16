@@ -70,7 +70,7 @@ export interface SystemError extends Error {
  * @returns A `Result` containing the home directory path, or a `SystemError`.
  */
 export function homedir(): Result<string, SystemError> {
-	return Result.try(() => nodeHomedir());
+	return Result.try(nodeHomedir);
 }
 
 /**
@@ -89,7 +89,7 @@ export function homedir(): Result<string, SystemError> {
  * @returns A `Result` containing the hostname, or a `SystemError`.
  */
 export function hostname(): Result<string, SystemError> {
-	return Result.try(() => nodeHostname());
+	return Result.try(nodeHostname);
 }
 
 /**
@@ -108,7 +108,7 @@ export function hostname(): Result<string, SystemError> {
  * @returns A `Result` containing the uptime in seconds, or a `SystemError`.
  */
 export function uptime(): Result<number, SystemError> {
-	return Result.try(() => nodeUptime());
+	return Result.try(nodeUptime);
 }
 
 /**
@@ -127,7 +127,7 @@ export function uptime(): Result<number, SystemError> {
  * @returns A `Result` containing a dictionary of network interfaces, or a `SystemError`.
  */
 export function networkInterfaces(): Result<NodeJS.Dict<NetworkInterfaceInfo[]>, SystemError> {
-	return Result.try(() => nodeNetworkInterfaces());
+	return Result.try(nodeNetworkInterfaces);
 }
 
 /**
