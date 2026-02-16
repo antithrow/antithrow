@@ -52,6 +52,23 @@ await writeFile("./output.txt", "Hello, World!");
 await mkdir("./nested/path", { recursive: true });
 ```
 
+### os
+
+Wraps `node:os` functions that can throw with `Result` for type-safe system info access.
+
+```ts
+import { homedir, hostname, userInfo } from "@antithrow/node/os";
+
+// Get home directory
+const home = homedir();
+
+// Get hostname
+const host = hostname();
+
+// Get user info
+const user = userInfo();
+```
+
 ## API Reference
 
 ### fs/promises
@@ -118,3 +135,15 @@ await mkdir("./nested/path", { recursive: true });
 | --------- | ----------------------------------------------------------------- | ----------------------- |
 | `utimes`  | `(path, atime, mtime) → ResultAsync<void, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
 | `lutimes` | `(path, atime, mtime) → ResultAsync<void, NodeJS.ErrnoException>` | `NodeJS.ErrnoException` |
+
+### os
+
+| Function            | Signature                                                                            | Error Type                    |
+| ------------------- | ------------------------------------------------------------------------------------ | ----------------------------- |
+| `homedir`           | `() → Result<string, SystemError>`                                                   | `SystemError`                 |
+| `hostname`          | `() → Result<string, SystemError>`                                                   | `SystemError`                 |
+| `uptime`            | `() → Result<number, SystemError>`                                                   | `SystemError`                 |
+| `networkInterfaces` | `() → Result<Dict<NetworkInterfaceInfo[]>, SystemError>`                             | `SystemError`                 |
+| `userInfo`          | `(options?) → Result<UserInfo<string>, SystemError>` (overloaded for `Buffer`)       | `SystemError`                 |
+| `getPriority`       | `(pid?) → Result<number, SystemError>`                                               | `SystemError`                 |
+| `setPriority`       | `(priority) or (pid, priority) → Result<void, SystemError \| RangeError>`            | `SystemError \| RangeError`   |
