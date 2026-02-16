@@ -138,12 +138,12 @@ const user = userInfo();
 
 ### os
 
-| Function            | Signature                                                                            | Error Type                    |
-| ------------------- | ------------------------------------------------------------------------------------ | ----------------------------- |
-| `homedir`           | `() → Result<string, SystemError>`                                                   | `SystemError`                 |
-| `hostname`          | `() → Result<string, SystemError>`                                                   | `SystemError`                 |
-| `uptime`            | `() → Result<number, SystemError>`                                                   | `SystemError`                 |
-| `networkInterfaces` | `() → Result<Dict<NetworkInterfaceInfo[]>, SystemError>`                             | `SystemError`                 |
-| `userInfo`          | `(options?) → Result<UserInfo<string>, SystemError>` (overloaded for `Buffer`)       | `SystemError`                 |
-| `getPriority`       | `(pid?) → Result<number, SystemError>`                                               | `SystemError`                 |
-| `setPriority`       | `(priority) or (pid, priority) → Result<void, SystemError \| RangeError>`            | `SystemError \| RangeError`   |
+| Function            | Signature                                                                      | Error Type                  |
+| ------------------- | ------------------------------------------------------------------------------ | --------------------------- |
+| `homedir`           | `() → Result<string, SystemError>`                                             | `SystemError`               |
+| `hostname`          | `() → Result<string, SystemError>`                                             | `SystemError`               |
+| `uptime`            | `() → Result<number, SystemError>`                                             | `SystemError`               |
+| `networkInterfaces` | `() → Result<Dict<NetworkInterfaceInfo[]>, SystemError>`                       | `SystemError`               |
+| `userInfo`          | `(options?) → Result<UserInfo<string>, SystemError>` (overloaded for `Buffer`) | `SystemError`               |
+| `getPriority`       | `(pid?) → Result<number, SystemError>`                                         | `SystemError`               |
+| `setPriority`       | `(priority) or (pid, priority) → Result<void, SystemError \| RangeError>`      | `SystemError \| RangeError` |
