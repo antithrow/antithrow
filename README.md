@@ -13,6 +13,7 @@ and visible at compile time.
 ## Packages
 
 - [`antithrow`](./packages/antithrow) - Core `Result`, `ResultAsync`, and `chain` utilities.
+- [`@antithrow/jose`](./packages/jose) - Non-throwing wrappers around the `jose` JWT library.
 - [`@antithrow/std`](./packages/std) - Non-throwing wrappers around standard globals (`fetch`, `JSON`, `atob`, etc.).
 - [`@antithrow/node`](./packages/node) - Non-throwing wrappers around Node.js APIs (`fs/promises`, etc.).
 - [`@antithrow/standard-schema`](./packages/standard-schema) - Bridge Standard Schema validators (Zod, Valibot, ArkType, etc.) to antithrow Results.

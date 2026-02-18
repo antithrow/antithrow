@@ -58,6 +58,18 @@
         "typescript": ">=5.0.0",
       },
     },
+    "packages/jose": {
+      "name": "@antithrow/jose",
+      "version": "0.0.0",
+      "devDependencies": {
+        "antithrow": "workspace:^",
+        "jose": "^6.0.11",
+      },
+      "peerDependencies": {
+        "antithrow": "workspace:^",
+        "jose": "^6.0.0",
+      },
+    },
     "packages/node": {
       "name": "@antithrow/node",
       "version": "0.0.0",
@@ -133,6 +145,8 @@
     "@antithrow/docs": ["@antithrow/docs@workspace:apps/docs"],
 
     "@antithrow/eslint-plugin": ["@antithrow/eslint-plugin@workspace:packages/eslint-plugin"],
+
+    "@antithrow/jose": ["@antithrow/jose@workspace:packages/jose"],
 
     "@antithrow/node": ["@antithrow/node@workspace:packages/node"],
 
@@ -1613,6 +1627,8 @@
     "jiti": ["jiti@2.6.1", "", { "bin": { "jiti": "lib/jiti-cli.mjs" } }, "sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ=="],
 
     "joi": ["joi@17.13.3", "", { "dependencies": { "@hapi/hoek": "^9.3.0", "@hapi/topo": "^5.1.0", "@sideway/address": "^4.1.5", "@sideway/formula": "^3.0.1", "@sideway/pinpoint": "^2.0.0" } }, "sha512-otDA4ldcIx+ZXsKHWmp0YizCweVRZG96J10b0FevjfuncLO1oX59THoAmHkNubYJ+9gWsYsp5k8v4ib6oDv1fA=="],
+
+    "jose": ["jose@6.1.3", "", {}, "sha512-0TpaTfihd4QMNwrz/ob2Bp7X04yuxJkjRGi4aKmOqwhov54i6u79oCv7T+C7lo70MKH6BesI3vscD1yb/yzKXQ=="],
 
     "js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
 
