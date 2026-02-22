@@ -731,13 +731,15 @@ interface ResultNamespace {
 
 export const Result: ResultNamespace = {
 	all(results: readonly Result<unknown, unknown>[]): Result<unknown[], unknown> {
-		const values: unknown[] = [];
-		for (const result of results) {
+		const values: unknown[] = new Array(results.length);
+		for (let i = 0; i < results.length; i++) {
+			// biome-ignore lint/style/noNonNullAssertion: The for loop ensures i is always in bounds.
+			const result = results[i]!;
 			if (result.isErr()) {
 				// Cast avoids allocating a new Err; the value type is phantom here.
 				return result as Err<never, unknown>;
 			}
-			values.push(result.value);
+			values[i] = result.value;
 		}
 
 		return ok(values);
