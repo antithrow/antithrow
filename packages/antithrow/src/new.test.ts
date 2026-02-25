@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, mock } from "bun:test";
-import { Err, Ok, Pending, type Result, type Settled, UnwrapError } from "./new.js";
+import { Err, Ok, Pending, Result, type Settled, UnwrapError } from "./new.js";
 
 const ok = <T, E>(v: T): Result<T, E> => new Ok(v);
 const err = <T, E>(e: E): Result<T, E> => new Err(e);
@@ -1542,6 +1542,87 @@ describe("Result", () => {
 			expect(fallback).toHaveBeenCalledTimes(1);
 			expect(fallback).toHaveBeenCalledWith("failed");
 			expect(fallback).toHaveReturnedWith(Promise.resolve("failed".length));
+		});
+	});
+
+	describe("Result.try", () => {
+		it("returns Ok when callback returns a sync value", () => {
+			const result = Result.try<number, string>(() => 42);
+
+			expect(result.isOk()).toBeTrue();
+			expect(result.unwrap()).toBe(42);
+			expectTypeOf(result).toEqualTypeOf<Settled<number, string>>();
+		});
+
+		it("returns Err when callback throws synchronously", () => {
+			const result = Result.try<number, string>((): number => {
+				throw "failed";
+			});
+
+			expect(result.isErr()).toBeTrue();
+			expect(result.unwrapErr()).toBe("failed");
+			expectTypeOf(result).toEqualTypeOf<Settled<number, string>>();
+		});
+
+		it("returns Pending when callback returns a PromiseLike", () => {
+			const result = Result.try<number, string>(async () => 42);
+
+			expect(result.isPending()).toBeTrue();
+			expect(result.unwrap()).resolves.toBe(42);
+			expectTypeOf(result).toEqualTypeOf<Pending<number, string>>();
+		});
+
+		it("returns Pending wrapping Err when callback returns a rejected PromiseLike", () => {
+			const result = Result.try<number, string>(async () => {
+				throw "failed";
+			});
+
+			expect(result.isPending()).toBeTrue();
+			expect(result.unwrapErr()).resolves.toBe("failed");
+			expectTypeOf(result).toEqualTypeOf<Pending<number, string>>();
+		});
+
+		it("calls callback exactly once", () => {
+			const callback = mock(() => 42);
+
+			const result = Result.try<number, string>(callback);
+
+			expect(result.isOk()).toBeTrue();
+			expect(callback).toHaveBeenCalledTimes(1);
+			expect(callback).toHaveReturnedWith(42);
+		});
+	});
+
+	describe("Result.fromPromise", () => {
+		it("returns Pending", () => {
+			const result = Result.fromPromise<number, string>(Promise.resolve(42));
+
+			expect(result.isPending()).toBeTrue();
+			expectTypeOf(result).toEqualTypeOf<Pending<number, string>>();
+		});
+
+		it("resolves to Ok when promise fulfills", () => {
+			const result = Result.fromPromise<number, string>(Promise.resolve(42));
+
+			expect(result.unwrap()).resolves.toBe(42);
+			expect(result.settle()).resolves.toEqual(new Ok(42));
+		});
+
+		it("resolves to Err when promise rejects", () => {
+			const result = Result.fromPromise<number, string>(Promise.reject("failed"));
+
+			expect(result.unwrapErr()).resolves.toBe("failed");
+			expect(result.settle()).resolves.toEqual(new Err("failed"));
+		});
+
+		it("accepts PromiseLike values", () => {
+			const promiseLike: PromiseLike<number> = Promise.resolve(42);
+
+			const result = Result.fromPromise<number, string>(promiseLike);
+
+			expect(result.isPending()).toBeTrue();
+			expect(result.unwrap()).resolves.toBe(42);
+			expectTypeOf(result).toEqualTypeOf<Pending<number, string>>();
 		});
 	});
 });
