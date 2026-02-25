@@ -92,6 +92,16 @@ describe("Result", () => {
 			expectTypeOf(mapped).toEqualTypeOf<Err<string, string>>();
 		});
 
+		it("returns Ok | Pending when called on explicit Ok with a union-returning mapper", () => {
+			const result = new Ok<number, string>(42);
+			const mapper = (v: number): string | Promise<string> => v.toString();
+
+			const mapped = result.map(mapper);
+
+			expect(mapped.isOk()).toBeTrue();
+			expectTypeOf(mapped).toEqualTypeOf<Ok<string, string> | Pending<string, string>>();
+		});
+
 		it("transforms the value of Ok", () => {
 			const result = ok<number, string>(42);
 			const mapper = mock((v: number) => v.toString());
@@ -244,6 +254,16 @@ describe("Result", () => {
 			expect(mapped.isPending()).toBeTrue();
 			expect(mapped.unwrapErr()).resolves.toBe("failed".length);
 			expectTypeOf(mapped).toEqualTypeOf<Pending<number, number>>();
+		});
+
+		it("returns Err | Pending when called on explicit Err with a union-returning mapper", () => {
+			const result = new Err<number, string>("failed");
+			const mapper = (e: string): number | Promise<number> => e.length;
+
+			const mapped = result.mapErr(mapper);
+
+			expect(mapped.isErr()).toBeTrue();
+			expectTypeOf(mapped).toEqualTypeOf<Err<number, number> | Pending<number, number>>();
 		});
 
 		it("doesn't transform the error of Ok", () => {

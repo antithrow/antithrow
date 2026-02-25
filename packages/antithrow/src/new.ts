@@ -84,7 +84,14 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	abstract map<U>(
 		fn: (value: T) => PromiseLike<U>,
 	): MatchState<This, Pending<U, E>, Err<U, E>, Pending<U, E>>;
-	abstract map<U>(fn: (value: T) => U): MatchState<This, Ok<U, E>, Err<U, E>, Pending<U, E>>;
+	abstract map<U>(
+		fn: (value: T) => U,
+	): MatchState<
+		This,
+		U extends PromiseLike<infer A> ? Pending<A, E> : Ok<U, E>,
+		Err<U, E>,
+		Pending<U, E>
+	>;
 	abstract map<U>(
 		fn: (value: T) => SyncOrAsync<U>,
 	): MatchState<This, Ok<U, E> | Pending<U, E>, Err<U, E>, Pending<U, E>>;
@@ -104,7 +111,14 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	abstract mapErr<F>(
 		fn: (error: E) => PromiseLike<F>,
 	): MatchState<This, Ok<T, F>, Pending<T, F>, Pending<T, F>>;
-	abstract mapErr<F>(fn: (error: E) => F): MatchState<This, Ok<T, F>, Err<T, F>, Pending<T, F>>;
+	abstract mapErr<F>(
+		fn: (error: E) => F,
+	): MatchState<
+		This,
+		Ok<T, F>,
+		F extends PromiseLike<infer A> ? Pending<T, A> : Err<T, F>,
+		Pending<T, F>
+	>;
 	abstract mapErr<F>(
 		fn: (error: E) => SyncOrAsync<F>,
 	): MatchState<This, Ok<T, F>, Err<T, F> | Pending<T, F>, Pending<T, F>>;
@@ -373,7 +387,7 @@ export class Ok<out T, out E = never> extends ResultBase<T, E, Ok<T, E>> {
 	}
 
 	map<U>(fn: (value: T) => PromiseLike<U>): Pending<U, E>;
-	map<U>(fn: (value: T) => U): Ok<U, E>;
+	map<U>(fn: (value: T) => U): U extends PromiseLike<infer A> ? Pending<A, E> : Ok<U, E>;
 	map<U>(fn: (value: T) => SyncOrAsync<U>): Ok<U, E> | Pending<U, E>;
 	map<U>(fn: (value: T) => SyncOrAsync<U>): Ok<U, E> | Pending<U, E> {
 		const result = fn(this.value);
@@ -493,7 +507,7 @@ export class Err<out T = never, out E = unknown> extends ResultBase<T, E, Err<T,
 	}
 
 	mapErr<F>(fn: (error: E) => PromiseLike<F>): Pending<T, F>;
-	mapErr<F>(fn: (error: E) => F): Err<T, F>;
+	mapErr<F>(fn: (error: E) => F): F extends PromiseLike<infer A> ? Pending<T, A> : Err<T, F>;
 	mapErr<F>(fn: (error: E) => SyncOrAsync<F>): Err<T, F> | Pending<T, F>;
 	mapErr<F>(fn: (error: E) => F | PromiseLike<F>): Err<T, F> | Pending<T, F> {
 		const result = fn(this.error);
