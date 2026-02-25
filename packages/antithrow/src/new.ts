@@ -441,7 +441,12 @@ export class Ok<out T, out E = never> extends ResultBase<T, E, Ok<T, E>> {
 	}
 
 	flatten(): FlattenOk<T, E> {
-		return this.value as FlattenOk<T, E>;
+		if (this.value instanceof Ok || this.value instanceof Err || this.value instanceof Pending) {
+			return this.value as FlattenOk<T, E>;
+		}
+
+		// SAFETY: When T is a union that includes non-Result values, flatten should preserve this Ok at runtime.
+		return this as unknown as FlattenOk<T, E>;
 	}
 
 	settle(): PromiseLike<Ok<T, E>> {

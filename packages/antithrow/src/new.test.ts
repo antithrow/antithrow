@@ -868,6 +868,17 @@ describe("Result", () => {
 			expectTypeOf(flattened).toEqualTypeOf<Result<number, string | boolean>>();
 		});
 
+		it("returns the outer Ok when source value is a union branch that is not a Result", () => {
+			const result = ok<Result<number, boolean> | number, string>(42);
+
+			const flattened = result.flatten();
+
+			expect(flattened as unknown).toBe(result);
+			expect(flattened.isOk()).toBeTrue();
+			expect(flattened.unwrap()).toBe(42);
+			expectTypeOf(flattened).toEqualTypeOf<Result<number, string | boolean>>();
+		});
+
 		it("returns outer Err when source is Err", () => {
 			const result = err<Result<number, boolean>, string>("failed");
 
