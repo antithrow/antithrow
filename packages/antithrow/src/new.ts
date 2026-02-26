@@ -278,8 +278,27 @@ function isThenable(value: unknown): value is PromiseLike<unknown> {
 	);
 }
 
+/**
+ * Error thrown when unwrapping a {@link Settled} result with the wrong unwrap method.
+ *
+ * The original settled result is available on {@link UnwrapError.result}.
+ *
+ * @example
+ * ```ts
+ * const result = new Err<number, string>("failed");
+ *
+ * try {
+ * 	result.unwrap();
+ * } catch (error) {
+ * 	if (error instanceof UnwrapError) {
+ * 		error.result; // Settled<unknown, unknown>
+ * 	}
+ * }
+ * ```
+ */
 export class UnwrapError extends Error {
 	override readonly name = "UnwrapError";
+
 	constructor(
 		message: string,
 		readonly result: Settled<unknown, unknown>,
@@ -288,6 +307,15 @@ export class UnwrapError extends Error {
 	}
 }
 
+/**
+ * A successful {@link Result} containing a value of type `T`.
+ *
+ * @example
+ * ```ts
+ * const result = new Ok<number, string>(42);
+ * result.unwrap(); // 42
+ * ```
+ */
 export class Ok<out T, out E = never> extends ResultBase<T, E> {
 	constructor(readonly value: T) {
 		super();
@@ -403,6 +431,15 @@ export class Ok<out T, out E = never> extends ResultBase<T, E> {
 	}
 }
 
+/**
+ * A failed {@link Result} containing an error of type `E`.
+ *
+ * @example
+ * ```ts
+ * const result = new Err<number, string>("failed");
+ * result.unwrapErr(); // "failed"
+ * ```
+ */
 export class Err<out T = never, out E = unknown> extends ResultBase<T, E> {
 	constructor(readonly error: E) {
 		super();
@@ -517,6 +554,17 @@ export class Err<out T = never, out E = unknown> extends ResultBase<T, E> {
 	}
 }
 
+/**
+ * An asynchronous {@link Result} that will resolve to a {@link Settled} state.
+ *
+ * `Pending` implements `PromiseLike<Settled<T, E>>`, so it can be `await`ed.
+ *
+ * @example
+ * ```ts
+ * const pending = Result.try<number, string>(async () => 42);
+ * const settled = await pending;
+ * ```
+ */
 export class Pending<out T, out E> extends ResultBase<T, E> implements PromiseLike<Settled<T, E>> {
 	constructor(readonly promise: PromiseLike<Settled<T, E>>) {
 		super();
@@ -619,7 +667,33 @@ export class Pending<out T, out E> extends ResultBase<T, E> implements PromiseLi
 	}
 }
 
+/**
+ * Represents the full result state of an operation.
+ *
+ * A {@link Result} is either:
+ * - {@link Ok} when the operation succeeded
+ * - {@link Err} when the operation failed
+ * - {@link Pending} when the operation is still in-flight
+ *
+ * @example
+ * ```ts
+ * const immediate: Result<number, string> = new Ok(42);
+ * const delayed: Result<number, string> = Result.try(async () => 42);
+ * ```
+ */
 export type Result<T, E> = Ok<T, E> | Err<T, E> | Pending<T, E>;
+/**
+ * Represents a settled result state with no pending branch.
+ *
+ * A {@link Settled} is either:
+ * - {@link Ok} for success
+ * - {@link Err} for failure
+ *
+ * @example
+ * ```ts
+ * const settled: Settled<number, string> = new Err("failed");
+ * ```
+ */
 export type Settled<T, E> = Ok<T, E> | Err<T, E>;
 
 /**
