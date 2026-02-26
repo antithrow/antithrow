@@ -410,10 +410,6 @@ export class Ok<out T, out E = never> extends ResultBase<T, E> {
 		return this as unknown as FlattenOk<T, E>;
 	}
 
-	settle(): PromiseLike<Ok<T, E>> {
-		return Promise.resolve(this);
-	}
-
 	unwrap(): T {
 		return this.value;
 	}
@@ -428,6 +424,10 @@ export class Ok<out T, out E = never> extends ResultBase<T, E> {
 
 	unwrapOrElse(_fn: (error: E) => SyncOrAsync<T>): T {
 		return this.value;
+	}
+
+	settle(): PromiseLike<Ok<T, E>> {
+		return Promise.resolve(this);
 	}
 }
 
@@ -530,10 +530,6 @@ export class Err<out T = never, out E = unknown> extends ResultBase<T, E> {
 		return this as unknown as FlattenErr<T, E>;
 	}
 
-	settle(): PromiseLike<Err<T, E>> {
-		return Promise.resolve(this);
-	}
-
 	unwrap(): never {
 		throw new UnwrapError("Called unwrap() on an Err value", this);
 	}
@@ -551,6 +547,10 @@ export class Err<out T = never, out E = unknown> extends ResultBase<T, E> {
 	unwrapOrElse(fn: (error: E) => SyncOrAsync<T>): SyncOrAsync<T>;
 	unwrapOrElse(fn: (error: E) => SyncOrAsync<T>): SyncOrAsync<T> {
 		return fn(this.error);
+	}
+
+	settle(): PromiseLike<Err<T, E>> {
+		return Promise.resolve(this);
 	}
 }
 
@@ -646,10 +646,6 @@ export class Pending<out T, out E> extends ResultBase<T, E> implements PromiseLi
 		return new Pending(this.promise.then((settled) => settled.flatten())) as FlattenPending<T, E>;
 	}
 
-	settle(): PromiseLike<Settled<T, E>> {
-		return this.promise;
-	}
-
 	unwrap(): PromiseLike<T> {
 		return this.promise.then((result) => result.unwrap());
 	}
@@ -664,6 +660,10 @@ export class Pending<out T, out E> extends ResultBase<T, E> implements PromiseLi
 
 	unwrapOrElse(fn: (error: E) => SyncOrAsync<T>): PromiseLike<T> {
 		return this.promise.then((settled) => settled.unwrapOrElse(fn));
+	}
+
+	settle(): PromiseLike<Settled<T, E>> {
+		return this.promise;
 	}
 }
 
