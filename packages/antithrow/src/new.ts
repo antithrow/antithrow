@@ -74,6 +74,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 *
 	 * If the function returns a promise, the result becomes {@link Pending}.
 	 *
+	 * @throws Errors thrown by `fn` are not caught.
+	 *
 	 * @example
 	 * ```ts
 	 * const result: Result<number, string> = new Ok(5);
@@ -100,6 +102,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * Transforms the error inside an {@link Err} using the provided function, leaving {@link Ok} unchanged.
 	 *
 	 * If the function returns a promise, the result becomes {@link Pending}.
+	 *
+	 * @throws Errors thrown by `fn` are not caught.
 	 *
 	 * @example
 	 * ```ts
@@ -128,6 +132,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 *
 	 * If the function returns a promise, the result becomes {@link PromiseLike}.
 	 *
+	 * @throws Errors thrown by `fn` are not caught.
+	 *
 	 * @example
 	 * ```ts
 	 * const okResult: Result<number, string> = new Ok(5);
@@ -151,6 +157,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * Transforms the value inside an {@link Ok} using `fn`, or transforms the error using `defaultFn` if {@link Err}.
 	 *
 	 * Both functions should return the same type `U`.
+	 *
+	 * @throws Errors thrown by `fn` or `defaultFn` are not caught.
 	 *
 	 * @example
 	 * ```ts
@@ -186,6 +194,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * Chains a function that returns a {@link Result} if this result is {@link Ok}.
 	 *
 	 * This is useful for operations that can fail and return their own error type.
+	 *
+	 * @throws Errors thrown by `fn` are not caught.
 	 *
 	 * @example
 	 * ```ts
@@ -245,6 +255,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * Applies a function to the error if this result is {@link Err}, returning a {@link Result}.
 	 *
 	 * This is useful for recovering from errors or transforming them into new results.
+	 *
+	 * @throws Errors thrown by `fn` are not caught.
 	 *
 	 * @example
 	 * ```ts
@@ -316,6 +328,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 
 	/**
 	 * Returns the value if this result is {@link Ok}, otherwise applies a function to the error and returns its result.
+	 *
+	 * @throws Errors thrown by `fn` are not caught.
 	 *
 	 * @example
 	 * ```ts
