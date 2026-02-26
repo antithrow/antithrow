@@ -1,15 +1,5 @@
 type SyncOrAsync<T> = T | PromiseLike<T>;
 
-type MatchState<This, OkT, ErrT, PendingT> = [This] extends [Ok<unknown, unknown>]
-	? OkT
-	: [This] extends [Err<unknown, unknown>]
-		? ErrT
-		: [This] extends [Pending<unknown, unknown>]
-			? PendingT
-			: [This] extends [Settled<unknown, unknown>]
-				? OkT | ErrT
-				: OkT | ErrT | PendingT;
-
 /**
  * Flattens Ok<Result<U, F>, E> into Result<U, E | F> while preserving inner explicit state.
  *
@@ -38,7 +28,7 @@ type FlattenErr<T, E> = T extends Result<infer U, unknown> ? Err<U, E> : Err<T, 
  */
 type FlattenPending<T, E> = T extends Result<infer U, infer F> ? Pending<U, E | F> : Pending<T, E>;
 
-abstract class ResultBase<T, E, This = Result<T, E>> {
+abstract class ResultBase<T, E> {
 	/**
 	 * Returns `true` when the result is an {@link Ok} value.
 	 *
@@ -93,9 +83,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * // mapped is Ok<number, string> with value 10
 	 * ```
 	 */
-	abstract map<U>(
-		fn: (value: T) => SyncOrAsync<U>,
-	): MatchState<This, Ok<U, E> | Pending<U, E>, Err<U, E>, Pending<U, E>>;
+	abstract map<U>(fn: (value: T) => SyncOrAsync<U>): Result<U, E>;
 
 	/**
 	 * Transforms the error inside an {@link Err} using the provided function, leaving {@link Ok} unchanged.
@@ -111,9 +99,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * // mapped is Err<number, Error> with error Error("failed")
 	 * ```
 	 */
-	abstract mapErr<F>(
-		fn: (error: E) => SyncOrAsync<F>,
-	): MatchState<This, Ok<T, F>, Err<T, F> | Pending<T, F>, Pending<T, F>>;
+	abstract mapErr<F>(fn: (error: E) => SyncOrAsync<F>): Result<T, F>;
 
 	/**
 	 * Transforms the value inside an {@link Ok} using the provided function, or returns the default value if {@link Err}.
@@ -131,10 +117,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * errResult.mapOr(0, (value) => value * 2); // 0
 	 * ```
 	 */
-	abstract mapOr<U>(
-		defaultValue: U,
-		fn: (value: T) => SyncOrAsync<U>,
-	): MatchState<This, SyncOrAsync<U>, U, PromiseLike<U>>;
+	abstract mapOr<U>(defaultValue: U, fn: (value: T) => SyncOrAsync<U>): SyncOrAsync<U>;
 
 	/**
 	 * Transforms the value inside an {@link Ok} using `fn`, or transforms the error using `defaultFn` if {@link Err}.
@@ -155,7 +138,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	abstract mapOrElse<U>(
 		defaultFn: (error: E) => SyncOrAsync<U>,
 		fn: (value: T) => SyncOrAsync<U>,
-	): MatchState<This, SyncOrAsync<U>, SyncOrAsync<U>, PromiseLike<U>>;
+	): SyncOrAsync<U>;
 
 	/**
 	 * Chains a function that returns a {@link Result} if this result is {@link Ok}.
@@ -171,9 +154,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * // chained is Ok<number, string> with value 10
 	 * ```
 	 */
-	abstract andThen<U, F>(
-		fn: (value: T) => Result<U, F>,
-	): MatchState<This, Result<U, F>, Err<U, E>, Pending<U, E | F>>;
+	abstract andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, E | F>;
 
 	/**
 	 * Returns the provided result if this result is {@link Ok}, otherwise returns this {@link Err}.
@@ -185,10 +166,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * result.and(next); // Ok<string, string> with value "hello"
 	 * ```
 	 */
-	abstract and<U, F>(
-		result: Result<U, F>,
-	): MatchState<This, Result<U, F>, Err<U, E>, Pending<U, E | F>>;
-
+	abstract and<U, F>(result: Result<U, F>): Result<U, E | F>;
 	/**
 	 * Returns the provided result if this result is {@link Err}, otherwise returns this {@link Ok}.
 	 *
@@ -199,8 +177,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * result.or(fallback); // Ok<number, string | boolean> with value 42
 	 * ```
 	 */
-	abstract or<F>(result: Result<T, F>): MatchState<This, Ok<T, E>, Result<T, F>, Pending<T, E | F>>;
-
+	abstract or<F>(result: Result<T, F>): Result<T, E | F>;
 	/**
 	 * Applies a function to the error if this result is {@link Err}, returning a {@link Result}.
 	 *
@@ -215,9 +192,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * // recovered is Ok<number, string> with value 0
 	 * ```
 	 */
-	abstract orElse<F>(
-		fn: (error: E) => Result<T, F>,
-	): MatchState<This, Ok<T, F>, Result<T, F>, Pending<T, F>>;
+	abstract orElse<F>(fn: (error: E) => Result<T, F>): Result<T, F>;
 
 	/**
 	 * Flattens one level of nested result from `Result<Result<T, E>, F>` into `Result<T, E | F>`.
@@ -229,7 +204,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * // flattened is Result<number, string | boolean>
 	 * ```
 	 */
-	abstract flatten(): MatchState<This, FlattenOk<T, E>, FlattenErr<T, E>, FlattenPending<T, E>>;
+	abstract flatten(): FlattenOk<T, E> | FlattenErr<T, E> | FlattenPending<T, E>;
 
 	/**
 	 * Returns the value if this result is {@link Ok}, otherwise throws an {@link UnwrapError}.
@@ -240,7 +215,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * const value = result.unwrap(); // 5
 	 * ```
 	 */
-	abstract unwrap(): MatchState<This, T, never, PromiseLike<T>>;
+	abstract unwrap(): SyncOrAsync<T>;
 
 	/**
 	 * Returns the error if this result is {@link Err}, otherwise throws an {@link UnwrapError}.
@@ -251,7 +226,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * const error = result.unwrapErr(); // "failed"
 	 * ```
 	 */
-	abstract unwrapErr(): MatchState<This, never, E, PromiseLike<E>>;
+	abstract unwrapErr(): SyncOrAsync<E>;
 
 	/**
 	 * Returns the value if this result is {@link Ok}, otherwise returns the provided default value.
@@ -265,7 +240,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * errResult.unwrapOr(0); // 0
 	 * ```
 	 */
-	abstract unwrapOr(value: T): MatchState<This, T, T, PromiseLike<T>>;
+	abstract unwrapOr(value: T): SyncOrAsync<T>;
 
 	/**
 	 * Returns the value if this result is {@link Ok}, otherwise applies a function to the error and returns its result.
@@ -281,9 +256,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * errResult.unwrapOrElse(() => 0); // 0
 	 * ```
 	 */
-	abstract unwrapOrElse(
-		fn: (error: E) => SyncOrAsync<T>,
-	): MatchState<This, T, SyncOrAsync<T>, PromiseLike<T>>;
+	abstract unwrapOrElse(fn: (error: E) => SyncOrAsync<T>): SyncOrAsync<T>;
 
 	/**
 	 * Returns a settled result if this result is {@link Pending}, otherwise returns itself.
@@ -294,12 +267,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * const settled = await pending.settle(); // Ok<number, string> with value 5
 	 * ```
 	 */
-	abstract settle(): MatchState<
-		This,
-		PromiseLike<Ok<T, E>>,
-		PromiseLike<Err<T, E>>,
-		PromiseLike<Settled<T, E>>
-	>;
+	abstract settle(): PromiseLike<Settled<T, E>>;
 }
 
 function isThenable(value: unknown): value is PromiseLike<unknown> {
@@ -320,7 +288,7 @@ export class UnwrapError extends Error {
 	}
 }
 
-export class Ok<out T, out E = never> extends ResultBase<T, E, Ok<T, E>> {
+export class Ok<out T, out E = never> extends ResultBase<T, E> {
 	constructor(readonly value: T) {
 		super();
 	}
@@ -435,7 +403,7 @@ export class Ok<out T, out E = never> extends ResultBase<T, E, Ok<T, E>> {
 	}
 }
 
-export class Err<out T = never, out E = unknown> extends ResultBase<T, E, Err<T, E>> {
+export class Err<out T = never, out E = unknown> extends ResultBase<T, E> {
 	constructor(readonly error: E) {
 		super();
 	}
@@ -549,10 +517,7 @@ export class Err<out T = never, out E = unknown> extends ResultBase<T, E, Err<T,
 	}
 }
 
-export class Pending<out T, out E>
-	extends ResultBase<T, E, Pending<T, E>>
-	implements PromiseLike<Settled<T, E>>
-{
+export class Pending<out T, out E> extends ResultBase<T, E> implements PromiseLike<Settled<T, E>> {
 	constructor(readonly promise: PromiseLike<Settled<T, E>>) {
 		super();
 	}
