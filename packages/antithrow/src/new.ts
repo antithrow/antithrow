@@ -10,7 +10,11 @@ type MatchState<This, OkT, ErrT, PendingT> = [This] extends [Ok<unknown, unknown
 				? OkT | ErrT
 				: OkT | ErrT | PendingT;
 
-/** Flattens Ok<Result<U, F>, E> into Result<U, E | F> while preserving inner explicit state. */
+/**
+ * Flattens Ok<Result<U, F>, E> into Result<U, E | F> while preserving inner explicit state.
+ *
+ * If T is not a Result, the Ok<T, E> is preserved.
+ */
 type FlattenOk<T, E> =
 	T extends Ok<infer U, infer F>
 		? Ok<U, E | F>
@@ -18,13 +22,21 @@ type FlattenOk<T, E> =
 			? Err<U, E | F>
 			: T extends Pending<infer U, infer F>
 				? Pending<U, E | F>
-				: never;
+				: Ok<T, E>;
 
-/** Flattens Err<Result<U, unknown>, E> into Err<U, E> */
-type FlattenErr<T, E> = T extends Result<infer U, unknown> ? Err<U, E> : never;
+/**
+ * Flattens Err<Result<U, unknown>, E> into Err<U, E>
+ *
+ * If T is not a Result, the Err<T, E> is preserved.
+ */
+type FlattenErr<T, E> = T extends Result<infer U, unknown> ? Err<U, E> : Err<T, E>;
 
-/** Flattens Pending<Result<U, F>, E> into Pending<U, E | F> */
-type FlattenPending<T, E> = T extends Result<infer U, infer F> ? Pending<U, E | F> : never;
+/**
+ * Flattens Pending<Result<U, F>, E> into Pending<U, E | F>
+ *
+ * If T is not a Result, the Pending<T, E> is preserved.
+ */
+type FlattenPending<T, E> = T extends Result<infer U, infer F> ? Pending<U, E | F> : Pending<T, E>;
 
 abstract class ResultBase<T, E, This = Result<T, E>> {
 	/**
