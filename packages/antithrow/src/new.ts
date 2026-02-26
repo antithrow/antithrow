@@ -10,17 +10,15 @@ type MatchState<This, OkT, ErrT, PendingT> = [This] extends [Ok<unknown, unknown
 				? OkT | ErrT
 				: OkT | ErrT | PendingT;
 
-type RebindResult<R, T, E> =
-	R extends Ok<unknown, unknown>
-		? Ok<T, E>
-		: R extends Err<unknown, unknown>
-			? Err<T, E>
-			: R extends Pending<unknown, unknown>
-				? Pending<T, E>
-				: never;
-
 /** Flattens Ok<Result<U, F>, E> into Result<U, E | F> while preserving inner explicit state. */
-type FlattenOk<T, E> = T extends Result<infer U, infer F> ? RebindResult<T, U, E | F> : never;
+type FlattenOk<T, E> =
+	T extends Ok<infer U, infer F>
+		? Ok<U, E | F>
+		: T extends Err<infer U, infer F>
+			? Err<U, E | F>
+			: T extends Pending<infer U, infer F>
+				? Pending<U, E | F>
+				: never;
 
 /** Flattens Err<Result<U, unknown>, E> into Err<U, E> */
 type FlattenErr<T, E> = T extends Result<infer U, unknown> ? Err<U, E> : never;
