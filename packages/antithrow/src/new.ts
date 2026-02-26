@@ -94,17 +94,6 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * ```
 	 */
 	abstract map<U>(
-		fn: (value: T) => PromiseLike<U>,
-	): MatchState<This, Pending<U, E>, Err<U, E>, Pending<U, E>>;
-	abstract map<U>(
-		fn: (value: T) => U,
-	): MatchState<
-		This,
-		U extends PromiseLike<infer A> ? Pending<A, E> : Ok<U, E>,
-		Err<U, E>,
-		Pending<U, E>
-	>;
-	abstract map<U>(
 		fn: (value: T) => SyncOrAsync<U>,
 	): MatchState<This, Ok<U, E> | Pending<U, E>, Err<U, E>, Pending<U, E>>;
 
@@ -122,17 +111,6 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * // mapped is Err<number, Error> with error Error("failed")
 	 * ```
 	 */
-	abstract mapErr<F>(
-		fn: (error: E) => PromiseLike<F>,
-	): MatchState<This, Ok<T, F>, Pending<T, F>, Pending<T, F>>;
-	abstract mapErr<F>(
-		fn: (error: E) => F,
-	): MatchState<
-		This,
-		Ok<T, F>,
-		F extends PromiseLike<infer A> ? Pending<T, A> : Err<T, F>,
-		Pending<T, F>
-	>;
 	abstract mapErr<F>(
 		fn: (error: E) => SyncOrAsync<F>,
 	): MatchState<This, Ok<T, F>, Err<T, F> | Pending<T, F>, Pending<T, F>>;
@@ -155,11 +133,6 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 */
 	abstract mapOr<U>(
 		defaultValue: U,
-		fn: (value: T) => PromiseLike<U>,
-	): MatchState<This, PromiseLike<U>, U, PromiseLike<U>>;
-	abstract mapOr<U>(defaultValue: U, fn: (value: T) => U): MatchState<This, U, U, PromiseLike<U>>;
-	abstract mapOr<U>(
-		defaultValue: U,
 		fn: (value: T) => SyncOrAsync<U>,
 	): MatchState<This, SyncOrAsync<U>, U, PromiseLike<U>>;
 
@@ -180,25 +153,9 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * ```
 	 */
 	abstract mapOrElse<U>(
-		defaultFn: (error: E) => PromiseLike<U>,
-		fn: (value: T) => PromiseLike<U>,
-	): MatchState<This, PromiseLike<U>, PromiseLike<U>, PromiseLike<U>>;
-	abstract mapOrElse<U>(
-		defaultFn: (error: E) => PromiseLike<U>,
-		fn: (value: T) => U,
-	): MatchState<This, U, PromiseLike<U>, PromiseLike<U>>;
-	abstract mapOrElse<U>(
-		defaultFn: (error: E) => U,
-		fn: (value: T) => PromiseLike<U>,
-	): MatchState<This, PromiseLike<U>, U, PromiseLike<U>>;
-	abstract mapOrElse<U>(
-		defaultFn: (error: E) => U,
-		fn: (value: T) => U,
-	): MatchState<This, U, U, PromiseLike<U>>;
-	abstract mapOrElse<U>(
 		defaultFn: (error: E) => SyncOrAsync<U>,
 		fn: (value: T) => SyncOrAsync<U>,
-	): MatchState<This, SyncOrAsync<U>, SyncOrAsync<U>, SyncOrAsync<U>>;
+	): MatchState<This, SyncOrAsync<U>, SyncOrAsync<U>, PromiseLike<U>>;
 
 	/**
 	 * Chains a function that returns a {@link Result} if this result is {@link Ok}.
@@ -215,15 +172,6 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * ```
 	 */
 	abstract andThen<U, F>(
-		fn: (value: T) => Ok<U, F>,
-	): MatchState<This, Ok<U, F>, Err<U, E>, Pending<U, E | F>>;
-	abstract andThen<U, F>(
-		fn: (value: T) => Err<U, F>,
-	): MatchState<This, Err<U, F>, Err<U, E>, Pending<U, E | F>>;
-	abstract andThen<U, F>(
-		fn: (value: T) => Pending<U, F>,
-	): MatchState<This, Pending<U, F>, Err<U, E>, Pending<U, E | F>>;
-	abstract andThen<U, F>(
 		fn: (value: T) => Result<U, F>,
 	): MatchState<This, Result<U, F>, Err<U, E>, Pending<U, E | F>>;
 
@@ -238,12 +186,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * ```
 	 */
 	abstract and<U, F>(
-		result: Ok<U, F>,
-	): MatchState<This, Ok<U, F>, Err<U, E | F>, Pending<U, E | F>>;
-	abstract and<U, F>(result: Err<U, F>): MatchState<This, Err<U, F>, Err<U, E>, Pending<U, E | F>>;
-	abstract and<U, F>(
-		result: Pending<U, F>,
-	): MatchState<This, Pending<U, E | F>, Err<U, E>, Pending<U, E | F>>;
+		result: Result<U, F>,
+	): MatchState<This, Result<U, F>, Err<U, E>, Pending<U, E | F>>;
 
 	/**
 	 * Returns the provided result if this result is {@link Err}, otherwise returns this {@link Ok}.
@@ -255,11 +199,7 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * result.or(fallback); // Ok<number, string | boolean> with value 42
 	 * ```
 	 */
-	abstract or<F>(result: Ok<T, F>): MatchState<This, Ok<T, E>, Ok<T, F>, Pending<T, E | F>>;
-	abstract or<F>(result: Err<T, F>): MatchState<This, Ok<T, E>, Err<T, F>, Pending<T, E | F>>;
-	abstract or<F>(
-		result: Pending<T, F>,
-	): MatchState<This, Ok<T, E>, Pending<T, F>, Pending<T, E | F>>;
+	abstract or<F>(result: Result<T, F>): MatchState<This, Ok<T, E>, Result<T, F>, Pending<T, E | F>>;
 
 	/**
 	 * Applies a function to the error if this result is {@link Err}, returning a {@link Result}.
@@ -276,17 +216,8 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * ```
 	 */
 	abstract orElse<F>(
-		fn: (error: E) => Ok<T, F>,
-	): MatchState<This, Ok<T, E>, Ok<T, F>, Pending<T, E | F>>;
-	abstract orElse<F>(
-		fn: (error: E) => Err<T, F>,
-	): MatchState<This, Ok<T, E>, Err<T, F>, Pending<T, E | F>>;
-	abstract orElse<F>(
-		fn: (error: E) => Pending<T, F>,
-	): MatchState<This, Ok<T, E>, Pending<T, F>, Pending<T, E | F>>;
-	abstract orElse<F>(
 		fn: (error: E) => Result<T, F>,
-	): MatchState<This, Ok<T, E>, Result<T, F>, Pending<T, E | F>>;
+	): MatchState<This, Ok<T, F>, Result<T, F>, Pending<T, F>>;
 
 	/**
 	 * Flattens one level of nested result from `Result<Result<T, E>, F>` into `Result<T, E | F>`.
@@ -350,10 +281,6 @@ abstract class ResultBase<T, E, This = Result<T, E>> {
 	 * errResult.unwrapOrElse(() => 0); // 0
 	 * ```
 	 */
-	abstract unwrapOrElse(
-		fn: (error: E) => PromiseLike<T>,
-	): MatchState<This, T, PromiseLike<T>, PromiseLike<T>>;
-	abstract unwrapOrElse(fn: (error: E) => T): MatchState<This, T, T, PromiseLike<T>>;
 	abstract unwrapOrElse(
 		fn: (error: E) => SyncOrAsync<T>,
 	): MatchState<This, T, SyncOrAsync<T>, PromiseLike<T>>;
@@ -453,19 +380,19 @@ export class Ok<out T, out E = never> extends ResultBase<T, E, Ok<T, E>> {
 		return fn(this.value);
 	}
 
-	andThen<U, F>(fn: (value: T) => Ok<U, F>): Ok<U, E | F>;
-	andThen<U, F>(fn: (value: T) => Err<U, F>): Err<U, E | F>;
-	andThen<U, F>(fn: (value: T) => Pending<U, F>): Pending<U, E | F>;
-	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, E | F>;
-	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, E | F> {
+	andThen<U, F>(fn: (value: T) => Ok<U, F>): Ok<U, F>;
+	andThen<U, F>(fn: (value: T) => Err<U, F>): Err<U, F>;
+	andThen<U, F>(fn: (value: T) => Pending<U, F>): Pending<U, F>;
+	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, F>;
+	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, F> {
 		return fn(this.value);
 	}
 
-	and<U, F>(result: Ok<U, F>): Ok<U, E | F>;
-	and<U, F>(result: Err<U, F>): Err<U, E | F>;
-	and<U, F>(result: Pending<U, F>): Pending<U, E | F>;
-	and<U, F>(result: Result<U, F>): Result<U, E | F>;
-	and<U, F>(result: Result<U, F>): Result<U, E | F> {
+	and<U, F>(result: Ok<U, F>): Ok<U, F>;
+	and<U, F>(result: Err<U, F>): Err<U, F>;
+	and<U, F>(result: Pending<U, F>): Pending<U, F>;
+	and<U, F>(result: Result<U, F>): Result<U, F>;
+	and<U, F>(result: Result<U, F>): Result<U, F> {
 		return result;
 	}
 

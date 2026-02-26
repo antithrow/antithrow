@@ -707,7 +707,7 @@ describe("Result", () => {
 
 			expect(mapped.isOk()).toBeTrue();
 			expect(mapped.unwrap()).toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<Ok<string, string>>();
+			expectTypeOf(mapped).toEqualTypeOf<Ok<string, never>>();
 		});
 
 		it("returns Err when called on explicit Ok and callback returns Err", () => {
@@ -717,7 +717,7 @@ describe("Result", () => {
 
 			expect(mapped.isErr()).toBeTrue();
 			expect(mapped.unwrapErr()).toBe(42);
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string | number>>();
+			expectTypeOf(mapped).toEqualTypeOf<Err<string, number>>();
 		});
 
 		it("returns Pending when called on explicit Ok and callback returns Pending", () => {
@@ -727,7 +727,7 @@ describe("Result", () => {
 
 			expect(mapped.isPending()).toBeTrue();
 			expect(mapped.unwrap()).resolves.toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<Pending<string, string>>();
+			expectTypeOf(mapped).toEqualTypeOf<Pending<string, never>>();
 		});
 
 		it("returns Err when called on explicit Err", () => {
@@ -749,7 +749,9 @@ describe("Result", () => {
 			expect(mapped.isOk()).toBeTrue();
 			expect(mapped.unwrap()).toBe("42");
 			expectTypeOf(mapped).toExtend<Result<string, string | number>>();
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string> | Result<string, string | number>>();
+			expectTypeOf(mapped).toEqualTypeOf<
+				Err<string, string> | Pending<string, string | number> | Result<string, number>
+			>();
 
 			expect(mapper).toHaveBeenCalledTimes(1);
 			expect(mapper).toHaveBeenCalledWith(42);
@@ -765,7 +767,9 @@ describe("Result", () => {
 			expect(mapped.isErr()).toBeTrue();
 			expect(mapped.unwrapErr()).toBe("failed");
 			expectTypeOf(mapped).toExtend<Result<string, string | number>>();
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string> | Result<string, string | number>>();
+			expectTypeOf(mapped).toEqualTypeOf<
+				Err<string, string> | Pending<string, string | number> | Result<string, number>
+			>();
 
 			expect(mapper).not.toHaveBeenCalled();
 		});
@@ -779,7 +783,9 @@ describe("Result", () => {
 			expect(mapped.isPending()).toBeTrue();
 			expect(mapped.unwrap()).resolves.toBe("42");
 			expectTypeOf(mapped).toExtend<Result<string, string | number>>();
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string> | Result<string, string | number>>();
+			expectTypeOf(mapped).toEqualTypeOf<
+				Err<string, string> | Pending<string, string | number> | Result<string, number>
+			>();
 
 			expect(mapper).toHaveBeenCalledTimes(1);
 			expect(mapper).toHaveBeenCalledWith(42);
@@ -795,7 +801,9 @@ describe("Result", () => {
 			expect(mapped.isPending()).toBeTrue();
 			expect(mapped.unwrapErr()).resolves.toBe("failed");
 			expectTypeOf(mapped).toExtend<Result<string, string | number>>();
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string> | Result<string, string | number>>();
+			expectTypeOf(mapped).toEqualTypeOf<
+				Err<string, string> | Pending<string, string | number> | Result<string, number>
+			>();
 
 			expect(mapper).not.toHaveBeenCalled();
 		});
@@ -948,7 +956,7 @@ describe("Result", () => {
 
 			expect(mapped.isOk()).toBeTrue();
 			expect(mapped.unwrap()).toBe("done");
-			expectTypeOf(mapped).toEqualTypeOf<Ok<string, string>>();
+			expectTypeOf(mapped).toEqualTypeOf<Ok<string, never>>();
 		});
 
 		it("returns Err when called on explicit Ok with explicit Err", () => {
@@ -958,7 +966,7 @@ describe("Result", () => {
 
 			expect(mapped.isErr()).toBeTrue();
 			expect(mapped.unwrapErr()).toBe(10);
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string | number>>();
+			expectTypeOf(mapped).toEqualTypeOf<Err<string, number>>();
 		});
 
 		it("returns Pending when called on explicit Ok with explicit Pending", () => {
@@ -968,7 +976,7 @@ describe("Result", () => {
 
 			expect(mapped.isPending()).toBeTrue();
 			expect(mapped.unwrap()).resolves.toBe("done");
-			expectTypeOf(mapped).toEqualTypeOf<Pending<string, string>>();
+			expectTypeOf(mapped).toEqualTypeOf<Pending<string, never>>();
 		});
 
 		it("returns Err when called on explicit Err", () => {
@@ -990,7 +998,9 @@ describe("Result", () => {
 			expect(mapped.isOk()).toBeTrue();
 			expect(mapped.unwrap()).toBe("done");
 			expectTypeOf(mapped).toExtend<Result<string, string | boolean>>();
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string> | Result<string, string | boolean>>();
+			expectTypeOf(mapped).toEqualTypeOf<
+				Err<string, string> | Pending<string, string | boolean> | Result<string, boolean>
+			>();
 		});
 
 		it("returns source Err when source is Err", () => {
@@ -1002,7 +1012,9 @@ describe("Result", () => {
 			expect(mapped.isErr()).toBeTrue();
 			expect(mapped.unwrapErr()).toBe("failed");
 			expectTypeOf(mapped).toExtend<Result<string, string | boolean>>();
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string> | Result<string, string | boolean>>();
+			expectTypeOf(mapped).toEqualTypeOf<
+				Err<string, string> | Pending<string, string | boolean> | Result<string, boolean>
+			>();
 		});
 
 		it("returns next result when Pending resolves to Ok", () => {
@@ -1014,7 +1026,9 @@ describe("Result", () => {
 			expect(mapped.isPending()).toBeTrue();
 			expect(mapped.unwrap()).resolves.toBe("done");
 			expectTypeOf(mapped).toExtend<Result<string, string | boolean>>();
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string> | Result<string, string | boolean>>();
+			expectTypeOf(mapped).toEqualTypeOf<
+				Err<string, string> | Pending<string, string | boolean> | Result<string, boolean>
+			>();
 		});
 
 		it("returns source Err when Pending resolves to Err", () => {
@@ -1026,7 +1040,9 @@ describe("Result", () => {
 			expect(mapped.isPending()).toBeTrue();
 			expect(mapped.unwrapErr()).resolves.toBe("failed");
 			expectTypeOf(mapped).toExtend<Result<string, string | boolean>>();
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string> | Result<string, string | boolean>>();
+			expectTypeOf(mapped).toEqualTypeOf<
+				Err<string, string> | Pending<string, string | boolean> | Result<string, boolean>
+			>();
 		});
 	});
 
