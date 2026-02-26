@@ -282,7 +282,7 @@ export class UnwrapError extends Error {
 	override readonly name = "UnwrapError";
 	constructor(
 		message: string,
-		readonly result: Result<unknown, unknown>,
+		readonly result: Settled<unknown, unknown>,
 	) {
 		super(message);
 	}
