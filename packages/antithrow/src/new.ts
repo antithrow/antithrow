@@ -720,6 +720,27 @@ export class Pending<out T, out E>
 export type Result<T, E> = Ok<T, E> | Err<T, E> | Pending<T, E>;
 export type Settled<T, E> = Ok<T, E> | Err<T, E>;
 
+/**
+ * Infers the `Ok` value type `T` from a {@link Result}.
+ *
+ * @example
+ * ```ts
+ * type MyResult = Result<number, string>;
+ * type Value = InferOk<MyResult>; // number
+ * ```
+ */
+export type InferOk<R> = R extends Result<infer T, unknown> ? T : never;
+/**
+ * Infers the `Err` error type `E` from a {@link Result}.
+ *
+ * @example
+ * ```ts
+ * type MyResult = Result<number, string>;
+ * type Error = InferErr<MyResult>; // string
+ * ```
+ */
+export type InferErr<R> = R extends Result<unknown, infer E> ? E : never;
+
 function fromPromise<T, E>(promise: PromiseLike<T>): Pending<T, E> {
 	return new Pending(
 		promise.then(
