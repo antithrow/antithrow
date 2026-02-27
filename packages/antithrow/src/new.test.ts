@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, it, mock } from "bun:test";
-import { Err, Ok, Pending, Result, type Settled, UnwrapError } from "./new.js";
+import type { InferErr, InferOk, Settled } from "./new.js";
+import { Err, Ok, Pending, Result, UnwrapError } from "./new.js";
 
 const ok = <T, E>(v: T): Result<T, E> => new Ok(v);
 const err = <T, E>(e: E): Result<T, E> => new Err(e);
@@ -1776,5 +1777,31 @@ describe("Result", () => {
 			expect(result.unwrap()).resolves.toBe(42);
 			expectTypeOf(result).toEqualTypeOf<Pending<number, string>>();
 		});
+	});
+});
+
+describe("InferOk", () => {
+	it("extracts the value type", () => {
+		expectTypeOf<InferOk<Result<number, string>>>().toEqualTypeOf<number>();
+		expectTypeOf<InferOk<Ok<number, string>>>().toEqualTypeOf<number>();
+		expectTypeOf<InferOk<Err<number, string>>>().toEqualTypeOf<number>();
+		expectTypeOf<InferOk<Pending<number, string>>>().toEqualTypeOf<number>();
+	});
+
+	it("returns never for non-Result types", () => {
+		expectTypeOf<InferOk<number>>().toEqualTypeOf<never>();
+	});
+});
+
+describe("InferErr", () => {
+	it("extracts the error type", () => {
+		expectTypeOf<InferErr<Result<number, string>>>().toEqualTypeOf<string>();
+		expectTypeOf<InferErr<Ok<number, string>>>().toEqualTypeOf<string>();
+		expectTypeOf<InferErr<Err<number, string>>>().toEqualTypeOf<string>();
+		expectTypeOf<InferErr<Pending<number, string>>>().toEqualTypeOf<string>();
+	});
+
+	it("returns never for non-Result types", () => {
+		expectTypeOf<InferErr<number>>().toEqualTypeOf<never>();
 	});
 });
