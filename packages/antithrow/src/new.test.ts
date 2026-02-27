@@ -51,6 +51,56 @@ describe("Result", () => {
 		});
 	});
 
+	describe("iterators", () => {
+		it("Ok iterator returns the value without yielding", () => {
+			const iterator = new Ok<number, string>(42)[Symbol.iterator]();
+			const first = iterator.next();
+
+			expect(first).toEqual({ done: true, value: 42 });
+		});
+
+		it("Err iterator yields itself first", () => {
+			const result = new Err<number, string>("failed");
+			const iterator = result[Symbol.iterator]();
+			const first = iterator.next();
+
+			expect(first.done).toBeFalse();
+			expect(first.value).toBe(result);
+		});
+
+		it("Err iterator throws if resumed after yielding once", () => {
+			const iterator = new Err<number, string>("failed")[Symbol.iterator]();
+			iterator.next();
+
+			expect(() => iterator.next()).toThrow("Unreachable: generator should have been halted");
+		});
+
+		it("Pending async iterator returns value when it settles to Ok", () => {
+			const iterator = new Pending<number, string>(Promise.resolve(ok(42)))[Symbol.asyncIterator]();
+
+			expect(iterator.next()).resolves.toEqual({ done: true, value: 42 });
+		});
+
+		it("Pending async iterator yields Err when it settles to Err", async () => {
+			const settledErr = new Err<number, string>("failed");
+			const iterator = new Pending<number, string>(Promise.resolve(settledErr))[
+				Symbol.asyncIterator
+			]();
+			const first = await iterator.next();
+
+			expect(first.done).toBeFalse();
+			expect(first.value).toBe(settledErr);
+		});
+
+		it("Pending async Err iterator can be halted after first yield", async () => {
+			const iterator = pending<number, string>(err("failed"))[Symbol.asyncIterator]();
+			await iterator.next();
+			const returned = await iterator.return(undefined);
+
+			expect(returned.done).toBeTrue();
+		});
+	});
+
 	describe("map", () => {
 		it("returns Ok when called on explicit Ok with a sync mapper", () => {
 			const result = new Ok<number, string>(42);

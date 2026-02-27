@@ -429,6 +429,11 @@ export class Ok<out T, out E = never> extends ResultBase<T, E> {
 	settle(): PromiseLike<Ok<T, E>> {
 		return Promise.resolve(this);
 	}
+
+	// biome-ignore lint/correctness/useYield: Only Err should ever yield a value (used for early exits of chains).
+	*[Symbol.iterator](): Generator<never, T, void> {
+		return this.value;
+	}
 }
 
 /**
@@ -552,6 +557,11 @@ export class Err<out T = never, out E = unknown> extends ResultBase<T, E> {
 	settle(): PromiseLike<Err<T, E>> {
 		return Promise.resolve(this);
 	}
+
+	*[Symbol.iterator](): Generator<Err<T, E>, never, void> {
+		yield this;
+		throw new Error("Unreachable: generator should have been halted");
+	}
 }
 
 /**
@@ -664,6 +674,10 @@ export class Pending<out T, out E> extends ResultBase<T, E> implements PromiseLi
 
 	settle(): PromiseLike<Settled<T, E>> {
 		return this.promise;
+	}
+
+	async *[Symbol.asyncIterator](): AsyncGenerator<Err<T, E>, T, void> {
+		return yield* await this.promise;
 	}
 }
 
