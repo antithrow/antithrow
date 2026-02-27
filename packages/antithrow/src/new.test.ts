@@ -103,6 +103,59 @@ describe("Result", () => {
 		});
 	});
 
+	describe("then", () => {
+		it("returns PromiseLike when called on explicit Pending", () => {
+			const result = new Pending<number, string>(Promise.resolve(new Ok(42)));
+
+			const chained = result.then((settled) => settled.unwrap());
+
+			expect(chained).resolves.toBe(42);
+			expectTypeOf(chained).toEqualTypeOf<PromiseLike<number>>();
+		});
+
+		it("calls onfulfilled with settled Ok", async () => {
+			const result = new Pending<number, string>(Promise.resolve(ok(42)));
+			const onfulfilled = mock((settled: Settled<number, string>) => settled.unwrap().toString());
+
+			const chained = result.then(onfulfilled);
+
+			expect(chained).resolves.toBe("42");
+			expectTypeOf(chained).toEqualTypeOf<PromiseLike<string>>();
+			expect(onfulfilled).toHaveBeenCalledTimes(1);
+			expect(onfulfilled).toHaveBeenCalledWith(ok(42));
+			expect(onfulfilled).toHaveReturnedWith("42");
+		});
+
+		it("calls onfulfilled with settled Err", async () => {
+			const result = new Pending<number, string>(Promise.resolve(err("failed")));
+			const onfulfilled = mock((settled: Settled<number, string>) => settled.unwrapErr().length);
+
+			const chained = result.then(onfulfilled);
+
+			expect(chained).resolves.toBe("failed".length);
+			expectTypeOf(chained).toEqualTypeOf<PromiseLike<number>>();
+			expect(onfulfilled).toHaveBeenCalledTimes(1);
+			expect(onfulfilled).toHaveBeenCalledWith(err("failed"));
+			expect(onfulfilled).toHaveReturnedWith("failed".length);
+		});
+
+		it("calls onrejected when the underlying promise rejects", async () => {
+			const reason = new Error("boom");
+			const result = new Pending<number, string>(Promise.reject(reason));
+			const onfulfilled = mock((settled: Settled<number, string>) => settled.unwrap());
+			const onrejected = mock((error: unknown) => String(error));
+
+			const chained = result.then(onfulfilled, onrejected);
+
+			expect(chained).resolves.toBe(reason.toString());
+			expectTypeOf(chained).toEqualTypeOf<PromiseLike<number | string>>();
+			expect(onfulfilled).not.toHaveBeenCalled();
+			expect(onrejected).toHaveBeenCalledTimes(1);
+			expect(onrejected).toHaveBeenCalledWith(reason);
+			expect(onrejected).toHaveReturnedWith(reason.toString());
+		});
+	});
+
 	describe("map", () => {
 		it("returns Ok when called on explicit Ok with a sync mapper", () => {
 			const result = new Ok<number, string>(42);
