@@ -93,9 +93,11 @@ describe("Result", () => {
 		});
 
 		it("Pending async Err iterator can be halted after first yield", async () => {
-			const iterator = pending<number, string>(err("failed"))[Symbol.asyncIterator]();
+			const iterator = new Pending<number, string>(Promise.resolve(err("failed")))[
+				Symbol.asyncIterator
+			]();
 			await iterator.next();
-			const returned = await iterator.return(undefined);
+			const returned = await iterator.return(undefined as unknown as number);
 
 			expect(returned.done).toBeTrue();
 		});
