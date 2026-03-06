@@ -1,213 +1,17 @@
 import { describe, expect, expectTypeOf, it, mock } from "bun:test";
-import type { InferErr, InferOk, Settled } from "./new.js";
-import { Err, Ok, Pending, Result, UnwrapError } from "./new.js";
+import { Err } from "./err.js";
+import { UnwrapError } from "./errors.js";
+import { Ok } from "./ok.js";
+import { Pending } from "./pending.js";
+import { Result } from "./result.js";
+import type { Settled } from "./types.js";
 
 const ok = <T, E>(v: T): Result<T, E> => new Ok(v);
 const err = <T, E>(e: E): Result<T, E> => new Err(e);
 const pending = <T, E>(r: Result<T, E>): Result<T, E> => new Pending(Promise.resolve(r));
 
 describe("Result", () => {
-	describe("isOk", () => {
-		it("reports the correct state and narrows to Ok", () => {
-			const result = ok<number, string>(42);
-
-			expect(result.isOk()).toBeTrue();
-			expect(result.isErr()).toBeFalse();
-			expect(result.isPending()).toBeFalse();
-
-			if (result.isOk()) {
-				expectTypeOf(result).toEqualTypeOf<Ok<number, string>>();
-				expectTypeOf(result.value).toEqualTypeOf<number>();
-			}
-		});
-	});
-
-	describe("isErr", () => {
-		it("reports the correct state and narrows to Err", () => {
-			const result = err<number, string>("failed");
-
-			expect(result.isOk()).toBeFalse();
-			expect(result.isErr()).toBeTrue();
-			expect(result.isPending()).toBeFalse();
-
-			if (result.isErr()) {
-				expectTypeOf(result).toEqualTypeOf<Err<number, string>>();
-				expectTypeOf(result.error).toEqualTypeOf<string>();
-			}
-		});
-	});
-
-	describe("isPending", () => {
-		it("reports the correct state and narrows to Pending", () => {
-			const result = pending<number, string>(ok(42));
-
-			expect(result.isOk()).toBeFalse();
-			expect(result.isErr()).toBeFalse();
-			expect(result.isPending()).toBeTrue();
-
-			if (result.isPending()) {
-				expectTypeOf(result).toEqualTypeOf<Pending<number, string>>();
-				expectTypeOf(result.promise).resolves.toEqualTypeOf<Settled<number, string>>();
-			}
-		});
-	});
-
-	describe("iterators", () => {
-		it("Ok iterator returns the value without yielding", () => {
-			const iterator = new Ok<number, string>(42)[Symbol.iterator]();
-			const first = iterator.next();
-
-			expect(first).toEqual({ done: true, value: 42 });
-		});
-
-		it("Err iterator yields itself first", () => {
-			const result = new Err<number, string>("failed");
-			const iterator = result[Symbol.iterator]();
-			const first = iterator.next();
-
-			expect(first.done).toBeFalse();
-			expect(first.value).toBe(result);
-		});
-
-		it("Err iterator throws if resumed after yielding once", () => {
-			const iterator = new Err<number, string>("failed")[Symbol.iterator]();
-			iterator.next();
-
-			expect(() => iterator.next()).toThrow("Unreachable: generator should have been halted");
-		});
-
-		it("Pending async iterator returns value when it settles to Ok", () => {
-			const iterator = new Pending<number, string>(Promise.resolve(ok(42)))[Symbol.asyncIterator]();
-
-			expect(iterator.next()).resolves.toEqual({ done: true, value: 42 });
-		});
-
-		it("Pending async iterator yields Err when it settles to Err", async () => {
-			const settledErr = new Err<number, string>("failed");
-			const iterator = new Pending<number, string>(Promise.resolve(settledErr))[
-				Symbol.asyncIterator
-			]();
-			const first = await iterator.next();
-
-			expect(first.done).toBeFalse();
-			expect(first.value).toBe(settledErr);
-		});
-
-		it("Pending async Err iterator can be halted after first yield", async () => {
-			const iterator = new Pending<number, string>(Promise.resolve(err("failed")))[
-				Symbol.asyncIterator
-			]();
-			await iterator.next();
-			const returned = await iterator.return(undefined as unknown as number);
-
-			expect(returned.done).toBeTrue();
-		});
-	});
-
-	describe("then", () => {
-		it("returns PromiseLike when called on explicit Pending", () => {
-			const result = new Pending<number, string>(Promise.resolve(new Ok(42)));
-
-			const chained = result.then((settled) => settled.unwrap());
-
-			expect(chained).resolves.toBe(42);
-			expectTypeOf(chained).toEqualTypeOf<PromiseLike<number>>();
-		});
-
-		it("calls onfulfilled with settled Ok", async () => {
-			const result = new Pending<number, string>(Promise.resolve(ok(42)));
-			const onfulfilled = mock((settled: Settled<number, string>) => settled.unwrap().toString());
-
-			const chained = result.then(onfulfilled);
-
-			expect(chained).resolves.toBe("42");
-			expectTypeOf(chained).toEqualTypeOf<PromiseLike<string>>();
-			expect(onfulfilled).toHaveBeenCalledTimes(1);
-			expect(onfulfilled).toHaveBeenCalledWith(ok(42));
-			expect(onfulfilled).toHaveReturnedWith("42");
-		});
-
-		it("calls onfulfilled with settled Err", async () => {
-			const result = new Pending<number, string>(Promise.resolve(err("failed")));
-			const onfulfilled = mock((settled: Settled<number, string>) => settled.unwrapErr().length);
-
-			const chained = result.then(onfulfilled);
-
-			expect(chained).resolves.toBe("failed".length);
-			expectTypeOf(chained).toEqualTypeOf<PromiseLike<number>>();
-			expect(onfulfilled).toHaveBeenCalledTimes(1);
-			expect(onfulfilled).toHaveBeenCalledWith(err("failed"));
-			expect(onfulfilled).toHaveReturnedWith("failed".length);
-		});
-
-		it("calls onrejected when the underlying promise rejects", async () => {
-			const reason = new Error("boom");
-			const result = new Pending<number, string>(Promise.reject(reason));
-			const onfulfilled = mock((settled: Settled<number, string>) => settled.unwrap());
-			const onrejected = mock((error: unknown) => String(error));
-
-			const chained = result.then(onfulfilled, onrejected);
-
-			expect(chained).resolves.toBe(reason.toString());
-			expectTypeOf(chained).toEqualTypeOf<PromiseLike<number | string>>();
-			expect(onfulfilled).not.toHaveBeenCalled();
-			expect(onrejected).toHaveBeenCalledTimes(1);
-			expect(onrejected).toHaveBeenCalledWith(reason);
-			expect(onrejected).toHaveReturnedWith(reason.toString());
-		});
-	});
-
 	describe("map", () => {
-		it("returns Ok when called on explicit Ok with a sync mapper", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.map((v) => v.toString());
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<Ok<string, string>>();
-		});
-
-		it("returns Err when called on explicit Err with a sync mapper", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.map((v) => v.toString());
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBe("failed");
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string>>();
-		});
-
-		it("returns Pending when called on explicit Ok with an async mapper", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.map(async (v) => v.toString());
-
-			expect(mapped.isPending()).toBeTrue();
-			expect(mapped.unwrap()).resolves.toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<Pending<string, string>>();
-		});
-
-		it("returns Err when called on explicit Err with an async mapper", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.map(async (v) => v.toString());
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBe("failed");
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string>>();
-		});
-
-		it("returns Ok | Pending when called on explicit Ok with a union-returning mapper", () => {
-			const result = new Ok<number, string>(42);
-			const mapper = (v: number): string | Promise<string> => v.toString();
-
-			const mapped = result.map(mapper);
-
-			expect(mapped.isOk()).toBeTrue();
-			expectTypeOf(mapped).toEqualTypeOf<Ok<string, string> | Pending<string, string>>();
-		});
-
 		it("transforms the value of Ok", () => {
 			const result = ok<number, string>(42);
 			const mapper = mock((v: number) => v.toString());
@@ -322,56 +126,6 @@ describe("Result", () => {
 	});
 
 	describe("mapErr", () => {
-		it("returns Ok when called on explicit Ok with a sync mapper", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.mapErr((e) => e.length);
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe(42);
-			expectTypeOf(mapped).toEqualTypeOf<Ok<number, number>>();
-		});
-
-		it("returns Err when called on explicit Err with a sync mapper", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.mapErr((e) => e.length);
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBe("failed".length);
-			expectTypeOf(mapped).toEqualTypeOf<Err<number, number>>();
-		});
-
-		it("returns Ok when called on explicit Ok with an async mapper", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.mapErr(async (e) => e.length);
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe(42);
-			expectTypeOf(mapped).toEqualTypeOf<Ok<number, number>>();
-		});
-
-		it("returns Pending when called on explicit Err with an async mapper", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.mapErr(async (e) => e.length);
-
-			expect(mapped.isPending()).toBeTrue();
-			expect(mapped.unwrapErr()).resolves.toBe("failed".length);
-			expectTypeOf(mapped).toEqualTypeOf<Pending<number, number>>();
-		});
-
-		it("returns Err | Pending when called on explicit Err with a union-returning mapper", () => {
-			const result = new Err<number, string>("failed");
-			const mapper = (e: string): number | Promise<number> => e.length;
-
-			const mapped = result.mapErr(mapper);
-
-			expect(mapped.isErr()).toBeTrue();
-			expectTypeOf(mapped).toEqualTypeOf<Err<number, number> | Pending<number, number>>();
-		});
-
 		it("doesn't transform the error of Ok", () => {
 			const result = ok<number, string>(42);
 			const mapper = mock((e: string) => e.length);
@@ -481,47 +235,11 @@ describe("Result", () => {
 
 			expect(mapper).toHaveBeenCalledTimes(1);
 			expect(mapper).toHaveBeenCalledWith("failed");
-			expect(mapper).toHaveReturnedWith(Promise.resolve("FAILED"));
+			expect(mapper).toHaveReturnedWith(Promise.resolve("failed".length));
 		});
 	});
 
 	describe("mapOr", () => {
-		it("returns transformed value when called on explicit Ok with a sync mapper", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.mapOr("0", (v) => v.toString());
-
-			expect(mapped).toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<string>();
-		});
-
-		it("returns default when called on explicit Err with a sync mapper", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.mapOr("0", (v) => v.toString());
-
-			expect(mapped).toBe("0");
-			expectTypeOf(mapped).toEqualTypeOf<string>();
-		});
-
-		it("returns PromiseLike when called on explicit Ok with an async mapper", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.mapOr("0", async (v) => v.toString());
-
-			expect(mapped).resolves.toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<PromiseLike<string>>();
-		});
-
-		it("returns default when called on explicit Err with an async mapper", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.mapOr("0", async (v) => v.toString());
-
-			expect(mapped).toBe("0");
-			expectTypeOf(mapped).toEqualTypeOf<string>();
-		});
-
 		it("transforms the value of Ok", () => {
 			const result = ok<number, string>(42);
 			const mapper = mock((v: number) => v.toString());
@@ -628,54 +346,6 @@ describe("Result", () => {
 	});
 
 	describe("mapOrElse", () => {
-		it("returns transformed value when called on explicit Ok with sync functions", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.mapOrElse(
-				(e) => e.length.toString(),
-				(v) => v.toString(),
-			);
-
-			expect(mapped).toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<string>();
-		});
-
-		it("returns default value when called on explicit Err with sync functions", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.mapOrElse(
-				(e) => e.length.toString(),
-				(v) => v.toString(),
-			);
-
-			expect(mapped).toBe("6");
-			expectTypeOf(mapped).toEqualTypeOf<string>();
-		});
-
-		it("returns PromiseLike when called on explicit Ok with an async mapper", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.mapOrElse(
-				(e) => e.length.toString(),
-				async (v) => v.toString(),
-			);
-
-			expect(mapped).resolves.toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<PromiseLike<string>>();
-		});
-
-		it("returns PromiseLike when called on explicit Err with an async default function", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.mapOrElse(
-				async (e) => e.length.toString(),
-				(v) => v.toString(),
-			);
-
-			expect(mapped).resolves.toBe("6");
-			expectTypeOf(mapped).toEqualTypeOf<PromiseLike<string>>();
-		});
-
 		it("transforms the value of Ok", () => {
 			const result = ok<number, string>(42);
 			const defaultFn = mock((e: string) => e.length.toString());
@@ -806,46 +476,6 @@ describe("Result", () => {
 	});
 
 	describe("andThen", () => {
-		it("returns Ok when called on explicit Ok and callback returns Ok", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.andThen((v) => new Ok(v.toString()));
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<Ok<string, never>>();
-		});
-
-		it("returns Err when called on explicit Ok and callback returns Err", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.andThen((v) => new Err<string, number>(v));
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBe(42);
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, number>>();
-		});
-
-		it("returns Pending when called on explicit Ok and callback returns Pending", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.andThen((v) => new Pending(Promise.resolve(new Ok(v.toString()))));
-
-			expect(mapped.isPending()).toBeTrue();
-			expect(mapped.unwrap()).resolves.toBe("42");
-			expectTypeOf(mapped).toEqualTypeOf<Pending<string, never>>();
-		});
-
-		it("returns Err when called on explicit Err", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.andThen((v) => new Ok(v.toString()));
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBe("failed");
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string>>();
-		});
-
 		it("transforms the value of Ok", () => {
 			const result = ok<number, string>(42);
 			const mapper = mock((v: number) => ok<string, number>(v.toString()));
@@ -916,60 +546,6 @@ describe("Result", () => {
 	});
 
 	describe("flatten", () => {
-		it("returns explicit Ok when called on explicit Ok wrapping explicit Ok", () => {
-			const result = new Ok<Ok<number, boolean>, string>(new Ok(42));
-
-			const flattened = result.flatten();
-
-			expect(flattened.isOk()).toBeTrue();
-			expect(flattened.unwrap()).toBe(42);
-			expectTypeOf(flattened).toEqualTypeOf<Ok<number, string | boolean>>();
-		});
-
-		it("returns explicit Err when called on explicit Ok wrapping explicit Err", () => {
-			const result = new Ok<Err<number, boolean>, string>(new Err(false));
-
-			const flattened = result.flatten();
-
-			expect(flattened.isErr()).toBeTrue();
-			expect(flattened.unwrapErr()).toBeFalse();
-			expectTypeOf(flattened).toEqualTypeOf<Err<number, string | boolean>>();
-		});
-
-		it("returns explicit Pending when called on explicit Ok wrapping explicit Pending", () => {
-			const result = new Ok<Pending<number, boolean>, string>(
-				new Pending(Promise.resolve(new Ok(42))),
-			);
-
-			const flattened = result.flatten();
-
-			expect(flattened.isPending()).toBeTrue();
-			expect(flattened.unwrap()).resolves.toBe(42);
-			expectTypeOf(flattened).toEqualTypeOf<Pending<number, string | boolean>>();
-		});
-
-		it("returns explicit Err when called on explicit Err", () => {
-			const result = new Err<Result<number, boolean>, string>("failed");
-
-			const flattened = result.flatten();
-
-			expect(flattened.isErr()).toBeTrue();
-			expect(flattened.unwrapErr()).toBe("failed");
-			expectTypeOf(flattened).toEqualTypeOf<Err<number, string>>();
-		});
-
-		it("returns explicit Pending when called on explicit Pending", () => {
-			const result = new Pending<Result<number, boolean>, string>(
-				Promise.resolve(new Ok(new Ok(42))),
-			);
-
-			const flattened = result.flatten();
-
-			expect(flattened.isPending()).toBeTrue();
-			expect(flattened.unwrap()).resolves.toBe(42);
-			expectTypeOf(flattened).toEqualTypeOf<Pending<number, string | boolean>>();
-		});
-
 		it("flattens nested Result when source is Ok and inner is Ok", () => {
 			const result = ok<Result<number, boolean>, string>(ok(42));
 
@@ -1055,46 +631,6 @@ describe("Result", () => {
 	});
 
 	describe("and", () => {
-		it("returns Ok when called on explicit Ok with explicit Ok", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.and(new Ok("done"));
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe("done");
-			expectTypeOf(mapped).toEqualTypeOf<Ok<string, never>>();
-		});
-
-		it("returns Err when called on explicit Ok with explicit Err", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.and(new Err<string, number>(10));
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBe(10);
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, number>>();
-		});
-
-		it("returns Pending when called on explicit Ok with explicit Pending", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.and(new Pending(Promise.resolve(new Ok("done"))));
-
-			expect(mapped.isPending()).toBeTrue();
-			expect(mapped.unwrap()).resolves.toBe("done");
-			expectTypeOf(mapped).toEqualTypeOf<Pending<string, never>>();
-		});
-
-		it("returns Err when called on explicit Err", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.and(new Ok("done"));
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBe("failed");
-			expectTypeOf(mapped).toEqualTypeOf<Err<string, string>>();
-		});
-
 		it("returns next result when source is Ok", () => {
 			const result = ok<number, string>(42);
 			const next = ok<string, boolean>("done");
@@ -1153,46 +689,6 @@ describe("Result", () => {
 	});
 
 	describe("or", () => {
-		it("returns Ok when called on explicit Ok", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.or(new Ok<number, boolean>(0));
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe(42);
-			expectTypeOf(mapped).toEqualTypeOf<Ok<number, string>>();
-		});
-
-		it("returns explicit Ok when called on explicit Err with explicit Ok", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.or(new Ok<number, boolean>(42));
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe(42);
-			expectTypeOf(mapped).toEqualTypeOf<Ok<number, boolean>>();
-		});
-
-		it("returns explicit Err when called on explicit Err with explicit Err", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.or(new Err<number, boolean>(false));
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBeFalse();
-			expectTypeOf(mapped).toEqualTypeOf<Err<number, boolean>>();
-		});
-
-		it("returns explicit Pending when called on explicit Err with explicit Pending", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.or(new Pending<number, boolean>(Promise.resolve(new Ok(42))));
-
-			expect(mapped.isPending()).toBeTrue();
-			expect(mapped.unwrap()).resolves.toBe(42);
-			expectTypeOf(mapped).toEqualTypeOf<Pending<number, boolean>>();
-		});
-
 		it("returns source Ok when source is Ok", () => {
 			const result = ok<number, string>(42);
 			const fallback = ok<number, boolean>(0);
@@ -1251,46 +747,6 @@ describe("Result", () => {
 	});
 
 	describe("orElse", () => {
-		it("returns Ok when called on explicit Ok", () => {
-			const result = new Ok<number, string>(42);
-
-			const mapped = result.orElse((e) => new Err(e.length));
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe(42);
-			expectTypeOf(mapped).toEqualTypeOf<Ok<number, number>>();
-		});
-
-		it("returns Ok when called on explicit Err and callback returns Ok", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.orElse((e) => new Ok<number, number>(e.length));
-
-			expect(mapped.isOk()).toBeTrue();
-			expect(mapped.unwrap()).toBe("failed".length);
-			expectTypeOf(mapped).toEqualTypeOf<Ok<number, number>>();
-		});
-
-		it("returns Err when called on explicit Err and callback returns Err", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.orElse((e) => new Err<number, number>(e.length));
-
-			expect(mapped.isErr()).toBeTrue();
-			expect(mapped.unwrapErr()).toBe("failed".length);
-			expectTypeOf(mapped).toEqualTypeOf<Err<number, number>>();
-		});
-
-		it("returns Pending when called on explicit Err and callback returns Pending", () => {
-			const result = new Err<number, string>("failed");
-
-			const mapped = result.orElse((e) => new Pending(Promise.resolve(new Ok(e.length))));
-
-			expect(mapped.isPending()).toBeTrue();
-			expect(mapped.unwrap()).resolves.toBe("failed".length);
-			expectTypeOf(mapped).toEqualTypeOf<Pending<number, never>>();
-		});
-
 		it("doesn't transform Ok", () => {
 			const result = ok<number, string>(42);
 			const mapper = mock((e: string) => ok<number, boolean>(e.length));
@@ -1349,33 +805,6 @@ describe("Result", () => {
 	});
 
 	describe("settle", () => {
-		it("returns PromiseLike<Ok> when called on explicit Ok", () => {
-			const result = new Ok<number, string>(42);
-
-			const settled = result.settle();
-
-			expect(settled).resolves.toBe(result);
-			expectTypeOf(settled).toEqualTypeOf<PromiseLike<Ok<number, string>>>();
-		});
-
-		it("returns PromiseLike<Err> when called on explicit Err", () => {
-			const result = new Err<number, string>("failed");
-
-			const settled = result.settle();
-
-			expect(settled).resolves.toBe(result);
-			expectTypeOf(settled).toEqualTypeOf<PromiseLike<Err<number, string>>>();
-		});
-
-		it("returns PromiseLike<Settled> when called on explicit Pending", () => {
-			const result = new Pending<number, string>(Promise.resolve(new Ok(42)));
-
-			const settled = result.settle();
-
-			expect(settled).resolves.toEqual(new Ok(42));
-			expectTypeOf(settled).toEqualTypeOf<PromiseLike<Settled<number, string>>>();
-		});
-
 		it("settles Result when source is Ok", () => {
 			const result = ok<number, string>(42);
 
@@ -1405,31 +834,6 @@ describe("Result", () => {
 	});
 
 	describe("unwrap", () => {
-		it("returns value when called on explicit Ok", () => {
-			const result = new Ok<number, string>(42);
-
-			const unwrapped = result.unwrap();
-
-			expect(unwrapped).toBe(42);
-			expectTypeOf(unwrapped).toEqualTypeOf<number>();
-		});
-
-		it("throws UnwrapError when called on explicit Err", () => {
-			const result = new Err<number, string>("failed");
-
-			expect(() => result.unwrap()).toThrow("Called unwrap() on an Err value");
-			expect(() => result.unwrap()).toThrow(UnwrapError);
-		});
-
-		it("returns PromiseLike when called on explicit Pending", () => {
-			const result = new Pending<number, string>(Promise.resolve(new Ok(42)));
-
-			const unwrapped = result.unwrap();
-
-			expect(unwrapped).resolves.toBe(42);
-			expectTypeOf(unwrapped).toEqualTypeOf<PromiseLike<number>>();
-		});
-
 		it("unwraps Result when source is Ok", () => {
 			const result = ok<number, string>(42);
 
@@ -1464,31 +868,6 @@ describe("Result", () => {
 	});
 
 	describe("unwrapErr", () => {
-		it("throws UnwrapError when called on explicit Ok", () => {
-			const result = new Ok<number, string>(42);
-
-			expect(() => result.unwrapErr()).toThrow("Called unwrapErr() on an Ok value");
-			expect(() => result.unwrapErr()).toThrow(UnwrapError);
-		});
-
-		it("returns error when called on explicit Err", () => {
-			const result = new Err<number, string>("failed");
-
-			const unwrapped = result.unwrapErr();
-
-			expect(unwrapped).toBe("failed");
-			expectTypeOf(unwrapped).toEqualTypeOf<string>();
-		});
-
-		it("returns PromiseLike when called on explicit Pending", () => {
-			const result = new Pending<number, string>(Promise.resolve(new Err("failed")));
-
-			const unwrapped = result.unwrapErr();
-
-			expect(unwrapped).resolves.toBe("failed");
-			expectTypeOf(unwrapped).toEqualTypeOf<PromiseLike<string>>();
-		});
-
 		it("throws UnwrapError when source is Ok", () => {
 			const result = ok<number, string>(42);
 
@@ -1523,33 +902,6 @@ describe("Result", () => {
 	});
 
 	describe("unwrapOr", () => {
-		it("returns value when called on explicit Ok", () => {
-			const result = new Ok<number, string>(42);
-
-			const unwrapped = result.unwrapOr(0);
-
-			expect(unwrapped).toBe(42);
-			expectTypeOf(unwrapped).toEqualTypeOf<number>();
-		});
-
-		it("returns default when called on explicit Err", () => {
-			const result = new Err<number, string>("failed");
-
-			const unwrapped = result.unwrapOr(0);
-
-			expect(unwrapped).toBe(0);
-			expectTypeOf(unwrapped).toEqualTypeOf<number>();
-		});
-
-		it("returns PromiseLike when called on explicit Pending", () => {
-			const result = new Pending<number, string>(Promise.resolve(new Ok(42)));
-
-			const unwrapped = result.unwrapOr(0);
-
-			expect(unwrapped).resolves.toBe(42);
-			expectTypeOf(unwrapped).toEqualTypeOf<PromiseLike<number>>();
-		});
-
 		it("unwraps Result when source is Ok", () => {
 			const result = ok<number, string>(42);
 
@@ -1588,54 +940,6 @@ describe("Result", () => {
 	});
 
 	describe("unwrapOrElse", () => {
-		it("returns value when called on explicit Ok", () => {
-			const result = new Ok<number, string>(42);
-			const fallback = mock((e: string) => e.length);
-
-			const unwrapped = result.unwrapOrElse(fallback);
-
-			expect(unwrapped).toBe(42);
-			expectTypeOf(unwrapped).toEqualTypeOf<number>();
-			expect(fallback).not.toHaveBeenCalled();
-		});
-
-		it("returns fallback when called on explicit Err with sync fallback", () => {
-			const result = new Err<number, string>("failed");
-			const fallback = mock((e: string) => e.length);
-
-			const unwrapped = result.unwrapOrElse(fallback);
-
-			expect(unwrapped).toBe("failed".length);
-			expectTypeOf(unwrapped).toEqualTypeOf<number>();
-			expect(fallback).toHaveBeenCalledTimes(1);
-			expect(fallback).toHaveBeenCalledWith("failed");
-			expect(fallback).toHaveReturnedWith("failed".length);
-		});
-
-		it("returns PromiseLike when called on explicit Err with async fallback", () => {
-			const result = new Err<number, string>("failed");
-			const fallback = mock(async (e: string) => e.length);
-
-			const unwrapped = result.unwrapOrElse(fallback);
-
-			expect(unwrapped).resolves.toBe("failed".length);
-			expectTypeOf(unwrapped).toEqualTypeOf<PromiseLike<number>>();
-			expect(fallback).toHaveBeenCalledTimes(1);
-			expect(fallback).toHaveBeenCalledWith("failed");
-			expect(fallback).toHaveReturnedWith(Promise.resolve("failed".length));
-		});
-
-		it("returns PromiseLike when called on explicit Pending", () => {
-			const result = new Pending<number, string>(Promise.resolve(new Ok(42)));
-			const fallback = mock((e: string) => e.length);
-
-			const unwrapped = result.unwrapOrElse(fallback);
-
-			expect(unwrapped).resolves.toBe(42);
-			expectTypeOf(unwrapped).toEqualTypeOf<PromiseLike<number>>();
-			expect(fallback).not.toHaveBeenCalled();
-		});
-
 		it("unwraps Result when source is Ok", () => {
 			const result = ok<number, string>(42);
 			const fallback = mock((e: string) => e.length);
@@ -1698,7 +1002,7 @@ describe("Result", () => {
 		});
 	});
 
-	describe("Result.try", () => {
+	describe("try", () => {
 		it("returns Ok when callback returns a sync value", () => {
 			const result = Result.try<number, string>(() => 42);
 
@@ -1746,7 +1050,7 @@ describe("Result", () => {
 		});
 	});
 
-	describe("Result.fromPromise", () => {
+	describe("fromPromise", () => {
 		it("returns Pending", () => {
 			const result = Result.fromPromise<number, string>(Promise.resolve(42));
 
@@ -1777,31 +1081,5 @@ describe("Result", () => {
 			expect(result.unwrap()).resolves.toBe(42);
 			expectTypeOf(result).toEqualTypeOf<Pending<number, string>>();
 		});
-	});
-});
-
-describe("InferOk", () => {
-	it("extracts the value type", () => {
-		expectTypeOf<InferOk<Result<number, string>>>().toEqualTypeOf<number>();
-		expectTypeOf<InferOk<Ok<number, string>>>().toEqualTypeOf<number>();
-		expectTypeOf<InferOk<Err<number, string>>>().toEqualTypeOf<number>();
-		expectTypeOf<InferOk<Pending<number, string>>>().toEqualTypeOf<number>();
-	});
-
-	it("returns never for non-Result types", () => {
-		expectTypeOf<InferOk<number>>().toEqualTypeOf<never>();
-	});
-});
-
-describe("InferErr", () => {
-	it("extracts the error type", () => {
-		expectTypeOf<InferErr<Result<number, string>>>().toEqualTypeOf<string>();
-		expectTypeOf<InferErr<Ok<number, string>>>().toEqualTypeOf<string>();
-		expectTypeOf<InferErr<Err<number, string>>>().toEqualTypeOf<string>();
-		expectTypeOf<InferErr<Pending<number, string>>>().toEqualTypeOf<string>();
-	});
-
-	it("returns never for non-Result types", () => {
-		expectTypeOf<InferErr<number>>().toEqualTypeOf<never>();
 	});
 });
