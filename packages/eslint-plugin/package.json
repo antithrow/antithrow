@@ -50,7 +50,7 @@
 		"@typescript-eslint/parser": "8.56.0",
 		"@typescript-eslint/rule-tester": "8.56.0",
 		"antithrow": "workspace:^",
-		"eslint": "10.0.0",
+		"eslint": "10.0.3",
 		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
