@@ -201,6 +201,22 @@ describe("Ok", () => {
 			expect(mapped.unwrap()).toBe("42");
 			expectTypeOf(mapped).toEqualTypeOf<Ok<string, number> | Err<string, number>>();
 		});
+
+		it("preserves correlated union members across Ok | Err | Pending callback returns", () => {
+			const result = new Ok<number, string>(42);
+			const mapper = (
+				v: number,
+			):
+				| Ok<{ kind: "ok"; value: string }, "ok-error">
+				| Err<{ kind: "err"; value: number }, "err-error">
+				| Pending<{ kind: "pending"; value: boolean }, "pending-error"> =>
+				new Ok({ kind: "ok", value: v.toString() });
+
+			const mapped = result.andThen(mapper);
+
+			expect(mapped.isOk()).toBeTrue();
+			expectTypeOf(mapped).toEqualTypeOf<ReturnType<typeof mapper>>();
+		});
 	});
 
 	describe("and", () => {
@@ -232,6 +248,22 @@ describe("Ok", () => {
 			expect(mapped.isPending()).toBeTrue();
 			expect(mapped.unwrap()).resolves.toBe("done");
 			expectTypeOf(mapped).toEqualTypeOf<Pending<string, never>>();
+		});
+
+		it("preserves correlated union members across Ok | Err | Pending inputs", () => {
+			const result = new Ok<number, string>(42);
+			const next:
+				| Ok<{ kind: "ok"; value: string }, "ok-error">
+				| Err<{ kind: "err"; value: number }, "err-error">
+				| Pending<{ kind: "pending"; value: boolean }, "pending-error"> = new Ok({
+				kind: "ok",
+				value: "done",
+			});
+
+			const mapped = result.and(next);
+
+			expect(mapped.isOk()).toBeTrue();
+			expectTypeOf(mapped).toEqualTypeOf<typeof next>();
 		});
 	});
 

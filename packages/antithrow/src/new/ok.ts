@@ -3,7 +3,7 @@ import { Err } from "./err.js";
 import { UnwrapError } from "./errors.js";
 import { Pending } from "./pending.js";
 import type { Result } from "./result.js";
-import type { FlattenOk, SyncOrAsync } from "./types.js";
+import type { FlattenOk, InferErr, SyncOrAsync } from "./types.js";
 import { isThenable } from "./utils.js";
 
 /**
@@ -75,29 +75,23 @@ export class Ok<out T, out E = never> extends ResultBase<T, E> {
 		return fn(this.value);
 	}
 
-	andThen<U, F>(fn: (value: T) => Ok<U, F>): Ok<U, F>;
-	andThen<U, F>(fn: (value: T) => Err<U, F>): Err<U, F>;
-	andThen<U, F>(fn: (value: T) => Pending<U, F>): Pending<U, F>;
-	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, F>;
-	andThen<U, F>(fn: (value: T) => Result<U, F>): Result<U, F> {
+	andThen<R extends Result<unknown, unknown>>(fn: (value: T) => R): R {
 		return fn(this.value);
 	}
 
-	and<U, F>(result: Ok<U, F>): Ok<U, F>;
-	and<U, F>(result: Err<U, F>): Err<U, F>;
-	and<U, F>(result: Pending<U, F>): Pending<U, F>;
-	and<U, F>(result: Result<U, F>): Result<U, F>;
-	and<U, F>(result: Result<U, F>): Result<U, F> {
+	and<R extends Result<unknown, unknown>>(result: R): R {
 		return result;
 	}
 
-	or<F>(_result: Result<T, F>): Ok<T, E> {
+	or<R extends Result<T, unknown>>(result: R): Ok<T, E>;
+	or(_result: Result<T, unknown>): Ok<T, E> {
 		return this;
 	}
 
-	orElse<F>(_fn: (error: E) => Result<T, F>): Ok<T, F> {
+	orElse<R extends Result<T, unknown>>(fn: (error: E) => R): Ok<T, InferErr<R>>;
+	orElse(_fn: (error: E) => Result<T, unknown>): Ok<T, unknown> {
 		// SAFETY: Casts uninhabited E type to F.
-		return this as unknown as Ok<T, F>;
+		return this as unknown as Ok<T, unknown>;
 	}
 
 	flatten(): FlattenOk<T, E> {

@@ -2,7 +2,7 @@ import { ResultBase } from "./base.js";
 import type { Err } from "./err.js";
 import type { Ok } from "./ok.js";
 import type { Result } from "./result.js";
-import type { FlattenPending, Settled, SyncOrAsync } from "./types.js";
+import type { FlattenPending, InferErr, InferOk, Settled, SyncOrAsync } from "./types.js";
 
 /**
  * An asynchronous {@link Result} that will resolve to a {@link Settled} state.
@@ -76,19 +76,25 @@ export class Pending<out T, out E> extends ResultBase<T, E> implements PromiseLi
 		return this.promise.then((settled) => settled.mapOrElse(defaultFn, fn));
 	}
 
-	andThen<U, F>(fn: (value: T) => Result<U, F>): Pending<U, E | F> {
+	andThen<R extends Result<unknown, unknown>>(
+		fn: (value: T) => R,
+	): Pending<InferOk<R>, E | InferErr<R>>;
+	andThen(fn: (value: T) => Result<unknown, unknown>): Pending<unknown, E | unknown> {
 		return new Pending(this.promise.then((settled) => settled.andThen(fn)));
 	}
 
-	and<U, F>(result: Result<U, F>): Pending<U, E | F> {
+	and<R extends Result<unknown, unknown>>(result: R): Pending<InferOk<R>, E | InferErr<R>>;
+	and(result: Result<unknown, unknown>): Pending<unknown, E | unknown> {
 		return new Pending(this.promise.then((settled) => settled.and(result)));
 	}
 
-	or<F>(result: Result<T, F>): Pending<T, E | F> {
+	or<R extends Result<T, unknown>>(result: R): Pending<T, E | InferErr<R>>;
+	or(result: Result<T, unknown>): Pending<T, E | unknown> {
 		return new Pending(this.promise.then((settled) => settled.or(result)));
 	}
 
-	orElse<F>(fn: (error: E) => Result<T, F>): Pending<T, F> {
+	orElse<R extends Result<T, unknown>>(fn: (error: E) => R): Pending<T, InferErr<R>>;
+	orElse(fn: (error: E) => Result<T, unknown>): Pending<T, unknown> {
 		return new Pending(this.promise.then((settled) => settled.orElse(fn)));
 	}
 

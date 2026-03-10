@@ -214,6 +214,19 @@ describe("Err", () => {
 			expect(mapped.unwrap()).resolves.toBe(42);
 			expectTypeOf(mapped).toEqualTypeOf<Pending<number, boolean>>();
 		});
+
+		it("preserves correlated union members across Ok | Err | Pending fallbacks", () => {
+			const result = new Err<number, string>("failed");
+			const fallback:
+				| Ok<number, "ok-error">
+				| Err<number, "err-error">
+				| Pending<number, "pending-error"> = new Ok(42);
+
+			const mapped = result.or(fallback);
+
+			expect(mapped.isOk()).toBeTrue();
+			expectTypeOf(mapped).toEqualTypeOf<typeof fallback>();
+		});
 	});
 
 	describe("orElse", () => {
@@ -256,6 +269,19 @@ describe("Err", () => {
 			expect(mapped.isOk()).toBeTrue();
 			expect(mapped.unwrap()).toBe("failed".length);
 			expectTypeOf(mapped).toEqualTypeOf<Ok<number, number> | Err<number, number>>();
+		});
+
+		it("preserves correlated union members across Ok | Err | Pending callback returns", () => {
+			const result = new Err<number, string>("failed");
+			const mapper = (
+				e: string,
+			): Ok<number, "ok-error"> | Err<number, "err-error"> | Pending<number, "pending-error"> =>
+				new Ok(e.length);
+
+			const mapped = result.orElse(mapper);
+
+			expect(mapped.isOk()).toBeTrue();
+			expectTypeOf(mapped).toEqualTypeOf<ReturnType<typeof mapper>>();
 		});
 	});
 
