@@ -473,6 +473,16 @@ describe("Result", () => {
 			expect(defaultFn).toHaveReturnedWith(Promise.resolve("6"));
 			expect(mapper).not.toHaveBeenCalled();
 		});
+
+		it("enforces matching callback output types", () => {
+			const result = ok<number, string>(42);
+
+			// @ts-expect-error mapOrElse callbacks must share the same resolved type
+			result.mapOrElse(
+				(_e: string) => 0,
+				(_v: number) => "42",
+			);
+		});
 	});
 
 	describe("andThen", () => {

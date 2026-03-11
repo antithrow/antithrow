@@ -145,7 +145,17 @@ describe("Err", () => {
 			const mapped = result.mapOrElse((e) => e.length.toString(), mapper);
 
 			expect(mapped).toBe("6");
-			expectTypeOf(mapped).toEqualTypeOf<string>();
+			expectTypeOf(mapped).toEqualTypeOf<string | PromiseLike<string>>();
+		});
+
+		it("enforces matching callback output types", () => {
+			const result = new Err<number, string>("failed");
+
+			// @ts-expect-error mapOrElse callbacks must share the same resolved type
+			result.mapOrElse(
+				(_e: string) => 0,
+				(_v: number) => "42",
+			);
 		});
 	});
 

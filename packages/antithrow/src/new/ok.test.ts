@@ -158,6 +158,16 @@ describe("Ok", () => {
 			expect(mapped).toBe("42");
 			expectTypeOf(mapped).toEqualTypeOf<string>();
 		});
+
+		it("enforces matching callback output types", () => {
+			const result = new Ok<number, string>(42);
+
+			// @ts-expect-error mapOrElse callbacks must share the same resolved type
+			result.mapOrElse(
+				(_e: string) => 0,
+				(_v: number) => "42",
+			);
+		});
 	});
 
 	describe("andThen", () => {

@@ -355,6 +355,16 @@ describe("Pending", () => {
 			expect(mapped).resolves.toBe("42");
 			expectTypeOf(mapped).toEqualTypeOf<PromiseLike<string>>();
 		});
+
+		it("enforces matching callback output types", () => {
+			const result = new Pending<number, string>(Promise.resolve(new Ok(42)));
+
+			// @ts-expect-error mapOrElse callbacks must share the same resolved type
+			result.mapOrElse(
+				(_e: string) => 0,
+				(_v: number) => "42",
+			);
+		});
 	});
 
 	describe("andThen", () => {
