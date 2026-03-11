@@ -355,6 +355,8 @@ interface ResultMethods<T, E> {
 /**
  * Represents a successful result containing a value.
  *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
+ *
  * @example
  * ```ts
  * const result = new Ok(42);
@@ -488,6 +490,8 @@ export class Ok<T, E> implements ResultMethods<T, E> {
 
 /**
  * Represents a failed result containing an error.
+ *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
  *
  * @example
  * ```ts
@@ -624,6 +628,8 @@ export class Err<T, E> implements ResultMethods<T, E> {
 /**
  * A type that represents either success (`Ok`) or failure (`Err`).
  *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
+ *
  * @example
  * ```ts
  * function divide(a: number, b: number): Result<number, string> {
@@ -639,6 +645,8 @@ export type Result<T, E> = Ok<T, E> | Err<T, E>;
 
 /**
  * Creates an `Ok` result containing the given value.
+ *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
  *
  * @example
  * ```ts
@@ -664,6 +672,8 @@ export function ok<T, E = never>(value?: T): Ok<T, E> {
 
 /**
  * Creates an `Err` result containing the given error.
+ *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
  *
  * @example
  * ```ts
@@ -729,6 +739,11 @@ interface ResultNamespace {
 	try<T, E = unknown>(fn: () => T): Result<T, E>;
 }
 
+/**
+ * Legacy namespace containing static helper methods for legacy `Result`.
+ *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
+ */
 export const Result: ResultNamespace = {
 	all(results: readonly Result<unknown, unknown>[]): Result<unknown[], unknown> {
 		const values: unknown[] = new Array(results.length);

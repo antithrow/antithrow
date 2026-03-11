@@ -335,6 +335,11 @@ interface ResultAsyncMethods<T, E> {
 	flatten<U, F>(this: ResultAsync<Result<U, F>, E>): ResultAsync<U, E | F>;
 }
 
+/**
+ * Represents an asynchronous legacy result.
+ *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
+ */
 export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsyncMethods<T, E> {
 	private readonly promise: Promise<Result<T, E>>;
 
@@ -642,6 +647,8 @@ export class ResultAsync<T, E> implements PromiseLike<Result<T, E>>, ResultAsync
 /**
  * Creates a `ResultAsync` containing an `Ok` with the given value.
  *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
+ *
  * @example
  * ```ts
  * const result = okAsync(42);
@@ -666,6 +673,8 @@ export function okAsync<T, E = never>(value?: T): ResultAsync<T, E> {
 
 /**
  * Creates a `ResultAsync` containing an `Err` with the given error.
+ *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
  *
  * @example
  * ```ts

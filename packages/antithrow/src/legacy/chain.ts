@@ -9,6 +9,8 @@ export type AsyncChainGenerator<T, E> = AsyncGenerator<Err<never, E>, T, void>;
 /**
  * Chains multiple Result operations using generator syntax for early return on errors.
  *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
+ *
  * Use `yield*` with a `Result` to unwrap its value or short-circuit on error.
  * Thrown exceptions from the generator body are not converted into `Err`.
  * Wrap throwable logic with `Result.try(...)` before yielding/returning.
@@ -34,6 +36,8 @@ export function chain<T, E, YieldErr extends Err<never, E>>(
 ): Result<T, InferErr<YieldErr>>;
 /**
  * Chains multiple ResultAsync operations using async generator syntax for early return on errors.
+ *
+ * @deprecated Use the root `antithrow` API instead. This symbol is part of the legacy API.
  *
  * Use `yield*` with a `ResultAsync` to unwrap its value or short-circuit on error.
  * Thrown exceptions or rejected awaits from the generator body are not converted into `Err`.
