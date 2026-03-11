@@ -15,6 +15,23 @@ export type SyncOrAsync<T> = T | PromiseLike<T>;
 export type NonThenable<T> = Extract<T, PromiseLike<unknown>> extends never ? T : never;
 
 /**
+ * Normalizes a potentially-async type: if `T` is a `PromiseLike`, returns
+ * `PromiseLike<Awaited<T>>` (flattening nested promises); otherwise returns `T` as-is.
+ */
+export type FlattenThenable<T> = T extends PromiseLike<unknown> ? PromiseLike<Awaited<T>> : T;
+
+/**
+ * Produces `unknown` when `A` and `B` resolve to the same `Awaited` type, otherwise `never`.
+ *
+ * Useful for enforcing that two callback return types match once promises are unwrapped.
+ */
+export type SameResolved<A, B> = [Awaited<A>] extends [Awaited<B>]
+	? [Awaited<B>] extends [Awaited<A>]
+		? unknown
+		: never
+	: never;
+
+/**
  * Represents a settled result state with no pending branch.
  *
  * A {@link Settled} is either:

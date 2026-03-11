@@ -3,7 +3,14 @@ import { Err } from "./err.js";
 import { UnwrapError } from "./errors.js";
 import { Pending } from "./pending.js";
 import type { Result } from "./result.js";
-import type { FlattenOk, InferErr, NonThenable, SyncOrAsync } from "./types.js";
+import type {
+	FlattenOk,
+	FlattenThenable,
+	InferErr,
+	NonThenable,
+	SameResolved,
+	SyncOrAsync,
+} from "./types.js";
 import { isThenable } from "./utils.js";
 
 /**
@@ -57,21 +64,19 @@ export class Ok<out T, out E = never> extends ResultBase<T, E> {
 		return fn(this.value);
 	}
 
+	mapOrElse<UDefault, UMap>(
+		defaultFn: (error: E) => UDefault,
+		fn: (value: T) => UMap & SameResolved<UDefault, UMap>,
+	): FlattenThenable<UMap>;
 	mapOrElse<U>(
 		defaultFn: (error: E) => PromiseLike<U>,
 		fn: (value: T) => PromiseLike<U>,
 	): PromiseLike<U>;
-	mapOrElse<U>(defaultFn: (error: E) => PromiseLike<U>, fn: (value: T) => U): U;
-	mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => PromiseLike<U>): PromiseLike<U>;
-	mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => U): U;
 	mapOrElse<U>(
 		defaultFn: (error: E) => SyncOrAsync<U>,
 		fn: (value: T) => SyncOrAsync<U>,
 	): SyncOrAsync<U>;
-	mapOrElse<U>(
-		_defaultFn: (error: E) => SyncOrAsync<U>,
-		fn: (value: T) => SyncOrAsync<U>,
-	): SyncOrAsync<U> {
+	mapOrElse(_defaultFn: (error: E) => unknown, fn: (value: T) => unknown): unknown {
 		return fn(this.value);
 	}
 

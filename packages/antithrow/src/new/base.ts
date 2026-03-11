@@ -98,7 +98,7 @@ export abstract class ResultBase<T, E> {
 	/**
 	 * Transforms the value inside an {@link Ok} using `fn`, or transforms the error using `defaultFn` if {@link Err}.
 	 *
-	 * Both functions should return the same type `U`.
+	 * Both functions should return the same resolved type `U` (`U` or `PromiseLike<U>`).
 	 *
 	 * @throws Errors thrown by `fn` or `defaultFn` are not caught.
 	 *

@@ -2,7 +2,14 @@ import { ResultBase } from "./base.js";
 import type { Err } from "./err.js";
 import type { Ok } from "./ok.js";
 import type { Result } from "./result.js";
-import type { FlattenPending, InferErr, InferOk, Settled, SyncOrAsync } from "./types.js";
+import type {
+	FlattenPending,
+	InferErr,
+	InferOk,
+	SameResolved,
+	Settled,
+	SyncOrAsync,
+} from "./types.js";
 
 /**
  * An asynchronous {@link Result} that will resolve to a {@link Settled} state.
@@ -58,21 +65,19 @@ export class Pending<out T, out E> extends ResultBase<T, E> implements PromiseLi
 		return this.promise.then((settled) => settled.mapOr(defaultValue, fn));
 	}
 
+	mapOrElse<UDefault, UMap>(
+		defaultFn: (error: E) => UDefault,
+		fn: (value: T) => UMap & SameResolved<UDefault, UMap>,
+	): PromiseLike<Awaited<UDefault | UMap>>;
 	mapOrElse<U>(
 		defaultFn: (error: E) => PromiseLike<U>,
 		fn: (value: T) => PromiseLike<U>,
 	): PromiseLike<U>;
-	mapOrElse<U>(defaultFn: (error: E) => PromiseLike<U>, fn: (value: T) => U): PromiseLike<U>;
-	mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => PromiseLike<U>): PromiseLike<U>;
-	mapOrElse<U>(defaultFn: (error: E) => U, fn: (value: T) => U): PromiseLike<U>;
 	mapOrElse<U>(
 		defaultFn: (error: E) => SyncOrAsync<U>,
 		fn: (value: T) => SyncOrAsync<U>,
-	): PromiseLike<U>;
-	mapOrElse<U>(
-		defaultFn: (error: E) => SyncOrAsync<U>,
-		fn: (value: T) => SyncOrAsync<U>,
-	): PromiseLike<U> {
+	): SyncOrAsync<U>;
+	mapOrElse(defaultFn: (error: E) => unknown, fn: (value: T) => unknown): PromiseLike<unknown> {
 		return this.promise.then((settled) => settled.mapOrElse(defaultFn, fn));
 	}
 
