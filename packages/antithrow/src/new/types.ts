@@ -65,11 +65,11 @@ export type FlattenOk<T, E> =
 				: Ok<T, E>;
 
 /**
- * Flattens Err<Result<U, unknown>, E> into Err<U, E>
+ * Flattens Err<Result<U, F>, E> into Err<U, E | F>
  *
  * If T is not a Result, the Err<T, E> is preserved.
  */
-export type FlattenErr<T, E> = T extends Result<infer U, unknown> ? Err<U, E> : Err<T, E>;
+export type FlattenErr<T, E> = T extends Result<infer U, infer F> ? Err<U, E | F> : Err<T, E>;
 
 /**
  * Flattens Pending<Result<U, F>, E> into Pending<U, E | F>
