@@ -293,7 +293,7 @@ describe("Err", () => {
 
 			expect(flattened.isErr()).toBeTrue();
 			expect(flattened.unwrapErr()).toBe("failed");
-			expectTypeOf(flattened).toEqualTypeOf<Err<number, string>>();
+			expectTypeOf(flattened).toEqualTypeOf<Err<number, string | boolean>>();
 		});
 	});
 
