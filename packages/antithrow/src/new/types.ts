@@ -6,6 +6,15 @@ import type { Result } from "./result.js";
 export type SyncOrAsync<T> = T | PromiseLike<T>;
 
 /**
+ * Matches `T` only when it does not extend `PromiseLike`.
+ *
+ * Used in overloads to force a sync-returning callback into the synchronous
+ * overload so that union return types like `string | Promise<string>` are
+ * not captured by the sync-only signature.
+ */
+export type NonThenable<T> = Extract<T, PromiseLike<unknown>> extends never ? T : never;
+
+/**
  * Represents a settled result state with no pending branch.
  *
  * A {@link Settled} is either:

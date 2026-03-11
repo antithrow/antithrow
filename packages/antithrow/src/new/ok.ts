@@ -3,7 +3,7 @@ import { Err } from "./err.js";
 import { UnwrapError } from "./errors.js";
 import { Pending } from "./pending.js";
 import type { Result } from "./result.js";
-import type { FlattenOk, InferErr, SyncOrAsync } from "./types.js";
+import type { FlattenOk, InferErr, NonThenable, SyncOrAsync } from "./types.js";
 import { isThenable } from "./utils.js";
 
 /**
@@ -50,9 +50,9 @@ export class Ok<out T, out E = never> extends ResultBase<T, E> {
 		return this as unknown as Ok<T, F>;
 	}
 
-	mapOr<U>(defaultValue: U, fn: (value: T) => PromiseLike<U>): PromiseLike<U>;
-	mapOr<U>(defaultValue: U, fn: (value: T) => U): U;
-	mapOr<U>(defaultValue: U, fn: (value: T) => SyncOrAsync<U>): SyncOrAsync<U>;
+	mapOr<U>(defaultValue: NoInfer<U>, fn: (value: T) => PromiseLike<U>): PromiseLike<U>;
+	mapOr<U>(defaultValue: NoInfer<U>, fn: (value: T) => NonThenable<U>): U;
+	mapOr<U>(defaultValue: NoInfer<U>, fn: (value: T) => SyncOrAsync<U>): SyncOrAsync<U>;
 	mapOr<U>(_defaultValue: U, fn: (value: T) => SyncOrAsync<U>): SyncOrAsync<U> {
 		return fn(this.value);
 	}
