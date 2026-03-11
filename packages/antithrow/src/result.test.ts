@@ -1012,6 +1012,95 @@ describe("Result", () => {
 		});
 	});
 
+	describe("do", () => {
+		it("infers never error when no Err can be yielded", () => {
+			const result = Result.do(function* () {
+				yield* new Ok(41);
+				return 42;
+			});
+
+			expect(result.isOk()).toBeTrue();
+			expect(result.unwrap()).toBe(42);
+			expectTypeOf(result).toEqualTypeOf<Ok<number, never>>();
+		});
+
+		it("returns Ok when a sync generator completes", () => {
+			const result = Result.do(function* () {
+				const a = yield* new Ok(20);
+				const b = yield* new Ok(22);
+				return a + b;
+			});
+
+			expect(result.isOk()).toBeTrue();
+			expect(result.unwrap()).toBe(42);
+			expectTypeOf(result).toEqualTypeOf<Ok<number, never>>();
+		});
+
+		it("infers unions from yielded Err values", () => {
+			const result = Result.do(function* () {
+				yield* new Ok(1);
+				if (Math.random() > 0.5) {
+					yield* new Err<boolean, "a">("a");
+				}
+
+				yield* new Err<number, "b">("b");
+				return 42;
+			});
+
+			expectTypeOf(result).toEqualTypeOf<Settled<number, "a" | "b">>();
+		});
+
+		it("returns first Err and runs generator cleanup", () => {
+			let cleanedUp = false;
+
+			const result = Result.do(function* () {
+				try {
+					yield* new Ok(1);
+					const value = yield* new Err("failed");
+					return value;
+				} finally {
+					cleanedUp = true;
+				}
+			});
+
+			expect(result.isErr()).toBeTrue();
+			expect(result.unwrapErr()).toBe("failed");
+			expect(cleanedUp).toBeTrue();
+		});
+
+		it("returns Pending when an async generator completes", () => {
+			const result = Result.do(async function* () {
+				const a = yield* new Ok(20);
+				await Promise.resolve();
+				const b = yield* new Ok(22);
+				return a + b;
+			});
+
+			expect(result.isPending()).toBeTrue();
+			expect(result.unwrap()).resolves.toBe(42);
+			expectTypeOf(result).toEqualTypeOf<Pending<number, never>>();
+		});
+
+		it("returns Pending with first Err and runs async generator cleanup", async () => {
+			let cleanedUp = false;
+
+			const result = Result.do(async function* () {
+				try {
+					yield* new Ok(1);
+					await Promise.resolve();
+					const value = yield* new Err("failed");
+					return value;
+				} finally {
+					cleanedUp = true;
+				}
+			});
+
+			expect(result.isPending()).toBeTrue();
+			expect(result.unwrapErr()).resolves.toBe("failed");
+			expect(cleanedUp).toBeTrue();
+		});
+	});
+
 	describe("try", () => {
 		it("returns Ok when callback returns a sync value", () => {
 			const result = Result.try<number, string>(() => 42);
