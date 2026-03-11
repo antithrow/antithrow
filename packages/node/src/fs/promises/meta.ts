@@ -14,7 +14,7 @@ import {
 	statfs as nodeStatfs,
 } from "node:fs/promises";
 
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 
 /**
  * Non-throwing wrapper around `fs.promises.stat`.

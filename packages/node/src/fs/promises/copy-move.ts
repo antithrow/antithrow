@@ -1,7 +1,7 @@
 import type { CopyOptions, PathLike } from "node:fs";
 import { copyFile as nodeCopyFile, cp as nodeCp, rename as nodeRename } from "node:fs/promises";
 
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 
 /**
  * Non-throwing wrapper around `fs.promises.rename`.

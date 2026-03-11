@@ -1,4 +1,4 @@
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 import type { CompactEncrypt, CryptoKey, EncryptOptions, errors, JWK, KeyObject } from "jose";
 
 /**

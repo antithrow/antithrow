@@ -1,7 +1,7 @@
 import type { Mode, PathLike } from "node:fs";
 import { chmod as nodeChmod, chown as nodeChown, lchown as nodeLchown } from "node:fs/promises";
 
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 
 /**
  * Non-throwing wrapper around `fs.promises.chmod`.

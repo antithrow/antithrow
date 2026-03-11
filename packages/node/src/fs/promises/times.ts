@@ -1,7 +1,7 @@
 import type { PathLike, TimeLike } from "node:fs";
 import { lutimes as nodeLutimes, utimes as nodeUtimes } from "node:fs/promises";
 
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 
 /**
  * Non-throwing wrapper around `fs.promises.utimes`.

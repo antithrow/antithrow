@@ -1,4 +1,4 @@
-import { Result } from "antithrow";
+import { Result } from "antithrow/legacy";
 import type { ProtectedHeaderParameters } from "jose";
 import { decodeProtectedHeader as joseDecodeProtectedHeader } from "jose";
 

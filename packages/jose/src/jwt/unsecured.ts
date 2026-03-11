@@ -1,4 +1,4 @@
-import { Result } from "antithrow";
+import { Result } from "antithrow/legacy";
 import type { errors, JWTClaimVerificationOptions, JWTPayload, UnsecuredResult } from "jose";
 import { UnsecuredJWT } from "jose";
 

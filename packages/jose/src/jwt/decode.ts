@@ -1,4 +1,4 @@
-import { Result } from "antithrow";
+import { Result } from "antithrow/legacy";
 import type { errors, JWTPayload } from "jose";
 import { decodeJwt as joseDecodeJwt } from "jose";
 

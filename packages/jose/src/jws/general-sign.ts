@@ -1,4 +1,4 @@
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 import type { errors, GeneralJWS, GeneralSign } from "jose";
 
 /**
