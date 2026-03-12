@@ -8,11 +8,11 @@ and visible at compile time.
 - Keep the happy path readable while still handling failures early.
 - Encode all failure variants in the type system.
 - Compose sync and async pipelines with the same mental model.
-- Interoperate with throw-based code via `Result.try(...)` and `ResultAsync.try(...)`.
+- Interoperate with throw-based code via `Result.try(...)`.
 
 ## Packages
 
-- [`antithrow`](./packages/antithrow) - Core `Result`, `ResultAsync`, and `chain` utilities.
+- [`antithrow`](./packages/antithrow) - Core `Result`, `Ok/Err/Pending`, and associated utilities.
 - [`@antithrow/jose`](./packages/jose) - Non-throwing wrappers around the `jose` JWT library.
 - [`@antithrow/std`](./packages/std) - Non-throwing wrappers around standard globals (`fetch`, `JSON`, `atob`, etc.).
 - [`@antithrow/node`](./packages/node) - Non-throwing wrappers around Node.js APIs (`fs/promises`, etc.).
