@@ -13,7 +13,23 @@ export const ResultVariant = {
 } as const;
 export type ResultVariant = (typeof ResultVariant)[keyof typeof ResultVariant];
 
-function isAntithrowResultTypeSymbol(symbol: ts.Symbol): boolean {
+function isAntithrowLegacySourceFile(sourceFileName: string): boolean {
+	const pathSegments = sourceFileName.replaceAll("\\", "/").split("/");
+
+	for (const [index, segment] of pathSegments.entries()) {
+		if (segment !== "antithrow") {
+			continue;
+		}
+
+		if (pathSegments.slice(index + 1).includes("legacy")) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function isAntithrowLegacyResultTypeSymbol(symbol: ts.Symbol): boolean {
 	if (!RESULT_TYPE_NAMES.has(symbol.getName())) {
 		return false;
 	}
@@ -22,7 +38,7 @@ function isAntithrowResultTypeSymbol(symbol: ts.Symbol): boolean {
 
 	return declarations.some((decl) => {
 		const sourceFile = decl.getSourceFile();
-		return sourceFile.fileName.includes("antithrow");
+		return isAntithrowLegacySourceFile(sourceFile.fileName);
 	});
 }
 
@@ -46,7 +62,7 @@ function collectResultTypes(type: ts.Type, collection: ResultTypeCollection): vo
 	}
 
 	const symbol = type.getSymbol();
-	if (!(symbol && isAntithrowResultTypeSymbol(symbol))) {
+	if (!(symbol && isAntithrowLegacyResultTypeSymbol(symbol))) {
 		collection.hasNonResultMembers = true;
 		return;
 	}
@@ -91,8 +107,8 @@ export function getResultVariant(type: ts.Type): ResultVariant {
  * `Result<T, E>` is a union of `Ok<T, E> | Err<T, E>`, so we recurse into
  * union members. We also guard against `any`/`unknown`/`never` to avoid
  * false positives on untyped code. Finally, we verify the symbol's
- * declaration lives inside the `antithrow` package so that unrelated types
- * with the same names (e.g. a user-defined `Ok` class) are not flagged.
+ * declaration lives inside the `antithrow/legacy` entrypoint so that unrelated
+ * types with the same names (e.g. a user-defined `Ok` class) are not flagged.
  */
 export function isResultType(type: ts.Type): boolean {
 	return getResultVariant(type) !== ResultVariant.NONE;
