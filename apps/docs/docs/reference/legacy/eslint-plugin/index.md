@@ -2,7 +2,6 @@
 sidebar_position: 1
 title: "@antithrow/eslint-plugin"
 description: "ESLint rules for enforcing correct Result usage"
-slug: /api/eslint-plugin
 ---
 
 # @antithrow/eslint-plugin
