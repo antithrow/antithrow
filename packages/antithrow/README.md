@@ -13,7 +13,7 @@
 ## Features
 
 - **Explicit failures** - return types show exactly which functions can fail and how.
-- **Compiler-enforced** - TypeScript ensures you handle both `Ok` and `Err`.
+- **Compiler-visible** - success and failure are part of the type signature.
 - **Type-safe errors** - error types are known at compile time.
 - **Sync + async support** - compose fluid workflows with symmetrical methods.
 - **Ergonomic chaining** - use `Result.do(...)` + `yield*` for readable happy-path flow with early exits on failure.
@@ -28,23 +28,25 @@ bun add antithrow
 ## Usage
 
 ```ts
+import { Err, Ok } from "antithrow";
 import type { Result } from "antithrow";
-import { err, ok } from "antithrow";
 
 type ConfigError =
-  | { type: "missing_env"; key: string }
-  | { type: "invalid_port"; value: string };
+  | { type: "missing-env"; key: string }
+  | { type: "invalid-port"; value: string };
 
 const readEnv = (key: string): Result<string, ConfigError> => {
   const value = process.env[key];
-  return value ? ok(value) : err({ type: "missing_env", key });
+  return value
+    ? new Ok(value)
+    : new Err({ type: "missing-env", key });
 };
 
 const parsePort = (value: string): Result<number, ConfigError> => {
   const port = Number(value);
   return Number.isInteger(port) && port > 0 && port <= 65535
-    ? ok(port)
-    : err({ type: "invalid_port", value });
+    ? new Ok(port)
+    : new Err({ type: "invalid-port", value });
 };
 
 const port = readEnv("PORT").andThen(parsePort).unwrapOr(3000);
@@ -53,8 +55,8 @@ const port = readEnv("PORT").andThen(parsePort).unwrapOr(3000);
 > [!WARNING]
 > `antithrow` preserves the `Result<T, E>` error kind. Because of that, it does **not** implicitly convert thrown values from callbacks or generator bodies into `Err<E>`.
 >
-> - Callbacks passed to methods like `map`, `mapErr`, `andThen`, `orElse`, `inspect` (and async variants) can still throw/reject.
-> - `chain(...)` generator bodies can still throw/reject.
+> - Callbacks passed to methods like `map`, `mapErr`, `andThen`, and `orElse` can still throw/reject.
+> - `Result.do(...)` generator bodies can still throw/reject.
 >
 > If logic can throw, wrap it explicitly with `Result.try(...)` before feeding it into pipelines.
 > Or use [`@antithrow/std`](../std) which provides pre-wrapped versions of common globals.
@@ -63,7 +65,7 @@ const port = readEnv("PORT").andThen(parsePort).unwrapOr(3000);
 > const safeJsonParse = (input: string): Result<unknown, SyntaxError> =>
 >   Result.try(() => JSON.parse(input));
 >
-> const result = ok('{"a":1}').andThen(safeJsonParse);
+> const result = new Ok('{"a":1}').andThen(safeJsonParse);
 > ```
 
 ## Getting Started
@@ -71,18 +73,18 @@ const port = readEnv("PORT").andThen(parsePort).unwrapOr(3000);
 ### Transformations
 
 ```ts
-import { ok } from "antithrow";
+import { Ok } from "antithrow";
 
-const result = ok(2)
+const result = new Ok(2)
   .map((x) => x * 2)         // ok(4)
-  .andThen((x) => ok(x + 1)) // ok(5)
+  .andThen((x) => new Ok(x + 1)) // ok(5)
   .unwrapOr(0);              // 5
 ```
 
 ### Async Results
 
 ```ts
-import { Result } from "antithrow";
+import { Ok, Result } from "antithrow";
 
 // Wrap async throwing functions
 const fetched = Result.try(async () => {
@@ -90,16 +92,16 @@ const fetched = Result.try(async () => {
   return response.json();
 });
 
-// Chain async operations
-const result = await chain(async function* () {
+// `Pending` stays inside the same Result model
+const result = Result.do(async function* () {
   const a = yield* new Ok(1);
   const b = yield* new Ok(2);
   return a + b;
 });
-// ok(3)
+// Pending<number, never>
 ```
 
-### Chain Multiple Results
+### Settle at the App Boundary
 
 ```ts
 interface RequestError {
@@ -108,13 +110,13 @@ interface RequestError {
 }
 
 async function handler(request: Request): Promise<Response> {
-  const result = await chain(async function* () {
+  const result = await Result.do(async function* () {
     const { email, name } = yield* parseBody(request);
     const validEmail = yield* validateEmail(email);
     yield* checkEmailAvailable(validEmail);
 
     return yield* saveUser(validEmail, name);
-  });
+  }).settle();
 
   return result.mapOrElse(
     ({ status, message }) => Response.json({ error: message }, { status }),
@@ -122,3 +124,41 @@ async function handler(request: Request): Promise<Response> {
   );
 }
 ```
+
+## Static Constructors
+
+### `Result.try(...)`
+
+Wraps synchronous throws and async rejections:
+
+```ts
+const parsed = Result.try<unknown, SyntaxError>(() => JSON.parse(input));
+const loaded = Result.try(async () => {
+  const response = await fetch("/api");
+  return response.json();
+});
+```
+
+### `Result.fromPromise(...)`
+
+Wraps an existing promise as `Pending<T, E>`:
+
+```ts
+const request = Result.fromPromise<Response, TypeError>(fetch("/api"));
+```
+
+### `Result.do(...)`
+
+Runs a sync or async generator in fail-fast mode with `yield*`:
+
+```ts
+const total = Result.do(function* () {
+  const a = yield* new Ok(20);
+  const b = yield* new Ok(22);
+  return a + b;
+});
+```
+
+## Legacy API
+
+If you want the older helper-based API with `ok`, `err`, `chain`, and `ResultAsync`, use the `antithrow/legacy` entrypoint. The modern root package is the v2 class-based API documented above.
