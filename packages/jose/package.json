@@ -80,6 +80,6 @@
 	},
 	"devDependencies": {
 		"antithrow": "workspace:^",
-		"jose": "6.1.3"
+		"jose": "6.2.2"
 	}
 }
