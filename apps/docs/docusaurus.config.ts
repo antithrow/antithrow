@@ -76,48 +76,6 @@ const config: Config = {
 			style: "dark",
 			links: [
 				{
-					title: "Learn",
-					items: [
-						{
-							label: "Getting Started",
-							to: "/docs/getting-started",
-						},
-						{
-							label: "Why antithrow?",
-							to: "/docs/why-antithrow",
-						},
-						{
-							label: "Core Concepts",
-							to: "/docs/concepts/result",
-						},
-					],
-				},
-				{
-					title: "API Reference",
-					items: [
-						{
-							label: "antithrow",
-							to: "/docs/api/result",
-						},
-						{
-							label: "@antithrow/std",
-							to: "/docs/api/std",
-						},
-						{
-							label: "@antithrow/node",
-							to: "/docs/api/node",
-						},
-						{
-							label: "@antithrow/standard-schema",
-							to: "/docs/api/standard-schema",
-						},
-						{
-							label: "@antithrow/eslint-plugin",
-							to: "/docs/api/eslint-plugin",
-						},
-					],
-				},
-				{
 					title: "More",
 					items: [
 						{
