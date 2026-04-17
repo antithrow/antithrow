@@ -6,7 +6,7 @@ description: "API reference for the chain() generator-based composition function
 
 # chain()
 
-Generator-based composition for `Result` and `ResultAsync` operations. See the [concept guide](../concepts/chain) for a detailed tutorial.
+Generator-based composition for `Result` and `ResultAsync` operations.
 
 ## Signatures
 

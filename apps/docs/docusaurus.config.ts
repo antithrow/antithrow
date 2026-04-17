@@ -76,44 +76,36 @@ const config: Config = {
 			style: "dark",
 			links: [
 				{
-					title: "Learn",
+					title: "Legacy Docs",
 					items: [
 						{
-							label: "Getting Started",
-							to: "/docs/getting-started",
-						},
-						{
-							label: "Why antithrow?",
-							to: "/docs/why-antithrow",
-						},
-						{
-							label: "Core Concepts",
-							to: "/docs/concepts/result",
+							label: "antithrow",
+							to: "/docs/legacy/result",
 						},
 					],
 				},
 				{
-					title: "API Reference",
+					title: "Packages",
 					items: [
 						{
-							label: "antithrow",
-							to: "/docs/api/result",
-						},
-						{
 							label: "@antithrow/std",
-							to: "/docs/api/std",
+							to: "/docs/legacy/std",
 						},
 						{
 							label: "@antithrow/node",
-							to: "/docs/api/node",
+							to: "/docs/legacy/node",
+						},
+						{
+							label: "@antithrow/jose",
+							to: "/docs/legacy/jose",
 						},
 						{
 							label: "@antithrow/standard-schema",
-							to: "/docs/api/standard-schema",
+							to: "/docs/legacy/standard-schema",
 						},
 						{
 							label: "@antithrow/eslint-plugin",
-							to: "/docs/api/eslint-plugin",
+							to: "/docs/legacy/eslint-plugin",
 						},
 					],
 				},
