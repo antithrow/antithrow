@@ -28,7 +28,7 @@ If any `yield*` is a `Pending` or `Promise`, `Result.do` returns a `Pending`:
 
 ```ts
 const response = await Result.do(async function* () {
-+	const raw = yield* Result.fromPromise(fetch("/api"));
+	const raw = yield* Result.fromPromise(fetch("/api"));
 	const parsed = yield* Result.fromPromise(raw.json());
 	return parsed;
 });
