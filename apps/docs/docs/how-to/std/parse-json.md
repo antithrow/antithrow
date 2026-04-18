@@ -29,7 +29,7 @@ The generic parameter is a type assertion — it does not validate. For validati
 const text = JSON.stringify({ id: 1 });
 ```
 
-`JSON.stringify` returns `Result<string, TypeError>` because `JSON.stringify` throws `TypeError` on circular references and on `BigInt`.
+`JSON.stringify` returns `Result<string | undefined, TypeError>` because `JSON.stringify` throws `TypeError` on circular references and on `BigInt`, and returns `undefined` for non-serializable top-level values like `undefined` or `Symbol`.
 
 ## Parse + validate
 
