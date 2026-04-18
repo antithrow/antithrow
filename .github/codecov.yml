@@ -11,10 +11,6 @@ component_management:
       name: "@antithrow/eslint-plugin"
       paths:
         - packages/eslint-plugin
-    - component_id: jose
-      name: "@antithrow/jose"
-      paths:
-        - packages/jose
     - component_id: node
       name: "@antithrow/node"
       paths:
