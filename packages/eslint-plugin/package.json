@@ -43,12 +43,12 @@
 		"lint:types": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@typescript-eslint/utils": "8.56.1"
+		"@typescript-eslint/utils": "8.58.2"
 	},
 	"devDependencies": {
 		"@types/node": "25.3.5",
-		"@typescript-eslint/parser": "8.56.1",
-		"@typescript-eslint/rule-tester": "8.56.1",
+		"@typescript-eslint/parser": "8.58.2",
+		"@typescript-eslint/rule-tester": "8.58.2",
 		"antithrow": "workspace:^",
 		"eslint": "10.2.0",
 		"typescript": "5.9.3"
