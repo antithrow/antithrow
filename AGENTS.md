@@ -50,7 +50,6 @@ A TypeScript monorepo centered around Rust-style `Result<T, E>` error handling u
 
 - `apps/docs` - Docusaurus-powered documentation website, hosted at `antithrow.dev`.
 - `packages/antithrow` - Core `Result`, `Ok/Err/Pending`, and associated chaining/composition utilities.
-- `packages/jose` - Non-throwing wrappers around `jose` JWT APIs.
 - `packages/std` - Non-throwing wrappers around standard globals (`@antithrow/std`), using core `Result` types.
 - `packages/node` - Non-throwing wrappers around Node.js APIs (`@antithrow/node`), such as `fs/promises`.
 - `packages/standard-schema` - Standard Schema bridge (`@antithrow/standard-schema`), wrapping validators (Zod, Valibot, ArkType, etc.) into `Result`.

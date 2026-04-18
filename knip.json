@@ -11,18 +11,6 @@
 			],
 			"ignoreFiles": ["src/rules/utils/test-utils.ts"]
 		},
-		"packages/jose": {
-			"entry": [
-				"src/index.ts",
-				"src/jwt/index.ts",
-				"src/jws/index.ts",
-				"src/jwe/index.ts",
-				"src/key/index.ts",
-				"src/jwk/index.ts",
-				"src/jwks/index.ts",
-				"src/util/index.ts"
-			]
-		},
 		"packages/node": {
 			"entry": ["src/index.ts", "src/fs/promises/index.ts", "src/os/index.ts"]
 		},

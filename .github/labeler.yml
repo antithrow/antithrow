@@ -18,10 +18,6 @@ pkg:eslint-plugin:
   - changed-files:
     - any-glob-to-any-file: packages/eslint-plugin/**
 
-pkg:jose:
-  - changed-files:
-    - any-glob-to-any-file: packages/jose/**
-
 pkg:node:
   - changed-files:
     - any-glob-to-any-file: packages/node/**

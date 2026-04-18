@@ -90,10 +90,6 @@ const config: Config = {
 							to: "/docs/reference/node",
 						},
 						{
-							label: "@antithrow/jose",
-							to: "/docs/reference/jose",
-						},
-						{
 							label: "@antithrow/standard-schema",
 							to: "/docs/reference/standard-schema",
 						},
