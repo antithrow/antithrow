@@ -32,9 +32,6 @@ const binary = String.fromCharCode(...bytes);
 const b64 = btoa(binary);
 ```
 
-For URL-safe base64 (JWTs, JWK thumbprints), prefer `@antithrow/jose/util`'s `base64url`.
-
 ## See also
 
 - Reference: [`atob` / `btoa`](../../reference/std/base64.md)
-- Reference: [`base64url`](../../reference/jose/util.md)

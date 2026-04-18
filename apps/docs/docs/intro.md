@@ -25,7 +25,6 @@ The documentation is organised into four sections, each with a different purpose
 | [`antithrow`](./reference/antithrow/) | The core `Result`, `Ok`, `Err`, `Pending`, and composition utilities. |
 | [`@antithrow/std`](./reference/std/) | Non-throwing wrappers around standard globals (`fetch`, `JSON`, base64, URI helpers). |
 | [`@antithrow/node`](./reference/node/) | Non-throwing wrappers around Node.js APIs (`fs/promises`, `os`). |
-| [`@antithrow/jose`](./reference/jose/) | Non-throwing wrappers around the `jose` JWT library. |
 | [`@antithrow/standard-schema`](./reference/standard-schema/) | Bridge Standard Schema validators (Zod, Valibot, ArkType) to antithrow results. |
 | [`@antithrow/eslint-plugin`](./reference/eslint-plugin/) | ESLint rules that enforce correct Result usage. |
 
