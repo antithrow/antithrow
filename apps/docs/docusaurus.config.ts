@@ -55,12 +55,6 @@ const config: Config = {
 			},
 			items: [
 				{
-					type: "docSidebar",
-					sidebarId: "tutorialSidebar",
-					position: "left",
-					label: "Docs",
-				},
-				{
 					href: "https://github.com/antithrow/antithrow",
 					label: "GitHub",
 					position: "right",
@@ -76,11 +70,11 @@ const config: Config = {
 			style: "dark",
 			links: [
 				{
-					title: "Legacy Docs",
+					title: "Docs",
 					items: [
 						{
 							label: "antithrow",
-							to: "/docs/legacy/result",
+							to: "/docs/reference/antithrow",
 						},
 					],
 				},
@@ -89,23 +83,23 @@ const config: Config = {
 					items: [
 						{
 							label: "@antithrow/std",
-							to: "/docs/legacy/std",
+							to: "/docs/reference/std",
 						},
 						{
 							label: "@antithrow/node",
-							to: "/docs/legacy/node",
+							to: "/docs/reference/node",
 						},
 						{
 							label: "@antithrow/jose",
-							to: "/docs/legacy/jose",
+							to: "/docs/reference/jose",
 						},
 						{
 							label: "@antithrow/standard-schema",
-							to: "/docs/legacy/standard-schema",
+							to: "/docs/reference/standard-schema",
 						},
 						{
 							label: "@antithrow/eslint-plugin",
-							to: "/docs/legacy/eslint-plugin",
+							to: "/docs/reference/eslint-plugin",
 						},
 					],
 				},

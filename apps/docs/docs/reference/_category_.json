@@ -1,0 +1,10 @@
+{
+	"label": "Reference",
+	"position": 3,
+	"link": {
+		"type": "generated-index",
+		"title": "Reference",
+		"description": "Technical descriptions of every export in every antithrow package.",
+		"slug": "/reference"
+	}
+}

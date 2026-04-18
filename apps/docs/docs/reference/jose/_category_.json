@@ -1,0 +1,10 @@
+{
+	"label": "@antithrow/jose",
+	"position": 4,
+	"link": {
+		"type": "generated-index",
+		"title": "@antithrow/jose",
+		"description": "Non-throwing wrappers around the jose JWT/JWS/JWE/JWK APIs.",
+		"slug": "/reference/jose"
+	}
+}
