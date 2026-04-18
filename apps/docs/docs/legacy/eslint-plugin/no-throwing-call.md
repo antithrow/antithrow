@@ -32,7 +32,7 @@ This rule reports calls to well-known APIs that can throw or reject where an `@a
 
 **Replacement:** `import { Response } from "@antithrow/std"` (note: the API shape changes from `response.json()` to `Response.json(response)`).
 
-### Node.js `fs/promises` functions {#fs-promises}
+### Node.js `fs/promises` functions {/* #fs-promises */}
 
 `readFile`, `writeFile`, `appendFile`, `truncate`, `open`, `readdir`, `mkdir`, `rmdir`, `rm`, `mkdtemp`, `opendir`, `readlink`, `link`, `symlink`, `unlink`, `realpath`, `stat`, `lstat`, `statfs`, `access`, `chmod`, `chown`, `lchown`, `utimes`, `lutimes`, `copyFile`, `cp`, `rename`
 
