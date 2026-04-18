@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, test } from "bun:test";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import type { Result, ResultAsync } from "antithrow";
+import type { Result, ResultAsync } from "antithrow/legacy";
 import { validate, validateSync } from "./validate.js";
 
 function createSchema<Output>(

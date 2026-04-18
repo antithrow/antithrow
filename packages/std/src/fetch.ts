@@ -1,4 +1,4 @@
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 
 /**
  * Non-throwing wrapper around `globalThis.fetch`.

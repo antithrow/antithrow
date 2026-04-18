@@ -1,0 +1,10 @@
+{
+	"label": "@antithrow/standard-schema",
+	"position": 5,
+	"link": {
+		"type": "generated-index",
+		"title": "@antithrow/standard-schema recipes",
+		"description": "Task-oriented guides for validating values with Zod, Valibot, ArkType, and other Standard Schema validators.",
+		"slug": "/how-to/standard-schema"
+	}
+}

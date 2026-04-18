@@ -55,12 +55,6 @@ const config: Config = {
 			},
 			items: [
 				{
-					type: "docSidebar",
-					sidebarId: "tutorialSidebar",
-					position: "left",
-					label: "Docs",
-				},
-				{
 					href: "https://github.com/antithrow/antithrow",
 					label: "GitHub",
 					position: "right",
@@ -76,44 +70,36 @@ const config: Config = {
 			style: "dark",
 			links: [
 				{
-					title: "Learn",
+					title: "Docs",
 					items: [
 						{
-							label: "Getting Started",
-							to: "/docs/getting-started",
-						},
-						{
-							label: "Why antithrow?",
-							to: "/docs/why-antithrow",
-						},
-						{
-							label: "Core Concepts",
-							to: "/docs/concepts/result",
+							label: "antithrow",
+							to: "/docs/reference/antithrow",
 						},
 					],
 				},
 				{
-					title: "API Reference",
+					title: "Packages",
 					items: [
 						{
-							label: "antithrow",
-							to: "/docs/api/result",
-						},
-						{
 							label: "@antithrow/std",
-							to: "/docs/api/std",
+							to: "/docs/reference/std",
 						},
 						{
 							label: "@antithrow/node",
-							to: "/docs/api/node",
+							to: "/docs/reference/node",
+						},
+						{
+							label: "@antithrow/jose",
+							to: "/docs/reference/jose",
 						},
 						{
 							label: "@antithrow/standard-schema",
-							to: "/docs/api/standard-schema",
+							to: "/docs/reference/standard-schema",
 						},
 						{
 							label: "@antithrow/eslint-plugin",
-							to: "/docs/api/eslint-plugin",
+							to: "/docs/reference/eslint-plugin",
 						},
 					],
 				},

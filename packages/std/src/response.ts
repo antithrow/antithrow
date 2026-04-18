@@ -1,4 +1,4 @@
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 
 /**
  * Non-throwing wrappers around `globalThis.Response` body-reading methods.

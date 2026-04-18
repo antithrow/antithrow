@@ -1,4 +1,4 @@
-import { Result } from "antithrow";
+import { Result } from "antithrow/legacy";
 
 /**
  * Non-throwing wrapper around `globalThis.decodeURI(...)`.

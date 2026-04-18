@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, test } from "bun:test";
-import type { Ok } from "antithrow";
+import type { Ok } from "antithrow/legacy";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: testing the wrapper
 import { JSON } from "./json.js";
 

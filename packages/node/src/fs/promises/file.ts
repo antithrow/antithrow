@@ -10,7 +10,7 @@ import {
 } from "node:fs/promises";
 import type { Stream } from "node:stream";
 
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 
 /**
  * Non-throwing wrapper around `fs.promises.readFile`.

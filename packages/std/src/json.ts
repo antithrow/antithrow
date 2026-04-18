@@ -1,5 +1,5 @@
-import type { Ok } from "antithrow";
-import { Result } from "antithrow";
+import type { Ok } from "antithrow/legacy";
+import { Result } from "antithrow/legacy";
 
 type JsonStringifyReplacer =
 	| ((this: unknown, key: string, value: unknown) => unknown)

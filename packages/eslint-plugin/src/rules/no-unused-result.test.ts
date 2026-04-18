@@ -1,7 +1,7 @@
 import { MessageId, noUnusedResult } from "./no-unused-result.js";
 import { createCodeHelper, ruleTester } from "./utils/test-utils.js";
 
-const preamble = `import { ok, err, okAsync, errAsync, Result, ResultAsync } from "antithrow";\n`;
+const preamble = `import { ok, err, okAsync, errAsync, Result, ResultAsync } from "antithrow/legacy";\n`;
 const code = createCodeHelper(preamble);
 
 ruleTester.run("no-unused-result", noUnusedResult, {
@@ -61,6 +61,10 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		{
 			name: "entire ternary voided",
 			code: code`declare const cond: boolean;\nvoid (cond ? ok(1) : ok(2));`,
+		},
+		{
+			name: "root antithrow Ok is ignored",
+			code: `import { Ok } from "antithrow";\nnew Ok(1);`,
 		},
 	],
 	invalid: [

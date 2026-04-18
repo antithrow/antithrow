@@ -1,4 +1,4 @@
-import { Result } from "antithrow";
+import { Result } from "antithrow/legacy";
 import { base64url as joseBase64url } from "jose";
 
 /**

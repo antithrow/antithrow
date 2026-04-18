@@ -1,0 +1,10 @@
+{
+	"label": "@antithrow/node",
+	"position": 3,
+	"link": {
+		"type": "generated-index",
+		"title": "@antithrow/node recipes",
+		"description": "Task-oriented guides for the non-throwing node:fs/promises and node:os wrappers.",
+		"slug": "/how-to/node"
+	}
+}

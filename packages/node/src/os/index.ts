@@ -15,7 +15,7 @@ import {
 	userInfo as nodeUserInfo,
 } from "node:os";
 
-import { Result } from "antithrow";
+import { Result } from "antithrow/legacy";
 
 /**
  * A Node.js `SystemError` thrown when a system call fails.

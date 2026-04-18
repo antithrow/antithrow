@@ -1,0 +1,10 @@
+{
+	"label": "@antithrow/node",
+	"position": 3,
+	"link": {
+		"type": "generated-index",
+		"title": "@antithrow/node",
+		"description": "Non-throwing wrappers around Node.js APIs: fs/promises and os.",
+		"slug": "/reference/node"
+	}
+}

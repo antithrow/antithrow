@@ -1,4 +1,4 @@
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 import type { CryptoKey, errors, JWK, KeyObject } from "jose";
 import {
 	calculateJwkThumbprint as joseCalculateJwkThumbprint,

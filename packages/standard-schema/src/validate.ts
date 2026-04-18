@@ -1,5 +1,5 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { err, ok, Result, ResultAsync } from "antithrow";
+import { err, ok, Result, ResultAsync } from "antithrow/legacy";
 
 function toFailureResult(error: unknown): StandardSchemaV1.FailureResult {
 	const message = error instanceof Error ? error.message : String(error);

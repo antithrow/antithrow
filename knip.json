@@ -25,6 +25,9 @@
 		},
 		"packages/node": {
 			"entry": ["src/index.ts", "src/fs/promises/index.ts", "src/os/index.ts"]
+		},
+		"packages/antithrow": {
+			"entry": ["src/index.ts", "src/legacy/index.ts"]
 		}
 	}
 }

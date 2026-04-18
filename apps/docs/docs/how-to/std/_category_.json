@@ -1,0 +1,10 @@
+{
+	"label": "@antithrow/std",
+	"position": 2,
+	"link": {
+		"type": "generated-index",
+		"title": "@antithrow/std recipes",
+		"description": "Task-oriented guides for fetch, JSON, base64, URIs, and the rest of the standard-globals wrappers.",
+		"slug": "/how-to/std"
+	}
+}

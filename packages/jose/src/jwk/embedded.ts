@@ -1,4 +1,4 @@
-import { ResultAsync } from "antithrow";
+import { ResultAsync } from "antithrow/legacy";
 import type { CryptoKey, errors, FlattenedJWSInput, JWSHeaderParameters } from "jose";
 import { EmbeddedJWK as joseEmbeddedJWK } from "jose";
 

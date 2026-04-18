@@ -1,0 +1,10 @@
+{
+	"label": "Tutorial",
+	"position": 1,
+	"link": {
+		"type": "generated-index",
+		"title": "Tutorial",
+		"description": "One end-to-end lesson that walks you through fetching and validating a JSON configuration file with antithrow.",
+		"slug": "/tutorial"
+	}
+}

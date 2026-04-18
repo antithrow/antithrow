@@ -1,0 +1,10 @@
+{
+	"label": "antithrow",
+	"position": 1,
+	"link": {
+		"type": "generated-index",
+		"title": "antithrow",
+		"description": "Core Result, Ok, Err, Pending types and their combinators.",
+		"slug": "/reference/antithrow"
+	}
+}

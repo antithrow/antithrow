@@ -1,7 +1,7 @@
 import { MessageId, noUnsafeUnwrap } from "./no-unsafe-unwrap.js";
 import { createCodeHelper, ruleTester } from "./utils/test-utils.js";
 
-const preamble = `import { ok, err, okAsync, errAsync, Result } from "antithrow";\n`;
+const preamble = `import { ok, err, okAsync, errAsync, Result } from "antithrow/legacy";\n`;
 const code = createCodeHelper(preamble);
 
 ruleTester.run("no-unsafe-unwrap", noUnsafeUnwrap, {
@@ -49,6 +49,10 @@ ruleTester.run("no-unsafe-unwrap", noUnsafeUnwrap, {
 		{
 			name: "numeric literal key destructuring is ignored",
 			code: `const values = { 1: "one" };\nconst { 1: one } = values;\nvoid one;`,
+		},
+		{
+			name: "root antithrow unwrap is ignored",
+			code: `import { Ok } from "antithrow";\nnew Ok(1).unwrap();`,
 		},
 	],
 	invalid: [

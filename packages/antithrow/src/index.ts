@@ -1,3 +1,6 @@
-export { chain } from "./chain.js";
-export { Err, err, Ok, ok, Result } from "./result.js";
-export { errAsync, okAsync, ResultAsync } from "./result-async.js";
+export { Err } from "./err.js";
+export { UnwrapError } from "./errors.js";
+export { Ok } from "./ok.js";
+export { Pending } from "./pending.js";
+export { Result } from "./result.js";
+export type { InferErr, InferOk, Settled } from "./types.js";
