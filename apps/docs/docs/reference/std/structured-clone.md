@@ -16,7 +16,7 @@ Non-throwing wrapper around `globalThis.structuredClone`.
 function structuredClone<T>(
 	value: T,
 	options?: StructuredSerializeOptions,
-): Result<T, DOMException>;
+): Settled<T, DOMException>;
 ```
 
 | Argument | Type | Description |

@@ -36,7 +36,7 @@ Three things are new:
 
 1. `fetch(url)` returns a result whose asynchronous branch is `Pending`. Because `Pending` is `PromiseLike`, the whole chain becomes `Pending` once a `.andThen` returns one.
 2. `Response.json(response)` reads the body and returns another `Pending`. It is safe to chain them because `andThen` threads errors through.
-3. `await` on a `Pending` hands back a settled `Ok` or `Err`, so `config` has the type `Result<unknown, …>` at the end.
+3. `await` on a `Pending` hands back a settled `Ok` or `Err`, so `config` has the type `Settled<unknown, …>` at the end.
 
 ## Inspect the outcome
 

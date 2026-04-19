@@ -1,5 +1,5 @@
-import type { Ok } from "antithrow/legacy";
-import { Result } from "antithrow/legacy";
+import type { Ok, Settled } from "antithrow";
+import { Result } from "antithrow";
 
 type JsonStringifyReplacer =
 	| ((this: unknown, key: string, value: unknown) => unknown)
@@ -9,7 +9,7 @@ type JsonStringifyReplacer =
 type NonSerializableTopLevel = undefined | symbol | ((...args: unknown[]) => unknown);
 
 /**
- * Converts a value to a JSON string, returning a `Result` instead of throwing.
+ * Converts a value to a JSON string, returning a `Settled` result instead of throwing.
  *
  * @example
  * ```ts
@@ -26,7 +26,7 @@ type NonSerializableTopLevel = undefined | symbol | ((...args: unknown[]) => unk
  * @param replacer - An optional function or array that alters the stringification.
  * @param space - An optional string or number for indentation.
  *
- * @returns A `Result` containing the JSON string (or `undefined` for non-serializable top-level values) or the thrown error.
+ * @returns A `Settled` result containing the JSON string (or `undefined` for non-serializable top-level values) or the thrown error.
  */
 function stringify(
 	value: NonSerializableTopLevel,
@@ -37,12 +37,12 @@ function stringify(
 	value: unknown,
 	replacer?: JsonStringifyReplacer,
 	space?: string | number,
-): Result<string | undefined, TypeError>;
+): Settled<string | undefined, TypeError>;
 function stringify(
 	value: unknown,
 	replacer?: JsonStringifyReplacer,
 	space?: string | number,
-): Result<string | undefined, TypeError> {
+): Settled<string | undefined, TypeError> {
 	return Result.try(() =>
 		globalThis.JSON.stringify(value, replacer as (key: string, value: unknown) => unknown, space),
 	);
@@ -65,7 +65,7 @@ function stringify(
 // biome-ignore lint/suspicious/noShadowRestrictedNames: intentionally wrapping the global
 export const JSON = {
 	/**
-	 * Parses a JSON string, returning a `Result` instead of throwing.
+	 * Parses a JSON string, returning a `Settled` result instead of throwing.
 	 *
 	 * @example
 	 * ```ts
@@ -81,12 +81,12 @@ export const JSON = {
 	 * @param text - The JSON string to parse.
 	 * @param reviver - An optional function that transforms the results.
 	 *
-	 * @returns A `Result` containing the parsed value or the thrown error.
+	 * @returns A `Settled` result containing the parsed value or the thrown error.
 	 */
 	parse<T = unknown>(
 		text: string,
 		reviver?: (this: unknown, key: string, value: unknown) => unknown,
-	): Result<T, SyntaxError> {
+	): Settled<T, SyntaxError> {
 		return Result.try(() => globalThis.JSON.parse(text, reviver) as T);
 	},
 

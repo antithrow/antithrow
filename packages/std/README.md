@@ -12,8 +12,7 @@
 ## Why
 
 Standard APIs like `JSON.parse`, `fetch`, and `atob` communicate failure by throwing.
-`@antithrow/std` re-exports them as thin wrappers that return `Result` or `ResultAsync` instead,
-so error handling is type-safe and composable out of the box.
+`@antithrow/std` re-exports them as thin wrappers that return `Settled` or `Result`, so error handling stays type-safe and composable.
 
 ```ts
 import { JSON, fetch, Response } from "@antithrow/std";
@@ -41,7 +40,7 @@ rename the import:
 ```ts
 import { JSON as SafeJSON } from "@antithrow/std";
 
-SafeJSON.parse("...");  // Result<unknown, SyntaxError>
+SafeJSON.parse("...");  // Settled<unknown, SyntaxError>
 JSON.parse("...");      // throws on invalid input
 ```
 
@@ -111,29 +110,6 @@ btoa("hello");  // ok("aGVsbG8=")
 atob("!!!");    // err(DOMException)
 ```
 
-## API Reference
+## Reference
 
-### Sync (`Result`)
-
-| Export               | Signature                                                             | Error Type     |
-| -------------------- | --------------------------------------------------------------------- | -------------- |
-| `JSON.parse`         | `<T = unknown>(text, reviver?) → Result<T, SyntaxError>`              | `SyntaxError`  |
-| `JSON.stringify`     | `(value, replacer?, space?) → Result<string \| undefined, TypeError>` | `TypeError`    |
-| `structuredClone`    | `<T>(value, options?) → Result<T, DOMException>`                      | `DOMException` |
-| `decodeURI`          | `(encodedURI) → Result<string, URIError>`                             | `URIError`     |
-| `decodeURIComponent` | `(encodedURIComponent) → Result<string, URIError>`                    | `URIError`     |
-| `encodeURI`          | `(uri) → Result<string, URIError>`                                    | `URIError`     |
-| `encodeURIComponent` | `(uriComponent) → Result<string, URIError>`                           | `URIError`     |
-| `atob`               | `(data) → Result<string, DOMException>`                               | `DOMException` |
-| `btoa`               | `(data) → Result<string, DOMException>`                               | `DOMException` |
-
-### Async (`ResultAsync`)
-
-| Export                 | Signature                                                                       | Error Type                                 |
-| ---------------------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
-| `fetch`                | `(input, init?) → ResultAsync<Response, DOMException \| TypeError>`             | `DOMException \| TypeError`                |
-| `Response.json`        | `<T = unknown>(res) → ResultAsync<T, DOMException \| TypeError \| SyntaxError>` | `DOMException \| TypeError \| SyntaxError` |
-| `Response.text`        | `(res) → ResultAsync<string, DOMException \| TypeError>`                        | `DOMException \| TypeError`                |
-| `Response.arrayBuffer` | `(res) → ResultAsync<ArrayBuffer, DOMException \| TypeError \| RangeError>`     | `DOMException \| TypeError \| RangeError`  |
-| `Response.blob`        | `(res) → ResultAsync<Blob, DOMException \| TypeError>`                          | `DOMException \| TypeError`                |
-| `Response.formData`    | `(res) → ResultAsync<FormData, DOMException \| TypeError>`                      | `DOMException \| TypeError`                |
+Full reference: <https://antithrow.dev/docs/reference/std>

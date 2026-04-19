@@ -1,4 +1,5 @@
-import { Result } from "antithrow/legacy";
+import type { Settled } from "antithrow";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `globalThis.atob(...)`.
@@ -11,9 +12,9 @@ import { Result } from "antithrow/legacy";
  *
  * @param data - The base64-encoded string to decode.
  *
- * @returns A `Result` containing the decoded string or the thrown error.
+ * @returns A `Settled` result containing the decoded string or the thrown error.
  */
-export function atob(data: string): Result<string, DOMException> {
+export function atob(data: string): Settled<string, DOMException> {
 	return Result.try(() => globalThis.atob(data));
 }
 
@@ -28,8 +29,8 @@ export function atob(data: string): Result<string, DOMException> {
  *
  * @param data - The string to encode as base64.
  *
- * @returns A `Result` containing the base64-encoded string or the thrown error.
+ * @returns A `Settled` result containing the base64-encoded string or the thrown error.
  */
-export function btoa(data: string): Result<string, DOMException> {
+export function btoa(data: string): Settled<string, DOMException> {
 	return Result.try(() => globalThis.btoa(data));
 }

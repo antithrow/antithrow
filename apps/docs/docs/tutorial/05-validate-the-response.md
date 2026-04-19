@@ -36,8 +36,8 @@ function parsePort(raw: string): Result<number, "invalid-port"> {
 	return new Ok(port);
 }
 
-async function loadConfig(rawPort: string): Promise<Result<Config, unknown>> {
-	return await parsePort(rawPort)
+function loadConfig(rawPort: string): Result<Config, unknown> {
+	return parsePort(rawPort)
 		.map((port) => `http://localhost:${port}/config.json`)
 		.andThen((url) => fetch(url))
 		.andThen((response) => Response.json(response))

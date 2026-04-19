@@ -1,4 +1,5 @@
-import { Result } from "antithrow/legacy";
+import type { Settled } from "antithrow";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `globalThis.decodeURI(...)`.
@@ -11,10 +12,10 @@ import { Result } from "antithrow/legacy";
  *
  * @param encodedURI - The encoded URI to decode.
  *
- * @returns A `Result` containing the decoded URI or the thrown error.
+ * @returns A `Settled` result containing the decoded URI or the thrown error.
  */
 // biome-ignore lint/suspicious/noShadowRestrictedNames: intentionally wrapping the global
-export function decodeURI(encodedURI: string): Result<string, URIError> {
+export function decodeURI(encodedURI: string): Settled<string, URIError> {
 	return Result.try(() => globalThis.decodeURI(encodedURI));
 }
 
@@ -29,10 +30,10 @@ export function decodeURI(encodedURI: string): Result<string, URIError> {
  *
  * @param encodedURIComponent - The encoded URI component to decode.
  *
- * @returns A `Result` containing the decoded URI component or the thrown error.
+ * @returns A `Settled` result containing the decoded URI component or the thrown error.
  */
 // biome-ignore lint/suspicious/noShadowRestrictedNames: intentionally wrapping the global
-export function decodeURIComponent(encodedURIComponent: string): Result<string, URIError> {
+export function decodeURIComponent(encodedURIComponent: string): Settled<string, URIError> {
 	return Result.try(() => globalThis.decodeURIComponent(encodedURIComponent));
 }
 
@@ -47,10 +48,10 @@ export function decodeURIComponent(encodedURIComponent: string): Result<string, 
  *
  * @param uri - The URI to encode.
  *
- * @returns A `Result` containing the encoded URI or the thrown error.
+ * @returns A `Settled` result containing the encoded URI or the thrown error.
  */
 // biome-ignore lint/suspicious/noShadowRestrictedNames: intentionally wrapping the global
-export function encodeURI(uri: string): Result<string, URIError> {
+export function encodeURI(uri: string): Settled<string, URIError> {
 	return Result.try(() => globalThis.encodeURI(uri));
 }
 
@@ -65,11 +66,11 @@ export function encodeURI(uri: string): Result<string, URIError> {
  *
  * @param uriComponent - The URI component to encode.
  *
- * @returns A `Result` containing the encoded URI component or the thrown error.
+ * @returns A `Settled` result containing the encoded URI component or the thrown error.
  */
 // biome-ignore lint/suspicious/noShadowRestrictedNames: intentionally wrapping the global
 export function encodeURIComponent(
 	uriComponent: string | number | boolean,
-): Result<string, URIError> {
+): Settled<string, URIError> {
 	return Result.try(() => globalThis.encodeURIComponent(uriComponent));
 }
