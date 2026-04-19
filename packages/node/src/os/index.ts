@@ -14,8 +14,8 @@ import {
 	uptime as nodeUptime,
 	userInfo as nodeUserInfo,
 } from "node:os";
-
-import { Result } from "antithrow/legacy";
+import type { Settled } from "antithrow";
+import { Result } from "antithrow";
 
 /**
  * A Node.js `SystemError` thrown when a system call fails.
@@ -67,9 +67,9 @@ export interface SystemError extends Error {
  * // ok("/home/user") or err(SystemError)
  * ```
  *
- * @returns A `Result` containing the home directory path, or a `SystemError`.
+ * @returns A `Settled` result containing the home directory path, or a `SystemError`.
  */
-export function homedir(): Result<string, SystemError> {
+export function homedir(): Settled<string, SystemError> {
 	return Result.try(nodeHomedir);
 }
 
@@ -86,9 +86,9 @@ export function homedir(): Result<string, SystemError> {
  * // ok("my-machine") or err(SystemError)
  * ```
  *
- * @returns A `Result` containing the hostname, or a `SystemError`.
+ * @returns A `Settled` result containing the hostname, or a `SystemError`.
  */
-export function hostname(): Result<string, SystemError> {
+export function hostname(): Settled<string, SystemError> {
 	return Result.try(nodeHostname);
 }
 
@@ -105,9 +105,9 @@ export function hostname(): Result<string, SystemError> {
  * // ok(123456) or err(SystemError)
  * ```
  *
- * @returns A `Result` containing the uptime in seconds, or a `SystemError`.
+ * @returns A `Settled` result containing the uptime in seconds, or a `SystemError`.
  */
-export function uptime(): Result<number, SystemError> {
+export function uptime(): Settled<number, SystemError> {
 	return Result.try(nodeUptime);
 }
 
@@ -124,9 +124,9 @@ export function uptime(): Result<number, SystemError> {
  * // ok({ lo: [...], eth0: [...] }) or err(SystemError)
  * ```
  *
- * @returns A `Result` containing a dictionary of network interfaces, or a `SystemError`.
+ * @returns A `Settled` result containing a dictionary of network interfaces, or a `SystemError`.
  */
-export function networkInterfaces(): Result<NodeJS.Dict<NetworkInterfaceInfo[]>, SystemError> {
+export function networkInterfaces(): Settled<NodeJS.Dict<NetworkInterfaceInfo[]>, SystemError> {
 	return Result.try(nodeNetworkInterfaces);
 }
 
@@ -147,18 +147,18 @@ export function networkInterfaces(): Result<NodeJS.Dict<NetworkInterfaceInfo[]>,
  *
  * @param options - Optional encoding options.
  *
- * @returns A `Result` containing the user info, or a `SystemError`.
+ * @returns A `Settled` result containing the user info, or a `SystemError`.
  */
 export function userInfo(
 	options?: UserInfoOptionsWithStringEncoding,
-): Result<UserInfo<string>, SystemError>;
+): Settled<UserInfo<string>, SystemError>;
 export function userInfo(
 	options: UserInfoOptionsWithBufferEncoding,
-): Result<UserInfo<Buffer>, SystemError>;
-export function userInfo(options: UserInfoOptions): Result<UserInfo<string | Buffer>, SystemError>;
+): Settled<UserInfo<Buffer>, SystemError>;
+export function userInfo(options: UserInfoOptions): Settled<UserInfo<string | Buffer>, SystemError>;
 export function userInfo(
 	options?: UserInfoOptions,
-): Result<UserInfo<string | Buffer>, SystemError> {
+): Settled<UserInfo<string | Buffer>, SystemError> {
 	return Result.try(() => nodeUserInfo(options as UserInfoOptions));
 }
 
@@ -177,9 +177,9 @@ export function userInfo(
  *
  * @param pid - The process ID to retrieve scheduling priority for. Defaults to `0` (current process).
  *
- * @returns A `Result` containing the priority value, or a `SystemError`.
+ * @returns A `Settled` result containing the priority value, or a `SystemError`.
  */
-export function getPriority(pid?: number): Result<number, SystemError> {
+export function getPriority(pid?: number): Settled<number, SystemError> {
 	return Result.try(() => nodeGetPriority(pid));
 }
 
@@ -198,9 +198,9 @@ export function getPriority(pid?: number): Result<number, SystemError> {
  *
  * @param priority - The scheduling priority to assign (between -20 and 19).
  *
- * @returns A `Result` containing `undefined` on success, or a `SystemError` / `RangeError`.
+ * @returns A `Settled` result containing `undefined` on success, or a `SystemError` / `RangeError`.
  */
-export function setPriority(priority: number): Result<void, SystemError | RangeError>;
+export function setPriority(priority: number): Settled<void, SystemError | RangeError>;
 /**
  * Non-throwing wrapper around `os.setPriority`.
  *
@@ -217,13 +217,13 @@ export function setPriority(priority: number): Result<void, SystemError | RangeE
  * @param pid - The process ID to set scheduling priority for.
  * @param priority - The scheduling priority to assign (between -20 and 19).
  *
- * @returns A `Result` containing `undefined` on success, or a `SystemError` / `RangeError`.
+ * @returns A `Settled` result containing `undefined` on success, or a `SystemError` / `RangeError`.
  */
-export function setPriority(pid: number, priority: number): Result<void, SystemError | RangeError>;
+export function setPriority(pid: number, priority: number): Settled<void, SystemError | RangeError>;
 export function setPriority(
 	pidOrPriority: number,
 	priority?: number,
-): Result<void, SystemError | RangeError> {
+): Settled<void, SystemError | RangeError> {
 	return Result.try(() => {
 		if (priority !== undefined) {
 			nodeSetPriority(pidOrPriority, priority);

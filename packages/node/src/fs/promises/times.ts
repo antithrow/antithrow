@@ -1,14 +1,14 @@
 import type { PathLike, TimeLike } from "node:fs";
 import { lutimes as nodeLutimes, utimes as nodeUtimes } from "node:fs/promises";
 
-import { ResultAsync } from "antithrow/legacy";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `fs.promises.utimes`.
  *
  * @example
  * ```ts
- * import { utimes } from "@antithrow/node";
+ * import { utimes } from "@antithrow/node/fs/promises";
  *
  * const now = new Date();
  * const result = await utimes("/tmp/hello.txt", now, now);
@@ -19,14 +19,14 @@ import { ResultAsync } from "antithrow/legacy";
  * @param atime - The new access time.
  * @param mtime - The new modification time.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function utimes(
 	path: PathLike,
 	atime: TimeLike,
 	mtime: TimeLike,
-): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeUtimes(path, atime, mtime));
+): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeUtimes(path, atime, mtime));
 }
 
 /**
@@ -36,7 +36,7 @@ export function utimes(
  *
  * @example
  * ```ts
- * import { lutimes } from "@antithrow/node";
+ * import { lutimes } from "@antithrow/node/fs/promises";
  *
  * const now = new Date();
  * const result = await lutimes("/tmp/my-link", now, now);
@@ -47,12 +47,12 @@ export function utimes(
  * @param atime - The new access time.
  * @param mtime - The new modification time.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function lutimes(
 	path: PathLike,
 	atime: TimeLike,
 	mtime: TimeLike,
-): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeLutimes(path, atime, mtime));
+): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeLutimes(path, atime, mtime));
 }

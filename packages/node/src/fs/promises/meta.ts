@@ -14,7 +14,7 @@ import {
 	statfs as nodeStatfs,
 } from "node:fs/promises";
 
-import { ResultAsync } from "antithrow/legacy";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `fs.promises.stat`.
@@ -23,7 +23,7 @@ import { ResultAsync } from "antithrow/legacy";
  *
  * @example
  * ```ts
- * import { stat } from "@antithrow/node";
+ * import { stat } from "@antithrow/node/fs/promises";
  *
  * const result = await stat("/tmp/hello.txt");
  * // ok(Stats) or err(NodeJS.ErrnoException)
@@ -32,14 +32,14 @@ import { ResultAsync } from "antithrow/legacy";
  * @param path - The file path.
  * @param opts - Optional stat options.
  *
- * @returns A `ResultAsync` containing the `Stats` object, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the `Stats` object, or a `NodeJS.ErrnoException`.
  */
 export function stat(
 	path: PathLike,
 	opts?: StatOptions & {
 		bigint?: false | undefined;
 	},
-): ResultAsync<Stats, NodeJS.ErrnoException>;
+): Result<Stats, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.stat`.
  *
@@ -47,7 +47,7 @@ export function stat(
  *
  * @example
  * ```ts
- * import { stat } from "@antithrow/node";
+ * import { stat } from "@antithrow/node/fs/promises";
  *
  * const result = await stat("/tmp/hello.txt", { bigint: true });
  * // ok(BigIntStats) or err(NodeJS.ErrnoException)
@@ -56,19 +56,19 @@ export function stat(
  * @param path - The file path.
  * @param opts - Options with `bigint: true`.
  *
- * @returns A `ResultAsync` containing the `BigIntStats` object, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the `BigIntStats` object, or a `NodeJS.ErrnoException`.
  */
 export function stat(
 	path: PathLike,
 	opts: StatOptions & {
 		bigint: true;
 	},
-): ResultAsync<BigIntStats, NodeJS.ErrnoException>;
+): Result<BigIntStats, NodeJS.ErrnoException>;
 export function stat(
 	path: PathLike,
 	opts?: StatOptions,
-): ResultAsync<Stats | BigIntStats, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeStat(path, opts));
+): Result<Stats | BigIntStats, NodeJS.ErrnoException> {
+	return Result.try(() => nodeStat(path, opts));
 }
 
 /**
@@ -78,7 +78,7 @@ export function stat(
  *
  * @example
  * ```ts
- * import { lstat } from "@antithrow/node";
+ * import { lstat } from "@antithrow/node/fs/promises";
  *
  * const result = await lstat("/tmp/my-link");
  * // ok(Stats) or err(NodeJS.ErrnoException)
@@ -87,14 +87,14 @@ export function stat(
  * @param path - The file path.
  * @param opts - Optional stat options.
  *
- * @returns A `ResultAsync` containing the `Stats` object, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the `Stats` object, or a `NodeJS.ErrnoException`.
  */
 export function lstat(
 	path: PathLike,
 	opts?: StatOptions & {
 		bigint?: false | undefined;
 	},
-): ResultAsync<Stats, NodeJS.ErrnoException>;
+): Result<Stats, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.lstat`.
  *
@@ -102,7 +102,7 @@ export function lstat(
  *
  * @example
  * ```ts
- * import { lstat } from "@antithrow/node";
+ * import { lstat } from "@antithrow/node/fs/promises";
  *
  * const result = await lstat("/tmp/my-link", { bigint: true });
  * // ok(BigIntStats) or err(NodeJS.ErrnoException)
@@ -111,19 +111,19 @@ export function lstat(
  * @param path - The file path.
  * @param opts - Options with `bigint: true`.
  *
- * @returns A `ResultAsync` containing the `BigIntStats` object, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the `BigIntStats` object, or a `NodeJS.ErrnoException`.
  */
 export function lstat(
 	path: PathLike,
 	opts: StatOptions & {
 		bigint: true;
 	},
-): ResultAsync<BigIntStats, NodeJS.ErrnoException>;
+): Result<BigIntStats, NodeJS.ErrnoException>;
 export function lstat(
 	path: PathLike,
 	opts?: StatOptions,
-): ResultAsync<Stats | BigIntStats, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeLstat(path, opts));
+): Result<Stats | BigIntStats, NodeJS.ErrnoException> {
+	return Result.try(() => nodeLstat(path, opts));
 }
 
 /**
@@ -133,7 +133,7 @@ export function lstat(
  *
  * @example
  * ```ts
- * import { statfs } from "@antithrow/node";
+ * import { statfs } from "@antithrow/node/fs/promises";
  *
  * const result = await statfs("/");
  * // ok(StatsFs) or err(NodeJS.ErrnoException)
@@ -142,14 +142,14 @@ export function lstat(
  * @param path - The filesystem path.
  * @param opts - Optional statfs options.
  *
- * @returns A `ResultAsync` containing the `StatsFs` object, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the `StatsFs` object, or a `NodeJS.ErrnoException`.
  */
 export function statfs(
 	path: PathLike,
 	opts?: StatFsOptions & {
 		bigint?: false | undefined;
 	},
-): ResultAsync<StatsFs, NodeJS.ErrnoException>;
+): Result<StatsFs, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.statfs`.
  *
@@ -157,7 +157,7 @@ export function statfs(
  *
  * @example
  * ```ts
- * import { statfs } from "@antithrow/node";
+ * import { statfs } from "@antithrow/node/fs/promises";
  *
  * const result = await statfs("/", { bigint: true });
  * // ok(BigIntStatsFs) or err(NodeJS.ErrnoException)
@@ -166,19 +166,19 @@ export function statfs(
  * @param path - The filesystem path.
  * @param opts - Options with `bigint: true`.
  *
- * @returns A `ResultAsync` containing the `BigIntStatsFs` object, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the `BigIntStatsFs` object, or a `NodeJS.ErrnoException`.
  */
 export function statfs(
 	path: PathLike,
 	opts: StatFsOptions & {
 		bigint: true;
 	},
-): ResultAsync<BigIntStatsFs, NodeJS.ErrnoException>;
+): Result<BigIntStatsFs, NodeJS.ErrnoException>;
 export function statfs(
 	path: PathLike,
 	opts?: StatFsOptions,
-): ResultAsync<StatsFs | BigIntStatsFs, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeStatfs(path, opts));
+): Result<StatsFs | BigIntStatsFs, NodeJS.ErrnoException> {
+	return Result.try(() => nodeStatfs(path, opts));
 }
 
 /**
@@ -186,7 +186,7 @@ export function statfs(
  *
  * @example
  * ```ts
- * import { access } from "@antithrow/node";
+ * import { access } from "@antithrow/node/fs/promises";
  * import { constants } from "node:fs";
  *
  * const result = await access("/tmp/hello.txt", constants.R_OK);
@@ -196,8 +196,8 @@ export function statfs(
  * @param path - The file path.
  * @param mode - Optional accessibility check mode. Defaults to `fs.constants.F_OK`.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function access(path: PathLike, mode?: number): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeAccess(path, mode));
+export function access(path: PathLike, mode?: number): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeAccess(path, mode));
 }
