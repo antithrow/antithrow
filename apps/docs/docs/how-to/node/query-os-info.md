@@ -40,7 +40,7 @@ if (ifaces.isOk()) {
 ```ts
 import { getPriority, setPriority } from "@antithrow/node/os";
 
-await setPriority(0); // current process, nice=0
+setPriority(0); // current process, nice=0
 
 const current = getPriority();
 ```
