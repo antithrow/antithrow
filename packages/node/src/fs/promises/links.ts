@@ -16,7 +16,7 @@ import { ResultAsync } from "antithrow/legacy";
  *
  * @example
  * ```ts
- * import { readlink } from "@antithrow/node";
+ * import { readlink } from "@antithrow/node/fs/promises";
  *
  * const result = await readlink("/tmp/my-link");
  * // ok("/tmp/target") or err(NodeJS.ErrnoException)
@@ -38,7 +38,7 @@ export function readlink(
  *
  * @example
  * ```ts
- * import { readlink } from "@antithrow/node";
+ * import { readlink } from "@antithrow/node/fs/promises";
  *
  * const result = await readlink("/tmp/my-link", { encoding: "buffer" });
  * // ok(Buffer) or err(NodeJS.ErrnoException)
@@ -65,7 +65,7 @@ export function readlink(
  *
  * @example
  * ```ts
- * import { link } from "@antithrow/node";
+ * import { link } from "@antithrow/node/fs/promises";
  *
  * const result = await link("/tmp/existing.txt", "/tmp/new-link.txt");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -88,7 +88,7 @@ export function link(
  *
  * @example
  * ```ts
- * import { symlink } from "@antithrow/node";
+ * import { symlink } from "@antithrow/node/fs/promises";
  *
  * const result = await symlink("/tmp/target", "/tmp/my-link");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -113,7 +113,7 @@ export function symlink(
  *
  * @example
  * ```ts
- * import { unlink } from "@antithrow/node";
+ * import { unlink } from "@antithrow/node/fs/promises";
  *
  * const result = await unlink("/tmp/old-file.txt");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -134,7 +134,7 @@ export function unlink(path: PathLike): ResultAsync<void, NodeJS.ErrnoException>
  *
  * @example
  * ```ts
- * import { realpath } from "@antithrow/node";
+ * import { realpath } from "@antithrow/node/fs/promises";
  *
  * const result = await realpath("/tmp/../tmp/hello.txt");
  * // ok("/tmp/hello.txt") or err(NodeJS.ErrnoException)
@@ -156,7 +156,7 @@ export function realpath(
  *
  * @example
  * ```ts
- * import { realpath } from "@antithrow/node";
+ * import { realpath } from "@antithrow/node/fs/promises";
  *
  * const result = await realpath("/tmp/hello.txt", { encoding: "buffer" });
  * // ok(Buffer) or err(NodeJS.ErrnoException)

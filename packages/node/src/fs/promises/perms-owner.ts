@@ -8,7 +8,7 @@ import { ResultAsync } from "antithrow/legacy";
  *
  * @example
  * ```ts
- * import { chmod } from "@antithrow/node";
+ * import { chmod } from "@antithrow/node/fs/promises";
  *
  * const result = await chmod("/tmp/script.sh", 0o755);
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -28,7 +28,7 @@ export function chmod(path: PathLike, mode: Mode): ResultAsync<void, NodeJS.Errn
  *
  * @example
  * ```ts
- * import { chown } from "@antithrow/node";
+ * import { chown } from "@antithrow/node/fs/promises";
  *
  * const result = await chown("/tmp/hello.txt", 1000, 1000);
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -55,7 +55,7 @@ export function chown(
  *
  * @example
  * ```ts
- * import { lchown } from "@antithrow/node";
+ * import { lchown } from "@antithrow/node/fs/promises";
  *
  * const result = await lchown("/tmp/my-link", 1000, 1000);
  * // ok(undefined) or err(NodeJS.ErrnoException)

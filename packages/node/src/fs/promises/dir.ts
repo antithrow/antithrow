@@ -26,7 +26,7 @@ import { ResultAsync } from "antithrow/legacy";
  *
  * @example
  * ```ts
- * import { readdir } from "@antithrow/node";
+ * import { readdir } from "@antithrow/node/fs/promises";
  *
  * const result = await readdir("/tmp");
  * // ok(["file1.txt", "file2.txt"]) or err(NodeJS.ErrnoException)
@@ -54,7 +54,7 @@ export function readdir(
  *
  * @example
  * ```ts
- * import { readdir } from "@antithrow/node";
+ * import { readdir } from "@antithrow/node/fs/promises";
  *
  * const result = await readdir("/tmp", { encoding: "buffer" });
  * // ok(Buffer[]) or err(NodeJS.ErrnoException)
@@ -82,7 +82,7 @@ export function readdir(
  *
  * @example
  * ```ts
- * import { readdir } from "@antithrow/node";
+ * import { readdir } from "@antithrow/node/fs/promises";
  *
  * const result = await readdir("/tmp", { withFileTypes: true });
  * // ok(Dirent[]) or err(NodeJS.ErrnoException)
@@ -126,7 +126,7 @@ export function readdir(
  *
  * @example
  * ```ts
- * import { mkdir } from "@antithrow/node";
+ * import { mkdir } from "@antithrow/node/fs/promises";
  *
  * const result = await mkdir("/tmp/a/b/c", { recursive: true });
  * // ok("/tmp/a") or err(NodeJS.ErrnoException)
@@ -150,7 +150,7 @@ export function mkdir(
  *
  * @example
  * ```ts
- * import { mkdir } from "@antithrow/node";
+ * import { mkdir } from "@antithrow/node/fs/promises";
  *
  * const result = await mkdir("/tmp/mydir");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -182,7 +182,7 @@ export function mkdir(
  *
  * @example
  * ```ts
- * import { rmdir } from "@antithrow/node";
+ * import { rmdir } from "@antithrow/node/fs/promises";
  *
  * const result = await rmdir("/tmp/mydir");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -201,7 +201,7 @@ export function rmdir(path: PathLike): ResultAsync<void, NodeJS.ErrnoException> 
  *
  * @example
  * ```ts
- * import { rm } from "@antithrow/node";
+ * import { rm } from "@antithrow/node/fs/promises";
  *
  * const result = await rm("/tmp/mydir", { recursive: true, force: true });
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -221,7 +221,7 @@ export function rm(path: PathLike, options?: RmOptions): ResultAsync<void, NodeJ
  *
  * @example
  * ```ts
- * import { mkdtemp } from "@antithrow/node";
+ * import { mkdtemp } from "@antithrow/node/fs/promises";
  * import { join } from "node:path";
  * import { tmpdir } from "node:os";
  *
@@ -246,7 +246,7 @@ export function mkdtemp(
  *
  * @example
  * ```ts
- * import { opendir } from "@antithrow/node";
+ * import { opendir } from "@antithrow/node/fs/promises";
  *
  * const result = await opendir("/tmp");
  * if (result.isOk()) {

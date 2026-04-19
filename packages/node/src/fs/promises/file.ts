@@ -19,7 +19,7 @@ import { ResultAsync } from "antithrow/legacy";
  *
  * @example
  * ```ts
- * import { readFile } from "@antithrow/node";
+ * import { readFile } from "@antithrow/node/fs/promises";
  *
  * const result = await readFile("/tmp/data.bin");
  * // ok(Buffer) or err(NodeJS.ErrnoException)
@@ -46,7 +46,7 @@ export function readFile(
  *
  * @example
  * ```ts
- * import { readFile } from "@antithrow/node";
+ * import { readFile } from "@antithrow/node/fs/promises";
  *
  * const result = await readFile("/tmp/hello.txt", "utf-8");
  * // ok("Hello, world!") or err(NodeJS.ErrnoException)
@@ -73,7 +73,7 @@ export function readFile(
  *
  * @example
  * ```ts
- * import { readFile } from "@antithrow/node";
+ * import { readFile } from "@antithrow/node/fs/promises";
  *
  * const result = await readFile("/tmp/hello.txt", { encoding: "utf-8" });
  * // ok(string | Buffer) or err(NodeJS.ErrnoException)
@@ -112,7 +112,7 @@ export function readFile(
  *
  * @example
  * ```ts
- * import { writeFile } from "@antithrow/node";
+ * import { writeFile } from "@antithrow/node/fs/promises";
  *
  * const result = await writeFile("/tmp/hello.txt", "Hello, world!");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -149,7 +149,7 @@ export function writeFile(
  *
  * @example
  * ```ts
- * import { appendFile } from "@antithrow/node";
+ * import { appendFile } from "@antithrow/node/fs/promises";
  *
  * const result = await appendFile("/tmp/log.txt", "new line\n");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -177,7 +177,7 @@ export function appendFile(
  *
  * @example
  * ```ts
- * import { truncate } from "@antithrow/node";
+ * import { truncate } from "@antithrow/node/fs/promises";
  *
  * const result = await truncate("/tmp/data.bin", 100);
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -197,7 +197,7 @@ export function truncate(path: PathLike, len?: number): ResultAsync<void, NodeJS
  *
  * @example
  * ```ts
- * import { open } from "@antithrow/node";
+ * import { open } from "@antithrow/node/fs/promises";
  *
  * const result = await open("/tmp/data.bin", "r");
  * // ok(FileHandle) or err(NodeJS.ErrnoException)

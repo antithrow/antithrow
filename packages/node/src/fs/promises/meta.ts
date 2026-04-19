@@ -23,7 +23,7 @@ import { ResultAsync } from "antithrow/legacy";
  *
  * @example
  * ```ts
- * import { stat } from "@antithrow/node";
+ * import { stat } from "@antithrow/node/fs/promises";
  *
  * const result = await stat("/tmp/hello.txt");
  * // ok(Stats) or err(NodeJS.ErrnoException)
@@ -47,7 +47,7 @@ export function stat(
  *
  * @example
  * ```ts
- * import { stat } from "@antithrow/node";
+ * import { stat } from "@antithrow/node/fs/promises";
  *
  * const result = await stat("/tmp/hello.txt", { bigint: true });
  * // ok(BigIntStats) or err(NodeJS.ErrnoException)
@@ -78,7 +78,7 @@ export function stat(
  *
  * @example
  * ```ts
- * import { lstat } from "@antithrow/node";
+ * import { lstat } from "@antithrow/node/fs/promises";
  *
  * const result = await lstat("/tmp/my-link");
  * // ok(Stats) or err(NodeJS.ErrnoException)
@@ -102,7 +102,7 @@ export function lstat(
  *
  * @example
  * ```ts
- * import { lstat } from "@antithrow/node";
+ * import { lstat } from "@antithrow/node/fs/promises";
  *
  * const result = await lstat("/tmp/my-link", { bigint: true });
  * // ok(BigIntStats) or err(NodeJS.ErrnoException)
@@ -133,7 +133,7 @@ export function lstat(
  *
  * @example
  * ```ts
- * import { statfs } from "@antithrow/node";
+ * import { statfs } from "@antithrow/node/fs/promises";
  *
  * const result = await statfs("/");
  * // ok(StatsFs) or err(NodeJS.ErrnoException)
@@ -157,7 +157,7 @@ export function statfs(
  *
  * @example
  * ```ts
- * import { statfs } from "@antithrow/node";
+ * import { statfs } from "@antithrow/node/fs/promises";
  *
  * const result = await statfs("/", { bigint: true });
  * // ok(BigIntStatsFs) or err(NodeJS.ErrnoException)
@@ -186,7 +186,7 @@ export function statfs(
  *
  * @example
  * ```ts
- * import { access } from "@antithrow/node";
+ * import { access } from "@antithrow/node/fs/promises";
  * import { constants } from "node:fs";
  *
  * const result = await access("/tmp/hello.txt", constants.R_OK);

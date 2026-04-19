@@ -8,7 +8,7 @@ import { ResultAsync } from "antithrow/legacy";
  *
  * @example
  * ```ts
- * import { rename } from "@antithrow/node";
+ * import { rename } from "@antithrow/node/fs/promises";
  *
  * const result = await rename("/tmp/old.txt", "/tmp/new.txt");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -31,7 +31,7 @@ export function rename(
  *
  * @example
  * ```ts
- * import { copyFile } from "@antithrow/node";
+ * import { copyFile } from "@antithrow/node/fs/promises";
  *
  * const result = await copyFile("/tmp/source.txt", "/tmp/dest.txt");
  * // ok(undefined) or err(NodeJS.ErrnoException)
@@ -56,7 +56,7 @@ export function copyFile(
  *
  * @example
  * ```ts
- * import { cp } from "@antithrow/node";
+ * import { cp } from "@antithrow/node/fs/promises";
  *
  * const result = await cp("/tmp/src-dir", "/tmp/dest-dir", { recursive: true });
  * // ok(undefined) or err(NodeJS.ErrnoException)

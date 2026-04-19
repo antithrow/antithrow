@@ -8,7 +8,7 @@ import { ResultAsync } from "antithrow/legacy";
  *
  * @example
  * ```ts
- * import { utimes } from "@antithrow/node";
+ * import { utimes } from "@antithrow/node/fs/promises";
  *
  * const now = new Date();
  * const result = await utimes("/tmp/hello.txt", now, now);
@@ -36,7 +36,7 @@ export function utimes(
  *
  * @example
  * ```ts
- * import { lutimes } from "@antithrow/node";
+ * import { lutimes } from "@antithrow/node/fs/promises";
  *
  * const now = new Date();
  * const result = await lutimes("/tmp/my-link", now, now);
