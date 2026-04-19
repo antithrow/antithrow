@@ -16,7 +16,7 @@ Non-throwing wrappers around `globalThis.JSON.parse` and `globalThis.JSON.string
 JSON.parse<T = unknown>(
 	text: string,
 	reviver?: (this: unknown, key: string, value: unknown) => unknown,
-): Result<T, SyntaxError>;
+): Settled<T, SyntaxError>;
 ```
 
 | Argument | Type | Description |
@@ -39,7 +39,7 @@ JSON.stringify(
 	value: unknown,
 	replacer?: JsonStringifyReplacer,
 	space?: string | number,
-): Result<string | undefined, TypeError>;
+): Settled<string | undefined, TypeError>;
 ```
 
 | Argument | Type | Description |

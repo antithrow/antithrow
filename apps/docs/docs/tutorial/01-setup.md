@@ -46,7 +46,7 @@ npm install antithrow @antithrow/std @antithrow/standard-schema zod
 ```
 
 - `antithrow` — the core `Ok`, `Err`, `Pending`, and `Result` types.
-- `@antithrow/std` — a non-throwing `fetch` that returns a `Result` instead of throwing.
+- `@antithrow/std` — non-throwing wrappers around standard globals like `fetch`.
 - `@antithrow/standard-schema` — wires any Standard Schema validator (like Zod) into a `Result`.
 - `zod` — the validator we will use in the final step.
 

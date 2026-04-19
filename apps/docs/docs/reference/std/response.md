@@ -8,14 +8,14 @@ sidebar_position: 3
 
 Package: `@antithrow/std`
 
-Non-throwing wrappers around `globalThis.Response` body-reading methods. Each accepts a `Response` and returns a `ResultAsync` that captures any rejection (invalid JSON, already-consumed body) as `Err`.
+Non-throwing wrappers around `globalThis.Response` body-reading methods. Each accepts a `Response` and returns a `Result` that captures any rejection (invalid JSON, already-consumed body) as `Err`.
 
 ## `Response.json(response)`
 
 ```ts
 Response.json<T = unknown>(
 	response: Response,
-): ResultAsync<T, DOMException | TypeError | SyntaxError>;
+): Result<T, DOMException | TypeError | SyntaxError>;
 ```
 
 ## `Response.text(response)`
@@ -23,7 +23,7 @@ Response.json<T = unknown>(
 ```ts
 Response.text(
 	response: Response,
-): ResultAsync<string, DOMException | TypeError>;
+): Result<string, DOMException | TypeError>;
 ```
 
 ## `Response.arrayBuffer(response)`
@@ -31,7 +31,7 @@ Response.text(
 ```ts
 Response.arrayBuffer(
 	response: Response,
-): ResultAsync<ArrayBuffer, DOMException | TypeError | RangeError>;
+): Result<ArrayBuffer, DOMException | TypeError | RangeError>;
 ```
 
 ## `Response.blob(response)`
@@ -39,7 +39,7 @@ Response.arrayBuffer(
 ```ts
 Response.blob(
 	response: Response,
-): ResultAsync<Blob, DOMException | TypeError>;
+): Result<Blob, DOMException | TypeError>;
 ```
 
 ## `Response.formData(response)`
@@ -47,7 +47,7 @@ Response.blob(
 ```ts
 Response.formData(
 	response: Response,
-): ResultAsync<FormData, DOMException | TypeError>;
+): Result<FormData, DOMException | TypeError>;
 ```
 
 ## Throws

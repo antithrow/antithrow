@@ -13,7 +13,7 @@ Non-throwing wrappers around `globalThis.atob` and `globalThis.btoa`.
 ## `atob(data)`
 
 ```ts
-function atob(data: string): Result<string, DOMException>;
+function atob(data: string): Settled<string, DOMException>;
 ```
 
 Decodes a base64-encoded ASCII string. Returns `Err(DOMException)` for invalid input.
@@ -21,7 +21,7 @@ Decodes a base64-encoded ASCII string. Returns `Err(DOMException)` for invalid i
 ## `btoa(data)`
 
 ```ts
-function btoa(data: string): Result<string, DOMException>;
+function btoa(data: string): Settled<string, DOMException>;
 ```
 
 Encodes a binary string as base64. Returns `Err(DOMException)` when `data` contains characters outside the Latin-1 range.

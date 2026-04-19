@@ -24,7 +24,7 @@ In a codebase already using antithrow, treat a fresh throwing call as a failure 
 | Was | Becomes |
 | --- | --- |
 | `fetch`, `atob`, `btoa`, `structuredClone`, `encodeURI`, `decodeURI`, `encodeURIComponent`, `decodeURIComponent`, `JSON.parse`, `JSON.stringify` | import from `@antithrow/std` |
-| `.json()`, `.text()`, `.arrayBuffer()`, `.blob()`, `.formData()` on a `Response` | `response.json(res)` / `response.text(res)` / … from `@antithrow/std` |
+| `.json()`, `.text()`, `.arrayBuffer()`, `.blob()`, `.formData()` on a `Response` | `Response.json(res)` / `Response.text(res)` / … from `@antithrow/std` |
 | `readFile`, `writeFile`, `mkdir`, … from `node:fs/promises` | import from `@antithrow/node/fs/promises` |
 
 ## Suppressing intentional usage

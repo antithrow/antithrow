@@ -16,7 +16,7 @@ Non-throwing wrapper around `globalThis.fetch`. Non-2xx responses are `Ok`; only
 function fetch(
 	input: string | URL | Request,
 	init?: RequestInit,
-): ResultAsync<Response, DOMException | TypeError>;
+): Result<Response, DOMException | TypeError>;
 ```
 
 | Argument | Type | Description |
@@ -26,7 +26,7 @@ function fetch(
 
 ## Returns
 
-`ResultAsync<Response, DOMException | TypeError>` — resolves to `Ok(response)` for any completed HTTP response (including 4xx and 5xx). Network failures, CORS rejections, and `AbortError`s become `Err`.
+`Result<Response, DOMException | TypeError>` — returns `Pending` until the request settles, then `Ok(response)` for any completed HTTP response (including 4xx and 5xx). Network failures, CORS rejections, and `AbortError`s become `Err`.
 
 ## Throws
 

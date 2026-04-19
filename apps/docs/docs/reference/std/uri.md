@@ -13,13 +13,13 @@ Non-throwing wrappers around `globalThis.encodeURI`, `encodeURIComponent`, `deco
 ## `encodeURI(uri)`
 
 ```ts
-function encodeURI(uri: string): Result<string, URIError>;
+function encodeURI(uri: string): Settled<string, URIError>;
 ```
 
 ## `decodeURI(encodedURI)`
 
 ```ts
-function decodeURI(encodedURI: string): Result<string, URIError>;
+function decodeURI(encodedURI: string): Settled<string, URIError>;
 ```
 
 ## `encodeURIComponent(component)`
@@ -27,13 +27,13 @@ function decodeURI(encodedURI: string): Result<string, URIError>;
 ```ts
 function encodeURIComponent(
 	uriComponent: string | number | boolean,
-): Result<string, URIError>;
+): Settled<string, URIError>;
 ```
 
 ## `decodeURIComponent(encodedURIComponent)`
 
 ```ts
-function decodeURIComponent(encodedURIComponent: string): Result<string, URIError>;
+function decodeURIComponent(encodedURIComponent: string): Settled<string, URIError>;
 ```
 
 Each returns `Err(URIError)` for malformed input (for example, an orphaned `%` sequence).
