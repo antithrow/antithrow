@@ -1,4 +1,5 @@
-import { Result } from "antithrow/legacy";
+import type { Settled } from "antithrow";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `globalThis.structuredClone(...)`.
@@ -19,11 +20,11 @@ import { Result } from "antithrow/legacy";
  * @param value - The value to clone.
  * @param options - An optional object containing transfer options.
  *
- * @returns A `Result` containing the cloned value or the thrown error.
+ * @returns A `Settled` result containing the cloned value or the thrown error.
  */
 export function structuredClone<T>(
 	value: T,
 	options?: StructuredSerializeOptions,
-): Result<T, DOMException> {
+): Settled<T, DOMException> {
 	return Result.try(() => globalThis.structuredClone(value, options));
 }

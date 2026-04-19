@@ -1,9 +1,9 @@
-import { ResultAsync } from "antithrow/legacy";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrappers around `globalThis.Response` body-reading methods.
  *
- * Each method accepts a `Response` and returns a `ResultAsync` that captures
+ * Each method accepts a `Response` and returns a `Result` that captures
  * any rejection (e.g. invalid JSON, already-consumed body) as an `Err`.
  *
  * @example
@@ -22,10 +22,10 @@ export const Response = {
 	 *
 	 * @param response - The `Response` to read from.
 	 *
-	 * @returns A `ResultAsync` containing the parsed value, or an error if parsing fails.
+	 * @returns A `Result` containing the parsed value, or an error if parsing fails.
 	 */
-	json<T = unknown>(response: Response): ResultAsync<T, DOMException | TypeError | SyntaxError> {
-		return ResultAsync.try(() => response.json() as Promise<T>);
+	json<T = unknown>(response: Response): Result<T, DOMException | TypeError | SyntaxError> {
+		return Result.try(() => response.json() as Promise<T>);
 	},
 
 	/**
@@ -38,10 +38,10 @@ export const Response = {
 	 *
 	 * @param response - The `Response` to read from.
 	 *
-	 * @returns A `ResultAsync` containing the text content, or an error if reading fails.
+	 * @returns A `Result` containing the text content, or an error if reading fails.
 	 */
-	text(response: Response): ResultAsync<string, DOMException | TypeError> {
-		return ResultAsync.try(() => response.text());
+	text(response: Response): Result<string, DOMException | TypeError> {
+		return Result.try(() => response.text());
 	},
 
 	/**
@@ -54,10 +54,10 @@ export const Response = {
 	 *
 	 * @param response - The `Response` to read from.
 	 *
-	 * @returns A `ResultAsync` containing the `ArrayBuffer`, or an error if reading fails.
+	 * @returns A `Result` containing the `ArrayBuffer`, or an error if reading fails.
 	 */
-	arrayBuffer(response: Response): ResultAsync<ArrayBuffer, DOMException | TypeError | RangeError> {
-		return ResultAsync.try(() => response.arrayBuffer());
+	arrayBuffer(response: Response): Result<ArrayBuffer, DOMException | TypeError | RangeError> {
+		return Result.try(() => response.arrayBuffer());
 	},
 
 	/**
@@ -70,10 +70,10 @@ export const Response = {
 	 *
 	 * @param response - The `Response` to read from.
 	 *
-	 * @returns A `ResultAsync` containing the `Blob`, or an error if reading fails.
+	 * @returns A `Result` containing the `Blob`, or an error if reading fails.
 	 */
-	blob(response: Response): ResultAsync<Blob, DOMException | TypeError> {
-		return ResultAsync.try(() => response.blob());
+	blob(response: Response): Result<Blob, DOMException | TypeError> {
+		return Result.try(() => response.blob());
 	},
 
 	/**
@@ -86,9 +86,9 @@ export const Response = {
 	 *
 	 * @param response - The `Response` to read from.
 	 *
-	 * @returns A `ResultAsync` containing the `FormData`, or an error if reading fails.
+	 * @returns A `Result` containing the `FormData`, or an error if reading fails.
 	 */
-	formData(response: Response): ResultAsync<FormData, DOMException | TypeError> {
-		return ResultAsync.try(() => response.formData());
+	formData(response: Response): Result<FormData, DOMException | TypeError> {
+		return Result.try(() => response.formData());
 	},
 } as const;

@@ -12,8 +12,7 @@
 ## Why
 
 Standard APIs like `JSON.parse`, `fetch`, and `atob` communicate failure by throwing.
-`@antithrow/std` re-exports them as thin wrappers that return `Result` or `ResultAsync` instead,
-so error handling is type-safe and composable out of the box.
+`@antithrow/std` re-exports them as thin wrappers that return `Settled` or `Result`, so error handling stays type-safe and composable.
 
 ```ts
 import { JSON, fetch, Response } from "@antithrow/std";
@@ -41,7 +40,7 @@ rename the import:
 ```ts
 import { JSON as SafeJSON } from "@antithrow/std";
 
-SafeJSON.parse("...");  // Result<unknown, SyntaxError>
+SafeJSON.parse("...");  // Settled<unknown, SyntaxError>
 JSON.parse("...");      // throws on invalid input
 ```
 

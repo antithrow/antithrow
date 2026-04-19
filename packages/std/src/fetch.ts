@@ -1,4 +1,4 @@
-import { ResultAsync } from "antithrow/legacy";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `globalThis.fetch`.
@@ -12,11 +12,11 @@ import { ResultAsync } from "antithrow/legacy";
  * @param input - The resource to fetch.
  * @param init - Optional request configuration.
  *
- * @returns A `ResultAsync` containing the `Response`, or an error if the fetch rejects.
+ * @returns A `Result` containing the `Response`, or an error if the fetch rejects.
  */
 export function fetch(
 	input: string | URL | Request,
 	init?: RequestInit,
-): ResultAsync<Response, DOMException | TypeError> {
-	return ResultAsync.try(() => globalThis.fetch(input, init));
+): Result<Response, DOMException | TypeError> {
+	return Result.try(() => globalThis.fetch(input, init));
 }
