@@ -10,7 +10,7 @@ import {
 } from "node:fs/promises";
 import type { Stream } from "node:stream";
 
-import { ResultAsync } from "antithrow/legacy";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `fs.promises.readFile`.
@@ -28,7 +28,7 @@ import { ResultAsync } from "antithrow/legacy";
  * @param path - The path to the file.
  * @param options - Optional read options.
  *
- * @returns A `ResultAsync` containing the file contents as a `Buffer`, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the file contents as a `Buffer`, or a `NodeJS.ErrnoException`.
  */
 export function readFile(
 	path: PathLike | FileHandle,
@@ -38,7 +38,7 @@ export function readFile(
 				flag?: OpenMode | undefined;
 		  } & Abortable)
 		| null,
-): ResultAsync<Buffer, NodeJS.ErrnoException>;
+): Result<Buffer, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readFile`.
  *
@@ -55,7 +55,7 @@ export function readFile(
  * @param path - The path to the file.
  * @param options - The encoding or options object with an encoding.
  *
- * @returns A `ResultAsync` containing the file contents as a `string`, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the file contents as a `string`, or a `NodeJS.ErrnoException`.
  */
 export function readFile(
 	path: PathLike | FileHandle,
@@ -65,7 +65,7 @@ export function readFile(
 				flag?: OpenMode | undefined;
 		  } & Abortable)
 		| BufferEncoding,
-): ResultAsync<string, NodeJS.ErrnoException>;
+): Result<string, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readFile`.
  *
@@ -82,7 +82,7 @@ export function readFile(
  * @param path - The path to the file.
  * @param options - Optional encoding or options object.
  *
- * @returns A `ResultAsync` containing the file contents, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the file contents, or a `NodeJS.ErrnoException`.
  */
 export function readFile(
 	path: PathLike | FileHandle,
@@ -93,7 +93,7 @@ export function readFile(
 				})
 		| BufferEncoding
 		| null,
-): ResultAsync<string | Buffer, NodeJS.ErrnoException>;
+): Result<string | Buffer, NodeJS.ErrnoException>;
 export function readFile(
 	path: PathLike | FileHandle,
 	options?:
@@ -103,8 +103,8 @@ export function readFile(
 				})
 		| BufferEncoding
 		| null,
-): ResultAsync<string | Buffer, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeReadFile(path, options as BufferEncoding));
+): Result<string | Buffer, NodeJS.ErrnoException> {
+	return Result.try(() => nodeReadFile(path, options as BufferEncoding));
 }
 
 /**
@@ -122,7 +122,7 @@ export function readFile(
  * @param data - The data to write.
  * @param options - Optional write options.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function writeFile(
 	file: PathLike | FileHandle,
@@ -140,8 +140,8 @@ export function writeFile(
 		  } & Abortable)
 		| BufferEncoding
 		| null,
-): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeWriteFile(file, data, options));
+): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeWriteFile(file, data, options));
 }
 
 /**
@@ -159,7 +159,7 @@ export function writeFile(
  * @param data - The data to append.
  * @param options - Optional append options.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function appendFile(
 	path: PathLike | FileHandle,
@@ -168,8 +168,8 @@ export function appendFile(
 		| (ObjectEncodingOptions & { flag?: OpenMode | undefined; flush?: boolean | undefined })
 		| BufferEncoding
 		| null,
-): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeAppendFile(path, data, options));
+): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeAppendFile(path, data, options));
 }
 
 /**
@@ -186,10 +186,10 @@ export function appendFile(
  * @param path - The path to the file.
  * @param len - The desired length in bytes. Defaults to `0`.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function truncate(path: PathLike, len?: number): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeTruncate(path, len));
+export function truncate(path: PathLike, len?: number): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeTruncate(path, len));
 }
 
 /**
@@ -207,12 +207,12 @@ export function truncate(path: PathLike, len?: number): ResultAsync<void, NodeJS
  * @param flags - File system flags. Defaults to `'r'`.
  * @param mode - The file mode. Defaults to `0o666`.
  *
- * @returns A `ResultAsync` containing the `FileHandle`, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the `FileHandle`, or a `NodeJS.ErrnoException`.
  */
 export function open(
 	path: PathLike,
 	flags?: string | number,
 	mode?: Mode,
-): ResultAsync<FileHandle, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeOpen(path, flags, mode));
+): Result<FileHandle, NodeJS.ErrnoException> {
+	return Result.try(() => nodeOpen(path, flags, mode));
 }

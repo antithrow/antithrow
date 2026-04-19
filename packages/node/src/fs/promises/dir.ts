@@ -17,7 +17,7 @@ import {
 	rmdir as nodeRmdir,
 } from "node:fs/promises";
 
-import { ResultAsync } from "antithrow/legacy";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `fs.promises.readdir`.
@@ -35,7 +35,7 @@ import { ResultAsync } from "antithrow/legacy";
  * @param path - The directory path.
  * @param options - Optional encoding or options object.
  *
- * @returns A `ResultAsync` containing an array of filenames, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing an array of filenames, or a `NodeJS.ErrnoException`.
  */
 export function readdir(
 	path: PathLike,
@@ -46,7 +46,7 @@ export function readdir(
 		  })
 		| BufferEncoding
 		| null,
-): ResultAsync<string[], NodeJS.ErrnoException>;
+): Result<string[], NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readdir`.
  *
@@ -63,7 +63,7 @@ export function readdir(
  * @param path - The directory path.
  * @param options - Options with `encoding: "buffer"`.
  *
- * @returns A `ResultAsync` containing an array of `Buffer` filenames, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing an array of `Buffer` filenames, or a `NodeJS.ErrnoException`.
  */
 export function readdir(
 	path: PathLike,
@@ -74,7 +74,7 @@ export function readdir(
 				recursive?: boolean | undefined;
 		  }
 		| "buffer",
-): ResultAsync<Buffer[], NodeJS.ErrnoException>;
+): Result<Buffer[], NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.readdir`.
  *
@@ -91,7 +91,7 @@ export function readdir(
  * @param path - The directory path.
  * @param options - Options with `withFileTypes: true`.
  *
- * @returns A `ResultAsync` containing an array of `Dirent` objects, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing an array of `Dirent` objects, or a `NodeJS.ErrnoException`.
  */
 export function readdir(
 	path: PathLike,
@@ -99,7 +99,7 @@ export function readdir(
 		withFileTypes: true;
 		recursive?: boolean | undefined;
 	},
-): ResultAsync<Dirent[], NodeJS.ErrnoException>;
+): Result<Dirent[], NodeJS.ErrnoException>;
 export function readdir(
 	path: PathLike,
 	options?:
@@ -115,8 +115,8 @@ export function readdir(
 		| BufferEncoding
 		| "buffer"
 		| null,
-): ResultAsync<string[] | Buffer[] | Dirent[], NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeReaddir(path, options as BufferEncoding));
+): Result<string[] | Buffer[] | Dirent[], NodeJS.ErrnoException> {
+	return Result.try(() => nodeReaddir(path, options as BufferEncoding));
 }
 
 /**
@@ -135,14 +135,14 @@ export function readdir(
  * @param path - The directory path.
  * @param options - Options with `recursive: true`.
  *
- * @returns A `ResultAsync` containing the first created path or `undefined`, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the first created path or `undefined`, or a `NodeJS.ErrnoException`.
  */
 export function mkdir(
 	path: PathLike,
 	options: MakeDirectoryOptions & {
 		recursive: true;
 	},
-): ResultAsync<string | undefined, NodeJS.ErrnoException>;
+): Result<string | undefined, NodeJS.ErrnoException>;
 /**
  * Non-throwing wrapper around `fs.promises.mkdir`.
  *
@@ -159,7 +159,7 @@ export function mkdir(
  * @param path - The directory path.
  * @param options - Optional mode or options object.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function mkdir(
 	path: PathLike,
@@ -169,12 +169,12 @@ export function mkdir(
 				recursive?: false | undefined;
 		  })
 		| null,
-): ResultAsync<undefined, NodeJS.ErrnoException>;
+): Result<undefined, NodeJS.ErrnoException>;
 export function mkdir(
 	path: PathLike,
 	options?: Mode | MakeDirectoryOptions | null,
-): ResultAsync<string | undefined, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeMkdir(path, options));
+): Result<string | undefined, NodeJS.ErrnoException> {
+	return Result.try(() => nodeMkdir(path, options));
 }
 
 /**
@@ -190,10 +190,10 @@ export function mkdir(
  *
  * @param path - The directory path.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function rmdir(path: PathLike): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeRmdir(path));
+export function rmdir(path: PathLike): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeRmdir(path));
 }
 
 /**
@@ -210,10 +210,10 @@ export function rmdir(path: PathLike): ResultAsync<void, NodeJS.ErrnoException> 
  * @param path - The path to remove.
  * @param options - Optional removal options.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function rm(path: PathLike, options?: RmOptions): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeRm(path, options));
+export function rm(path: PathLike, options?: RmOptions): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeRm(path, options));
 }
 
 /**
@@ -232,13 +232,13 @@ export function rm(path: PathLike, options?: RmOptions): ResultAsync<void, NodeJ
  * @param prefix - The prefix for the temporary directory name.
  * @param options - Optional encoding or options object.
  *
- * @returns A `ResultAsync` containing the created directory path, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the created directory path, or a `NodeJS.ErrnoException`.
  */
 export function mkdtemp(
 	prefix: string,
 	options?: ObjectEncodingOptions | BufferEncoding | null,
-): ResultAsync<string, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeMkdtemp(prefix, options));
+): Result<string, NodeJS.ErrnoException> {
+	return Result.try(() => nodeMkdtemp(prefix, options));
 }
 
 /**
@@ -259,11 +259,11 @@ export function mkdtemp(
  * @param path - The directory path.
  * @param options - Optional options for opening the directory.
  *
- * @returns A `ResultAsync` containing the `Dir` handle, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing the `Dir` handle, or a `NodeJS.ErrnoException`.
  */
 export function opendir(
 	path: PathLike,
 	options?: OpenDirOptions,
-): ResultAsync<Dir, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeOpendir(path, options));
+): Result<Dir, NodeJS.ErrnoException> {
+	return Result.try(() => nodeOpendir(path, options));
 }

@@ -34,7 +34,7 @@ if (wrote.isErr() && wrote.error.code === "EACCES") {
 }
 ```
 
-`writeFile` returns `ResultAsync<void, NodeJS.ErrnoException>`.
+`writeFile` returns `Result<void, NodeJS.ErrnoException>`.
 
 ## Compose read + write
 

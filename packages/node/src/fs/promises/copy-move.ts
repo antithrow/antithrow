@@ -1,7 +1,7 @@
 import type { CopyOptions, PathLike } from "node:fs";
 import { copyFile as nodeCopyFile, cp as nodeCp, rename as nodeRename } from "node:fs/promises";
 
-import { ResultAsync } from "antithrow/legacy";
+import { Result } from "antithrow";
 
 /**
  * Non-throwing wrapper around `fs.promises.rename`.
@@ -17,13 +17,10 @@ import { ResultAsync } from "antithrow/legacy";
  * @param oldPath - The current path.
  * @param newPath - The new path.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
-export function rename(
-	oldPath: PathLike,
-	newPath: PathLike,
-): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeRename(oldPath, newPath));
+export function rename(oldPath: PathLike, newPath: PathLike): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeRename(oldPath, newPath));
 }
 
 /**
@@ -41,14 +38,14 @@ export function rename(
  * @param dest - The destination file path.
  * @param mode - Optional modifiers for the copy operation.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function copyFile(
 	src: PathLike,
 	dest: PathLike,
 	mode?: number,
-): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeCopyFile(src, dest, mode));
+): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeCopyFile(src, dest, mode));
 }
 
 /**
@@ -66,12 +63,12 @@ export function copyFile(
  * @param destination - The destination path.
  * @param opts - Optional copy options.
  *
- * @returns A `ResultAsync` containing `undefined` on success, or a `NodeJS.ErrnoException`.
+ * @returns A `Result` containing `undefined` on success, or a `NodeJS.ErrnoException`.
  */
 export function cp(
 	source: string | URL,
 	destination: string | URL,
 	opts?: CopyOptions,
-): ResultAsync<void, NodeJS.ErrnoException> {
-	return ResultAsync.try(() => nodeCp(source, destination, opts));
+): Result<void, NodeJS.ErrnoException> {
+	return Result.try(() => nodeCp(source, destination, opts));
 }

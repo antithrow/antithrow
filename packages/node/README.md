@@ -11,7 +11,7 @@
 
 ## Why
 
-Node.js APIs like `fs/promises` communicate failure by throwing. `@antithrow/node` re-exports them as thin wrappers that return `Result` or `ResultAsync` instead, so error handling is type-safe and composable out of the box.
+Node.js APIs like `fs/promises` communicate failure by throwing. `@antithrow/node` re-exports them as thin wrappers that return `Result` instead, so error handling is type-safe and composable out of the box.
 
 ```ts
 import { readFile, writeFile } from "@antithrow/node/fs/promises";
@@ -35,7 +35,7 @@ bun add @antithrow/node
 
 ### fs/promises
 
-Wraps `fs/promises` API with `ResultAsync` for type-safe file operations.
+Wraps `fs/promises` API with `Result` for type-safe file operations.
 
 ```ts
 import { readFile, writeFile, mkdir } from "@antithrow/node/fs/promises";
@@ -54,7 +54,7 @@ await mkdir("./nested/path", { recursive: true });
 
 ### os
 
-Wraps `node:os` functions that can throw with `Result` for type-safe system info access.
+Wraps `node:os` functions that can throw with `Settled` results for type-safe system info access.
 
 ```ts
 import { homedir, hostname, userInfo } from "@antithrow/node/os";

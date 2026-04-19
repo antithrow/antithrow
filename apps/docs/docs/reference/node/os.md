@@ -8,7 +8,7 @@ sidebar_position: 2
 
 Subpath: `@antithrow/node/os`
 
-Non-throwing wrappers around `node:os`. Most functions return `Result<T, SystemError>`, where `SystemError` is Node's `ERR_SYSTEM_ERROR` shape.
+Non-throwing wrappers around `node:os`. These functions are synchronous, so they return `Settled<T, SystemError>` rather than a pending-capable `Result<T, E>`. `SystemError` is Node's `ERR_SYSTEM_ERROR` shape.
 
 ## `SystemError`
 
@@ -34,13 +34,13 @@ interface SystemError extends Error {
 
 | Export | Signature |
 | --- | --- |
-| `homedir` | `() => Result<string, SystemError>` |
-| `hostname` | `() => Result<string, SystemError>` |
-| `uptime` | `() => Result<number, SystemError>` |
-| `networkInterfaces` | `() => Result<NodeJS.Dict<NetworkInterfaceInfo[]>, SystemError>` |
-| `userInfo` | `(options?) => Result<UserInfo<string \| Buffer>, SystemError>` |
-| `getPriority` | `(pid?) => Result<number, SystemError>` |
-| `setPriority` | `(pid?, priority?) => Result<void, SystemError \| RangeError>` |
+| `homedir` | `() => Settled<string, SystemError>` |
+| `hostname` | `() => Settled<string, SystemError>` |
+| `uptime` | `() => Settled<number, SystemError>` |
+| `networkInterfaces` | `() => Settled<NodeJS.Dict<NetworkInterfaceInfo[]>, SystemError>` |
+| `userInfo` | `(options?) => Settled<UserInfo<string \| Buffer>, SystemError>` |
+| `getPriority` | `(pid?) => Settled<number, SystemError>` |
+| `setPriority` | `(pid?, priority?) => Settled<void, SystemError \| RangeError>` |
 
 `userInfo` has overloads returning `UserInfo<string>` (default), `UserInfo<Buffer>` (`encoding: "buffer"`), or the union.
 
