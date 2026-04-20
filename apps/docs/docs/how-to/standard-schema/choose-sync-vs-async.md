@@ -17,7 +17,7 @@ description: Decide between validate and validateSync based on whether the schem
 const result = await validate(schema, input);
 ```
 
-Returns `ResultAsync<T, FailureResult>`.
+Returns `Result<T, FailureResult>`. If the schema is async, that `Result` will be `Pending` until it settles.
 
 ## Use `validateSync` only when you know the schema is sync
 
@@ -28,7 +28,7 @@ Returns `ResultAsync<T, FailureResult>`.
 const result = validateSync(schema, input);
 ```
 
-Returns `Result<T, FailureResult>`.
+Returns `Settled<T, FailureResult>`.
 
 ## What goes wrong if you pick sync and the schema is async
 

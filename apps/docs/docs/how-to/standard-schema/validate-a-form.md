@@ -1,6 +1,6 @@
 ---
 title: Validate a form
-description: Turn a form submission into a typed Result, attaching issues back to fields.
+description: Turn a form submission into a typed validation result, attaching issues back to fields.
 ---
 
 # Validate a form

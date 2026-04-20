@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, test } from "bun:test";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import type { Result, ResultAsync } from "antithrow/legacy";
+import type { Result, Settled } from "antithrow";
 import { validate, validateSync } from "./validate.js";
 
 function createSchema<Output>(
@@ -120,11 +120,11 @@ describe("validate", () => {
 		expect(issues[3]?.path).toEqual([{ key: "nested" }]);
 	});
 
-	test("returns ResultAsync", () => {
+	test("returns Result", () => {
 		const schema = createSchema<number>(() => ({ value: 1 }));
 		const result = validate(schema, "anything");
 
-		expectTypeOf(result).toEqualTypeOf<ResultAsync<number, StandardSchemaV1.FailureResult>>();
+		expectTypeOf(result).toEqualTypeOf<Result<number, StandardSchemaV1.FailureResult>>();
 	});
 });
 
@@ -191,11 +191,11 @@ describe("validateSync", () => {
 		expect(result.unwrapErr().issues[0]?.path).toEqual(["a", { key: "b" }]);
 	});
 
-	test("returns Result", () => {
+	test("returns Settled", () => {
 		const schema = createSchema<string>(() => ({ value: "hi" }));
 		const result = validateSync(schema, "anything");
 
-		expectTypeOf(result).toEqualTypeOf<Result<string, StandardSchemaV1.FailureResult>>();
+		expectTypeOf(result).toEqualTypeOf<Settled<string, StandardSchemaV1.FailureResult>>();
 	});
 });
 
