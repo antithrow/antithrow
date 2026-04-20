@@ -12,7 +12,7 @@ export const MessageId = {
 } as const;
 export type MessageId = (typeof MessageId)[keyof typeof MessageId];
 
-const BANNED_METHOD_NAMES = new Set(["unwrap", "unwrapErr", "expect", "expectErr"]);
+const BANNED_METHOD_NAMES = new Set(["unwrap", "unwrapErr"]);
 const FIXABLE_OK_METHOD_NAMES = new Set(["unwrap"]);
 const FIXABLE_ERR_METHOD_NAMES = new Set(["unwrapErr"]);
 
@@ -52,8 +52,7 @@ export const noUnsafeUnwrap = createRule<[], MessageId>({
 		type: "problem",
 		fixable: "code",
 		docs: {
-			description:
-				"Disallow unsafe unwrap APIs on Result and ResultAsync values to prevent unexpected throws.",
+			description: "Disallow unsafe unwrap APIs on Result values to prevent unexpected throws.",
 			recommended: true,
 			requiresTypeChecking: true,
 		},

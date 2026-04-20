@@ -1,6 +1,6 @@
 ---
 title: no-unsafe-unwrap
-description: Disallow unsafe unwrap APIs on Result and ResultAsync values.
+description: Disallow unsafe unwrap APIs on Result values.
 sidebar_position: 2
 ---
 
@@ -8,7 +8,7 @@ sidebar_position: 2
 
 Rule id: `@antithrow/no-unsafe-unwrap`
 
-Reports calls to methods that will throw if the `Result` is in the wrong variant: `unwrap`, `unwrapErr`, `expect`, `expectErr`.
+Reports calls to methods that will throw if the `Result` is in the wrong variant: `unwrap` and `unwrapErr`.
 
 ## Metadata
 
@@ -42,7 +42,7 @@ When the static type is known to be `Ok<...>`, calls to `.unwrap()` are rewritte
 
 When the static type is known to be `Err<...>`, calls to `.unwrapErr()` are rewritten to `.error`.
 
-All other cases are reported without a fix, since removing the throw requires the author to decide how to handle both branches.
+All other cases — including any type that includes `Pending<...>`, where `.unwrap()` returns a promise instead of a value — are reported without a fix, since removing the throw requires the author to decide how to handle every branch.
 
 ## Example
 

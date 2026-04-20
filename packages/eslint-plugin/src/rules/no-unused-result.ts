@@ -31,8 +31,7 @@ export const noUnusedResult = createRule<[], MessageId>({
 		type: "problem",
 		hasSuggestions: true,
 		docs: {
-			description:
-				"Require Result and ResultAsync values to be used, preventing silently ignored errors.",
+			description: "Require Result values to be used, preventing silently ignored errors.",
 			recommended: true,
 			requiresTypeChecking: true,
 		},
