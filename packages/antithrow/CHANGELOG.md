@@ -1,5 +1,29 @@
 # antithrow
 
+## 3.0.0
+
+### Major Changes
+
+- [#143](https://github.com/antithrow/antithrow/pull/143) [`1843475`](https://github.com/antithrow/antithrow/commit/184347546a1d8ee752fe7eac7f79a47f7c35c8f1) Thanks [@jack-weilage](https://github.com/jack-weilage)! - feat!: replace the main `antithrow` entrypoint with the tri-state API
+
+  The top-level `antithrow` package now exports the new tri-state `Result` model:
+
+  - `Result<T, E>` is now `Ok | Err | Pending`
+  - async flows are represented by `Pending` instead of `ResultAsync`
+  - `Result.do(...)` replaces `chain(...)` for fail-fast generator composition
+  - the main entrypoint exports `Ok`, `Err`, `Pending`, `Result`, `UnwrapError`, and helper types like `InferOk`, `InferErr`, and `Settled`
+
+  This is a breaking change for existing users of the previous API:
+
+  - `ok`, `err`, `okAsync`, `errAsync`, `ResultAsync`, and `chain` are no longer exported from `antithrow`
+  - existing code using the previous API should migrate to the new constructors and tri-state flow, or temporarily switch imports to `antithrow/legacy`
+
+  To ease migration, the previous API is still available from the new `antithrow/legacy` subpath and is marked as deprecated.
+
+### Patch Changes
+
+- [#138](https://github.com/antithrow/antithrow/pull/138) [`d8d372b`](https://github.com/antithrow/antithrow/commit/d8d372bd573a085e6e98b0b1359b1d2601b43f4b) Thanks [@jack-weilage](https://github.com/jack-weilage)! - perf: reduce unnecessary array overhead in `Result.all`
+
 ## 2.0.0
 
 ### Major Changes

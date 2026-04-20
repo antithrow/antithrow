@@ -1,5 +1,19 @@
 # @antithrow/eslint-plugin
 
+## 2.0.0
+
+### Major Changes
+
+- [#181](https://github.com/antithrow/antithrow/pull/181) [`0792c77`](https://github.com/antithrow/antithrow/commit/0792c77a42f00470472feb341c27abaa5cda26a1) Thanks [@jack-weilage](https://github.com/jack-weilage)! - deps!: target modern `Result`/`Settled` APIs instead of `Result`/`ResultAsync`
+
+  Rules now analyze values typed against the modern `antithrow` entrypoint (`Ok`, `Err`, `Pending`). Values from `antithrow/legacy` are no longer flagged.
+
+  `no-unsafe-unwrap` no longer reports `.expect()` and `.expectErr()`, since the modern API does not expose those methods. It now also reports `.unwrap()` / `.unwrapErr()` on `Pending`, where they return a promise that may reject rather than a value.
+
+### Minor Changes
+
+- [#113](https://github.com/antithrow/antithrow/pull/113) [`4455195`](https://github.com/antithrow/antithrow/commit/445519585fa4c718417a989215357e1a695042f9) Thanks [@jack-weilage](https://github.com/jack-weilage)! - feat: added `no-throwing-call` suggestions for `@antithrow/node`
+
 ## 1.2.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
 	"name": "@antithrow/node",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"description": "Non-throwing wrappers around Node.js APIs using antithrow Result types",
 	"license": "MIT",
 	"author": "Jack Weilage",
