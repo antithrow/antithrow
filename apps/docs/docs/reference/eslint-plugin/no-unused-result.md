@@ -1,6 +1,6 @@
 ---
 title: no-unused-result
-description: Require Result and ResultAsync values to be used, preventing silently ignored errors.
+description: Require Result values to be used, preventing silently ignored errors.
 sidebar_position: 3
 ---
 
@@ -8,7 +8,9 @@ sidebar_position: 3
 
 Rule id: `@antithrow/no-unused-result`
 
-Reports expression statements whose value is a `Result` or `ResultAsync` — the analog of `no-unused-expressions` for typed errors. A `Result` that is never inspected is a silently-dropped error.
+Reports expression statements whose value is a `Result` — the analog of `no-unused-expressions` for typed errors. A `Result` that is never inspected is a silently-dropped error.
+
+Applies to values whose type includes `Ok<T, E>`, `Err<T, E>`, or `Pending<T, E>` from the root `antithrow` entrypoint. Values from the legacy `antithrow/legacy` entrypoint are ignored.
 
 ## Metadata
 

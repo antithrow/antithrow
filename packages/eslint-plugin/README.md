@@ -49,10 +49,6 @@ export default [
 ];
 ```
 
-## Rules
+## Reference
 
-| Rule                                                   | Description                                                                 | Recommended |
-| ------------------------------------------------------ | --------------------------------------------------------------------------- | ----------- |
-| [`no-throwing-call`](https://antithrow.dev/docs/api/eslint-plugin/no-throwing-call) | Disallow calls to throwing built-in APIs with `@antithrow/std` replacements | `warn`      |
-| [`no-unsafe-unwrap`](https://antithrow.dev/docs/api/eslint-plugin/no-unsafe-unwrap) | Disallow `unwrap`/`expect` APIs on antithrow `Result` values                | `warn`      |
-| [`no-unused-result`](https://antithrow.dev/docs/api/eslint-plugin/no-unused-result) | Require `Result` and `ResultAsync` values to be used                        | `error`     |
+Full rule reference: <https://antithrow.dev/docs/reference/eslint-plugin>

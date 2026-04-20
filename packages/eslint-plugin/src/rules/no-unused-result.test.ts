@@ -1,34 +1,34 @@
 import { MessageId, noUnusedResult } from "./no-unused-result.js";
 import { createCodeHelper, ruleTester } from "./utils/test-utils.js";
 
-const preamble = `import { ok, err, okAsync, errAsync, Result, ResultAsync } from "antithrow/legacy";\n`;
+const preamble = `import { Ok, Err, Pending, Result, type Settled } from "antithrow";\n`;
 const code = createCodeHelper(preamble);
 
 ruleTester.run("no-unused-result", noUnusedResult, {
 	valid: [
 		{
 			name: "assigned to variable",
-			code: code`const x = ok(1);`,
+			code: code`const x = new Ok(1);`,
 		},
 		{
 			name: "assigned to underscore",
-			code: code`let _ = ok(1);`,
+			code: code`let _ = new Ok(1);`,
 		},
 		{
 			name: "returned from function",
-			code: code`function f() { return ok(1); }`,
+			code: code`function f() { return new Ok(1); }`,
 		},
 		{
 			name: "passed as argument",
-			code: code`function foo(r: Result<number, never>) {} foo(ok(1));`,
+			code: code`function foo(r: Settled<number, never>) {} foo(new Ok(1));`,
 		},
 		{
 			name: "explicit void discard",
-			code: code`void ok(1);`,
+			code: code`void new Ok(1);`,
 		},
 		{
 			name: "chain ending in unwrap (non-Result)",
-			code: code`ok(1).unwrap();`,
+			code: code`new Ok(1).unwrap();`,
 		},
 		{
 			name: "non-Result expression statement",
@@ -43,98 +43,103 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 			code: code`console.log("hi");`,
 		},
 		{
-			name: "ResultAsync assigned in async function",
-			code: code`async function f() { const x = await okAsync(1); }`,
+			name: "Pending awaited in async function",
+			code: code`async function f() { const x = await Result.try(async () => 1); }`,
 		},
 		{
-			name: "match returns non-Result",
-			code: code`ok(1).match({ ok: (v) => v, err: (e) => 0 });`,
+			name: "mapOrElse returns non-Result",
+			code: code`new Ok(1).mapOrElse((_error) => 0, (value) => value);`,
 		},
 		{
 			name: "ternary with both branches voided",
-			code: code`declare const cond: boolean;\ncond ? void ok(1) : void ok(2);`,
+			code: code`declare const cond: boolean;\ncond ? void new Ok(1) : void new Ok(2);`,
 		},
 		{
 			name: "logical AND with voided Result",
-			code: code`true && void ok(1);`,
+			code: code`true && void new Ok(1);`,
 		},
 		{
 			name: "entire ternary voided",
-			code: code`declare const cond: boolean;\nvoid (cond ? ok(1) : ok(2));`,
+			code: code`declare const cond: boolean;\nvoid (cond ? new Ok(1) : new Ok(2));`,
 		},
 		{
-			name: "root antithrow Ok is ignored",
-			code: `import { Ok } from "antithrow";\nnew Ok(1);`,
+			name: "legacy antithrow Ok is ignored",
+			code: `import { ok } from "antithrow/legacy";\nok(1);`,
 		},
 	],
 	invalid: [
 		{
-			name: "bare ok() expression",
-			code: code`ok(1);`,
+			name: "bare Ok expression",
+			code: code`new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void ok(1);` }],
+					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void new Ok(1);` }],
 				},
 			],
 		},
 		{
-			name: "bare err() expression",
-			code: code`err("x");`,
+			name: "bare Err expression",
+			code: code`new Err("x");`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void err("x");` }],
+					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void new Err("x");` }],
 				},
 			],
 		},
 		{
 			name: "chain still produces Result (map), unused",
-			code: code`ok(1).map(x => x + 1);`,
+			code: code`new Ok(1).map(x => x + 1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
-						{ messageId: MessageId.ADD_VOID, output: code`void ok(1).map(x => x + 1);` },
+						{ messageId: MessageId.ADD_VOID, output: code`void new Ok(1).map(x => x + 1);` },
 					],
 				},
 			],
 		},
 		{
-			name: "bare okAsync() expression",
-			code: code`okAsync(1);`,
-			errors: [
-				{
-					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void okAsync(1);` }],
-				},
-			],
-		},
-		{
-			name: "function returning Result, unused",
-			code: code`function getResult(): Result<number, string> { return ok(1); } getResult();`,
+			name: "bare Pending expression from Result.try",
+			code: code`Result.try(async () => 1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`function getResult(): Result<number, string> { return ok(1); } void getResult();`,
+							output: code`void Result.try(async () => 1);`,
 						},
 					],
 				},
 			],
 		},
 		{
-			name: "awaited okAsync produces Result, unused",
-			code: code`async function f() { await okAsync(1); }`,
+			name: "function returning Settled, unused",
+			code: code`function getResult(): Settled<number, string> { return new Ok(1); } getResult();`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`async function f() { void await okAsync(1); }`,
+							output: code`function getResult(): Settled<number, string> { return new Ok(1); } void getResult();`,
+						},
+					],
+				},
+			],
+		},
+		{
+			name: "awaited Pending produces Settled, unused",
+			code: code`async function f() { await Result.try(async () => 1); }`,
+			errors: [
+				{
+					messageId: MessageId.UNUSED_RESULT,
+					suggestions: [
+						{
+							messageId: MessageId.ADD_VOID,
+							output: code`async function f() { void await Result.try(async () => 1); }`,
 						},
 					],
 				},
@@ -142,36 +147,41 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		},
 		{
 			name: "chain producing Result (mapErr), unused",
-			code: code`ok(1).mapErr(e => e);`,
+			code: code`new Ok(1).mapErr(e => e);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
-						{ messageId: MessageId.ADD_VOID, output: code`void ok(1).mapErr(e => e);` },
+						{ messageId: MessageId.ADD_VOID, output: code`void new Ok(1).mapErr(e => e);` },
 					],
 				},
 			],
 		},
 		{
-			name: "bare errAsync() expression",
-			code: code`errAsync("x");`,
-			errors: [
-				{
-					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void errAsync("x");` }],
-				},
-			],
-		},
-		{
-			name: "Result with ts as-cast, unused",
-			code: code`ok(1) as Result<number, never>;`,
+			name: "bare Pending identifier expression",
+			code: code`declare const pending: Pending<number, string>;\npending;`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`void (ok(1) as Result<number, never>);`,
+							output: code`declare const pending: Pending<number, string>;\nvoid pending;`,
+						},
+					],
+				},
+			],
+		},
+		{
+			name: "Result with ts as-cast, unused",
+			code: code`new Ok(1) as Settled<number, never>;`,
+			errors: [
+				{
+					messageId: MessageId.UNUSED_RESULT,
+					suggestions: [
+						{
+							messageId: MessageId.ADD_VOID,
+							output: code`void (new Ok(1) as Settled<number, never>);`,
 						},
 					],
 				},
@@ -179,14 +189,14 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		},
 		{
 			name: "Result with non-null assertion, unused",
-			code: code`declare const r: Result<number, string> | undefined;\nr!;`,
+			code: code`declare const r: Settled<number, string> | undefined;\nr!;`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`declare const r: Result<number, string> | undefined;\nvoid r!;`,
+							output: code`declare const r: Settled<number, string> | undefined;\nvoid r!;`,
 						},
 					],
 				},
@@ -194,14 +204,14 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		},
 		{
 			name: "optional chain producing Result, unused",
-			code: code`declare const o: { f(): Result<number, string> } | undefined;\no?.f();`,
+			code: code`declare const o: { f(): Settled<number, string> } | undefined;\no?.f();`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`declare const o: { f(): Result<number, string> } | undefined;\nvoid o?.f();`,
+							output: code`declare const o: { f(): Settled<number, string> } | undefined;\nvoid o?.f();`,
 						},
 					],
 				},
@@ -209,14 +219,14 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		},
 		{
 			name: "ternary with both branches producing Result",
-			code: code`declare const cond: boolean;\ncond ? ok(1) : ok(2);`,
+			code: code`declare const cond: boolean;\ncond ? new Ok(1) : new Ok(2);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`declare const cond: boolean;\nvoid (cond ? ok(1) : ok(2));`,
+							output: code`declare const cond: boolean;\nvoid (cond ? new Ok(1) : new Ok(2));`,
 						},
 					],
 				},
@@ -225,7 +235,7 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`declare const cond: boolean;\nvoid (cond ? ok(1) : ok(2));`,
+							output: code`declare const cond: boolean;\nvoid (cond ? new Ok(1) : new Ok(2));`,
 						},
 					],
 				},
@@ -233,24 +243,24 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		},
 		{
 			name: "logical AND producing Result",
-			code: code`true && ok(1);`,
+			code: code`true && new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void (true && ok(1));` }],
+					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void (true && new Ok(1));` }],
 				},
 			],
 		},
 		{
 			name: "comma operator with non-final Result discarded",
-			code: code`ok(1), console.log("hi");`,
+			code: code`new Ok(1), console.log("hi");`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`void (ok(1), console.log("hi"));`,
+							output: code`void (new Ok(1), console.log("hi"));`,
 						},
 					],
 				},
@@ -258,24 +268,26 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		},
 		{
 			name: "logical OR producing Result",
-			code: code`false || ok(1);`,
+			code: code`false || new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void (false || ok(1));` }],
+					suggestions: [
+						{ messageId: MessageId.ADD_VOID, output: code`void (false || new Ok(1));` },
+					],
 				},
 			],
 		},
 		{
 			name: "nullish coalescing producing Result",
-			code: code`declare const cond: null | number;\ncond ?? ok(1);`,
+			code: code`declare const cond: null | number;\ncond ?? new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`declare const cond: null | number;\nvoid (cond ?? ok(1));`,
+							output: code`declare const cond: null | number;\nvoid (cond ?? new Ok(1));`,
 						},
 					],
 				},
@@ -283,44 +295,44 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		},
 		{
 			name: "unary operator + on Result",
-			code: code`+ ok(1);`,
+			code: code`+ new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void + ok(1);` }],
+					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void + new Ok(1);` }],
 				},
 			],
 		},
 		{
 			name: "unary operator - on Result",
-			code: code`- ok(1);`,
+			code: code`- new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void - ok(1);` }],
+					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void - new Ok(1);` }],
 				},
 			],
 		},
 		{
 			name: "unary operator ! on Result",
-			code: code`! ok(1);`,
+			code: code`! new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void ! ok(1);` }],
+					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void ! new Ok(1);` }],
 				},
 			],
 		},
 		{
 			name: "unary operator ~ on Result",
-			code: code`~ ok(1);`,
+			code: code`~ new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
 					suggestions: [
 						{
 							messageId: MessageId.ADD_VOID,
-							output: code`void ~ ok(1);`,
+							output: code`void ~ new Ok(1);`,
 						},
 					],
 				},
@@ -328,21 +340,21 @@ ruleTester.run("no-unused-result", noUnusedResult, {
 		},
 		{
 			name: "unary operator typeof on Result",
-			code: code`typeof ok(1);`,
+			code: code`typeof new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void typeof ok(1);` }],
+					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void typeof new Ok(1);` }],
 				},
 			],
 		},
 		{
 			name: "unary operator delete on Result",
-			code: code`delete ok(1);`,
+			code: code`delete new Ok(1);`,
 			errors: [
 				{
 					messageId: MessageId.UNUSED_RESULT,
-					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void delete ok(1);` }],
+					suggestions: [{ messageId: MessageId.ADD_VOID, output: code`void delete new Ok(1);` }],
 				},
 			],
 		},

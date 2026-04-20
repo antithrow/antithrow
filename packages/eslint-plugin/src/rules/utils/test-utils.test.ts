@@ -3,9 +3,9 @@ import { createCodeHelper } from "./test-utils.js";
 
 describe("createCodeHelper", () => {
 	test("prepends the preamble to static template content", () => {
-		const code = createCodeHelper('import { ok } from "antithrow/legacy";\n');
+		const code = createCodeHelper('import { Ok } from "antithrow";\n');
 
-		expect(code`ok(1);`).toBe('import { ok } from "antithrow/legacy";\nok(1);');
+		expect(code`new Ok(1);`).toBe('import { Ok } from "antithrow";\nnew Ok(1);');
 	});
 
 	test("interpolates values in order and stringifies non-string values", () => {

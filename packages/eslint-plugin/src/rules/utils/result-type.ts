@@ -1,6 +1,6 @@
 import ts from "typescript";
 
-const RESULT_TYPE_NAMES = new Set(["Ok", "Err", "ResultAsync"]);
+const RESULT_TYPE_NAMES = new Set(["Ok", "Err", "Pending"]);
 const FIXABLE_OK_TYPE_NAMES = new Set(["Ok"]);
 const FIXABLE_ERR_TYPE_NAMES = new Set(["Err"]);
 export const NULLISH_TYPE_FLAGS = ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void;
@@ -13,7 +13,7 @@ export const ResultVariant = {
 } as const;
 export type ResultVariant = (typeof ResultVariant)[keyof typeof ResultVariant];
 
-function isAntithrowLegacySourceFile(sourceFileName: string): boolean {
+function isAntithrowSourceFile(sourceFileName: string): boolean {
 	const pathSegments = sourceFileName.replaceAll("\\", "/").split("/");
 
 	for (const [index, segment] of pathSegments.entries()) {
@@ -21,7 +21,7 @@ function isAntithrowLegacySourceFile(sourceFileName: string): boolean {
 			continue;
 		}
 
-		if (pathSegments.slice(index + 1).includes("legacy")) {
+		if (!pathSegments.slice(index + 1).includes("legacy")) {
 			return true;
 		}
 	}
@@ -29,7 +29,7 @@ function isAntithrowLegacySourceFile(sourceFileName: string): boolean {
 	return false;
 }
 
-function isAntithrowLegacyResultTypeSymbol(symbol: ts.Symbol): boolean {
+function isAntithrowResultTypeSymbol(symbol: ts.Symbol): boolean {
 	if (!RESULT_TYPE_NAMES.has(symbol.getName())) {
 		return false;
 	}
@@ -38,7 +38,7 @@ function isAntithrowLegacyResultTypeSymbol(symbol: ts.Symbol): boolean {
 
 	return declarations.some((decl) => {
 		const sourceFile = decl.getSourceFile();
-		return isAntithrowLegacySourceFile(sourceFile.fileName);
+		return isAntithrowSourceFile(sourceFile.fileName);
 	});
 }
 
@@ -62,7 +62,7 @@ function collectResultTypes(type: ts.Type, collection: ResultTypeCollection): vo
 	}
 
 	const symbol = type.getSymbol();
-	if (!(symbol && isAntithrowLegacyResultTypeSymbol(symbol))) {
+	if (!(symbol && isAntithrowResultTypeSymbol(symbol))) {
 		collection.hasNonResultMembers = true;
 		return;
 	}
@@ -86,7 +86,7 @@ export function getResultVariant(type: ts.Type): ResultVariant {
 		return ResultVariant.MIXED;
 	}
 
-	if (names.has("ResultAsync")) {
+	if (names.has("Pending")) {
 		return ResultVariant.MIXED;
 	}
 
@@ -104,11 +104,12 @@ export function getResultVariant(type: ts.Type): ResultVariant {
 /**
  * Determines whether a type originates from antithrow's `Result` family.
  *
- * `Result<T, E>` is a union of `Ok<T, E> | Err<T, E>`, so we recurse into
- * union members. We also guard against `any`/`unknown`/`never` to avoid
- * false positives on untyped code. Finally, we verify the symbol's
- * declaration lives inside the `antithrow/legacy` entrypoint so that unrelated
- * types with the same names (e.g. a user-defined `Ok` class) are not flagged.
+ * `Result<T, E>` is a union of `Ok<T, E> | Err<T, E> | Pending<T, E>`, so we
+ * recurse into union members. We also guard against `any`/`unknown`/`never` to
+ * avoid false positives on untyped code. Finally, we verify the symbol's
+ * declaration lives inside the root `antithrow` entrypoint (excluding the
+ * `antithrow/legacy` subpath) so that unrelated types with the same names
+ * (e.g. a user-defined `Ok` class or the legacy `Ok`) are not flagged.
  */
 export function isResultType(type: ts.Type): boolean {
 	return getResultVariant(type) !== ResultVariant.NONE;
