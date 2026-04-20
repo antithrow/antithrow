@@ -17,10 +17,10 @@ function validate<S extends StandardSchemaV1>(
 	schema: S,
 	value: unknown,
 	options?: StandardSchemaV1.Options,
-): ResultAsync<StandardSchemaV1.InferOutput<S>, StandardSchemaV1.FailureResult>;
+): Result<StandardSchemaV1.InferOutput<S>, StandardSchemaV1.FailureResult>;
 ```
 
-Always returns a `ResultAsync` because Standard Schema validators may be synchronous or asynchronous. Exceptions thrown or promise rejections from the validator are converted into a synthetic `FailureResult` with a single issue carrying the error message.
+Returns a `Result`. Synchronous validators settle immediately as `Ok` or `Err`; asynchronous validators return `Pending`, and `await validate(...)` yields a `Settled`. Exceptions thrown or promise rejections from the validator are converted into a synthetic `FailureResult` with a single issue carrying the error message.
 
 ## `validateSync(schema, value, options?)`
 
@@ -29,10 +29,10 @@ function validateSync<S extends StandardSchemaV1>(
 	schema: S,
 	value: unknown,
 	options?: StandardSchemaV1.Options,
-): Result<StandardSchemaV1.InferOutput<S>, StandardSchemaV1.FailureResult>;
+): Settled<StandardSchemaV1.InferOutput<S>, StandardSchemaV1.FailureResult>;
 ```
 
-Synchronous variant. Exceptions thrown by the validator are converted into a synthetic `FailureResult`.
+Synchronous variant. Returns a settled `Ok` or `Err`. Exceptions thrown by the validator are converted into a synthetic `FailureResult`.
 
 ## `StandardSchemaV1.FailureResult`
 

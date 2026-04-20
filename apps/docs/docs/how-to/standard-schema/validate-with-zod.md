@@ -43,7 +43,7 @@ const result = await validate(UserSchema, input);
 
 ## Sync vs async
 
-Zod supports `async` refinements (e.g. `.refine(async (v) => ...)`). `validate` handles both. If you know your schema has no async pieces, `validateSync` avoids the `await`.
+Zod supports `async` refinements (e.g. `.refine(async (v) => ...)`). `validate` handles both: sync schemas settle immediately, async schemas return `Pending` until awaited. If you know your schema has no async pieces, `validateSync` returns a settled result without the `await`.
 
 ## See also
 

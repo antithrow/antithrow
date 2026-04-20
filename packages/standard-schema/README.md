@@ -15,17 +15,18 @@ Schema validation libraries like [Zod](https://zod.dev), [Valibot](https://valib
 [ArkType](https://arktype.io) all implement the
 [Standard Schema](https://github.com/standard-schema/standard-schema) spec.
 `@antithrow/standard-schema` wraps any Standard Schema–conforming validator so validation
-results come back as `Result` / `ResultAsync` instead of raw success/failure objects.
+results come back as `Result` / `Settled` instead of raw success/failure objects.
 
 ```ts
 import { validate } from "@antithrow/standard-schema";
 import { z } from "zod";
 
 const result = await validate(z.string().email(), input);
-result.match({
-  ok: (email) => console.log("valid:", email),
-  err: ({ issues }) => console.error("invalid:", issues),
-});
+if (result.isOk()) {
+	console.log("valid:", result.value);
+} else {
+	console.error("invalid:", result.error.issues);
+}
 ```
 
 ## Installation
@@ -38,8 +39,8 @@ bun add @antithrow/standard-schema
 
 ### Async validation (recommended)
 
-`validate` always returns a `ResultAsync` because Standard Schema validators may be
-synchronous or asynchronous — the caller doesn't need to know which.
+`validate` returns a `Result`. Sync schemas settle immediately as `Ok` or `Err`;
+async schemas return `Pending`, and `await validate(...)` yields a `Settled` result.
 
 ```ts
 import { validate } from "@antithrow/standard-schema";
@@ -50,7 +51,7 @@ const value = result.unwrapOr(fallback);
 
 ### Synchronous validation
 
-`validateSync` returns a plain `Result`. It throws `TypeError` if the schema's
+`validateSync` returns a `Settled` result. It throws `TypeError` if the schema's
 `validate` method returns a `Promise`.
 
 ```ts
@@ -71,9 +72,6 @@ const result = await validate(throwingSchema, input);
 // Err({ issues: [{ message: "..." }] })
 ```
 
-## API Reference
+## Reference
 
-| Export         | Signature                                                                | Returns       |
-| -------------- | ------------------------------------------------------------------------ | ------------- |
-| `validate`     | `(schema, value, options?) → ResultAsync<InferOutput<S>, FailureResult>` | `ResultAsync` |
-| `validateSync` | `(schema, value, options?) → Result<InferOutput<S>, FailureResult>`      | `Result`      |
+Full reference: <https://antithrow.dev/docs/reference/standard-schema>
