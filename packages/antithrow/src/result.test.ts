@@ -1128,6 +1128,21 @@ describe("Result", () => {
 			expectTypeOf(result).toEqualTypeOf<Pending<number, string>>();
 		});
 
+		it("returns Result type when callback may return a sync or async value", () => {
+			const syncResult = Result.try<number, string>(() => 42);
+			const asyncResult = Result.try<number, string>(async () => 42);
+			const maybeAsync = (async: boolean): number | PromiseLike<number> =>
+				async ? Promise.resolve(42) : 42;
+
+			const result = Result.try<number, string>(() => maybeAsync(false));
+
+			expect(result.isOk()).toBeTrue();
+			expect(result.unwrap()).toBe(42);
+			expectTypeOf(syncResult).toEqualTypeOf<Settled<number, string>>();
+			expectTypeOf(asyncResult).toEqualTypeOf<Pending<number, string>>();
+			expectTypeOf(result).toEqualTypeOf<Result<number, string>>();
+		});
+
 		it("returns Pending wrapping Err when callback returns a rejected PromiseLike", () => {
 			const result = Result.try<number, string>(async () => {
 				throw "failed";
