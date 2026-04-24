@@ -87,7 +87,7 @@ export const JSON = {
 		text: string,
 		reviver?: (this: unknown, key: string, value: unknown) => unknown,
 	): Settled<T, SyntaxError> {
-		return Result.try(() => globalThis.JSON.parse(text, reviver) as T);
+		return Result.try(() => globalThis.JSON.parse(text, reviver));
 	},
 
 	stringify,

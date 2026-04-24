@@ -1,5 +1,5 @@
 import type { Settled } from "antithrow";
-import { Result } from "antithrow";
+import { Err, Ok } from "antithrow";
 
 /**
  * Non-throwing wrapper around `globalThis.structuredClone(...)`.
@@ -26,5 +26,9 @@ export function structuredClone<T>(
 	value: T,
 	options?: StructuredSerializeOptions,
 ): Settled<T, DOMException> {
-	return Result.try(() => globalThis.structuredClone(value, options));
+	try {
+		return new Ok(globalThis.structuredClone(value, options));
+	} catch (error) {
+		return new Err(error as DOMException);
+	}
 }

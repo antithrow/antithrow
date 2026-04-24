@@ -1,7 +1,7 @@
 import { Err } from "./err.js";
 import { Ok } from "./ok.js";
 import { Pending } from "./pending.js";
-import type { InferErr, Settled, SyncOrAsync } from "./types.js";
+import type { InferErr, NonThenable, Settled, SyncOrAsync } from "./types.js";
 import { isThenable } from "./utils.js";
 
 /**
@@ -30,7 +30,8 @@ function fromPromise<T, E>(promise: PromiseLike<T>): Pending<T, E> {
 }
 
 function resultTry<T, E>(fn: () => PromiseLike<T>): Pending<T, E>;
-function resultTry<T, E>(fn: () => T): Settled<T, E>;
+function resultTry<T, E>(fn: () => NonThenable<T>): Settled<T, E>;
+function resultTry<T, E>(fn: () => SyncOrAsync<T>): Result<T, E>;
 function resultTry<T, E>(fn: () => SyncOrAsync<T>): Result<T, E> {
 	try {
 		const value = fn();
