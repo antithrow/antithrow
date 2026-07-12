@@ -1,5 +1,14 @@
 # @antithrow/std
 
+## 2.0.1
+
+### Patch Changes
+
+- [#188](https://github.com/antithrow/antithrow/pull/188) [`a82b663`](https://github.com/antithrow/antithrow/commit/a82b6634c9e7b5f11bcbae52336aca2507e14594) Thanks [@jack-weilage](https://github.com/jack-weilage)! - Fix `structuredClone` by using an explicit synchronous `try`/`catch`, preserving its `Settled` return type even for promise-like values.
+
+- Updated dependencies [[`d9b2c1a`](https://github.com/antithrow/antithrow/commit/d9b2c1ac622699ee8cc7c718e9ee3b47d96b9221)]:
+  - antithrow@3.0.1
+
 ## 2.0.0
 
 ### Major Changes
