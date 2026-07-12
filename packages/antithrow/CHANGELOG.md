@@ -1,5 +1,11 @@
 # antithrow
 
+## 3.0.1
+
+### Patch Changes
+
+- [#188](https://github.com/antithrow/antithrow/pull/188) [`d9b2c1a`](https://github.com/antithrow/antithrow/commit/d9b2c1ac622699ee8cc7c718e9ee3b47d96b9221) Thanks [@jack-weilage](https://github.com/jack-weilage)! - Fix `Result.try` overload typing for callbacks that may return either a sync value or a `PromiseLike`, preserving precise sync and async inference while widening maybe-async callbacks to `Result`.
+
 ## 3.0.0
 
 ### Major Changes
